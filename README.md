@@ -6,7 +6,7 @@ Convert Attachments to Chatter Files
        src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/src/main/webapp/resources/img/deploy.png">
 </a>
 
-A batchable apex class that converts attachments into chatter files to take advantage of more sophisticated sharing and file revisions.
+A batchable apex class that converts attachments into chatter files to take advantage of more sophisticated sharing and file revisions. Read my [blog post](https://douglascayers.wordpress.com/2015/10/10/salesforce-convert-attachments-to-chatter-files/) on the topic.
 
 
 Usage
