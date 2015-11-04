@@ -13,8 +13,8 @@ Usage
 -----
 In Salesforce, open the Developer Console and run this anonymous apex snippet:
 
-`Database.executeBatch( new ConvertAttachmentsToFilesBatchable(), 100 );`
-`Database.executeBatch( new ConvertNotesToContentNotesBatchable(), 100 );`
+    Database.executeBatch( new ConvertAttachmentsToFilesBatchable(), 100 );
+    Database.executeBatch( new ConvertNotesToContentNotesBatchable(), 100 );
 
 If you run into governor limits, you may need to reduce the batch size.
 
