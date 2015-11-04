@@ -1,12 +1,12 @@
-Convert Attachments to Chatter Files
-====================================
+Convert Notes & Attachments to Chatter Files
+============================================
 
 <a href="https://githubsfdeploy.herokuapp.com?owner=douglascayers&repo=sfdc-convert-attachments-to-chatter-files">
   <img alt="Deploy to Salesforce"
        src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/src/main/webapp/resources/img/deploy.png">
 </a>
 
-A batchable apex class that converts attachments into chatter files to take advantage of more sophisticated sharing and file revisions. Read my [blog post](https://douglascayers.wordpress.com/2015/10/10/salesforce-convert-attachments-to-chatter-files/) on the topic.
+Batchable apex classes that convert notes and attachments into chatter files to take advantage of rich-text, more sophisticated sharing and file revisions. Read my [blog post](https://douglascayers.wordpress.com/2015/10/10/salesforce-convert-attachments-to-chatter-files/) on the topic.
 
 
 Usage
@@ -16,7 +16,7 @@ In Salesforce, open the Developer Console and run this anonymous apex snippet:
 `Database.executeBatch( new ConvertAttachmentsToFilesBatchable(), 100 );`
 `Database.executeBatch( new ConvertNotesToContentNotesBatchable(), 100 );`
 
-If you run into governor limits, you may need to reduce the batch size from 200.
+If you run into governor limits, you may need to reduce the batch size.
 
 
 Background
@@ -30,9 +30,12 @@ Migrating to Files instead of Attachments is a good idea because Chatter Files
 provide you much more capabilities around sharing the file with other users, groups, and records.
 It also supports file previews and revisions. It is the future of managing content in Salesforce.
 
+Furthermore, Salesforce released new Notes feature that supports rich-text and the same sharing capabilities as Chatter Files. In fact, the new Notes feature is built on top of the same Chatter Files technology!
+
 Learn more at:
 * http://docs.releasenotes.salesforce.com/en-us/winter16/release-notes/rn_chatter_files_related_list.htm#topic-title
 * https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentversion.htm
+* http://docs.releasenotes.salesforce.com/en-us/winter16/release-notes/notes_admin_setup.htm
 
 Example page layout with the new **Files** and **Notes** related lists added:
 ![screenshot](/images/related-lists-pre-conversion.png)
@@ -45,8 +48,8 @@ Pre-Requisites
 To simplify the conversion code, two custom fields need to be added to the ContentVersion object to store the original attachment id and its parent id. **If you click the Deploy to Salesforce button above then these fields are created for you.**
 
 1. Go to **Setup | Customize | Salesforce Files | Fields**
-2. Create new field Text(255) named **Original Attachment ID**
-3. Create new field Text(255) named **Original Attachment Parent ID**
+2. Create new field Text(255) named **Original Record ID**
+3. Create new field Text(255) named **Original Record Parent ID**
 
 ![screenshot](/images/content-version-custom-fields.png)
 
