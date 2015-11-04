@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <fields>
-        <fullName>Original_Attachment_ID__c</fullName>
-        <description>The original attachment id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</description>
+        <fullName>Original_Record_ID__c</fullName>
+        <description>The original note or attachment id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</description>
         <externalId>false</externalId>
-        <inlineHelpText>The original attachment id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</inlineHelpText>
+        <inlineHelpText>The original note or attachment id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</inlineHelpText>
         <label>Original Attachment ID</label>
         <length>255</length>
         <required>false</required>
@@ -13,10 +13,10 @@
         <unique>false</unique>
     </fields>
     <fields>
-        <fullName>Original_Attachment_Parent_ID__c</fullName>
-        <description>The original attachment parent id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</description>
+        <fullName>Original_Record_Parent_ID__c</fullName>
+        <description>The original note or attachment parent id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</description>
         <externalId>false</externalId>
-        <inlineHelpText>The original attachment parent id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</inlineHelpText>
+        <inlineHelpText>The original note or attachment parent id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</inlineHelpText>
         <label>Original Attachment Parent ID</label>
         <length>255</length>
         <required>false</required>

@@ -5,8 +5,8 @@
         <name>ApexClass</name>
     </types>
     <types>
-        <members>ContentVersion.Original_Attachment_ID__c</members>
-        <members>ContentVersion.Original_Attachment_Parent_ID__c</members>
+        <members>ContentVersion.Original_Record_ID__c</members>
+        <members>ContentVersion.Original_Record_Parent_ID__c</members>
         <name>CustomField</name>
     </types>
     <version>34.0</version>

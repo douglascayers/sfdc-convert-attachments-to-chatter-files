@@ -16,8 +16,8 @@
  * 1. To simplify the conversion code, two custom fields need to be added
  *    to the ContentVersion object to store the original attachment id and its parent id.
  *    a. Go to Setup | Customize | Salesforce Files | Fields
- *    b. Create new field Text(255) named "Original Attachment ID" with API name "Original_Attachment_ID__c"
- *    c. Create new field Text(255) named "Original Attachment Parent ID" with API name "Original_Attachment_Parent_ID__c"
+ *    b. Create new field Text(255) named "Original Attachment ID" with API name "original_record_ID__c"
+ *    c. Create new field Text(255) named "Original Attachment Parent ID" with API name "original_record_Parent_ID__c"
  *
  * -------------------
  * Questions & Answers
@@ -45,7 +45,7 @@ public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SO
 
     public Database.QueryLocator start( Database.BatchableContext context ) {
         System.debug( 'Starting: ' + context );
-        return Database.getQueryLocator( 'SELECT id, name, parentId, body, description FROM Attachment' );
+        return Database.getQueryLocator( 'SELECT id, ownerId, parentId, name, body, description FROM Attachment' );
     }
 
     public void execute( Database.BatchableContext context, List<Attachment> attachments ) {
@@ -67,13 +67,28 @@ public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SO
                 description = attachment.description,
                 pathOnClient = '/' + attachment.name,
                 // custom fields for history tracking and conversion purposes
-                original_attachment_id__c = attachment.id,
-                original_attachment_parent_id__c = attachment.parentId
+                original_record_id__c = attachment.id,
+                original_record_parent_id__c = attachment.parentId
             ));
 
         }
 
         insert contentVersions;
+
+        // create a map of content version ids to attachment record
+        // this will be used later on when creating the content document links
+        // to share the new file with the attachments parent entity and owner.
+        // We build this map here using the loop because at this point in the code
+        // we are guaranteed that the index of both lists reference the "same" attachment/file
+        Map<ID, Attachment> contentVersionToAttachmentsMap = new Map<ID, Attachment>();
+        for ( Integer i = 0; i < contentVersions.size(); i++ ) {
+            contentVersionToAttachmentsMap.put(
+                contentVersions[i].id,
+                attachments[i]
+            );
+        }
+
+        System.debug( 'contentVersionToAttachmentsMap = ' + contentVersionToAttachmentsMap );
 
         /*
          * Step 2
@@ -83,9 +98,7 @@ public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SO
 
         contentVersions = [
             SELECT
-                id, contentDocumentId,
-                original_attachment_id__c,
-                original_attachment_parent_id__c
+                id, contentDocumentId
             FROM
                 ContentVersion
             WHERE
@@ -102,11 +115,26 @@ public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SO
 
         for ( ContentVersion contentVersion : contentVersions ) {
 
+            Attachment attachment = contentVersionToAttachmentsMap.get( contentVersion.id );
+
+            // share the new file with the same parent entity of the old attachment
             contentDocumentLinks.add( new ContentDocumentLink(
-                linkedEntityId = contentVersion.original_attachment_parent_id__c,
+                linkedEntityId = attachment.parentId,
                 contentDocumentId = contentVersion.contentDocumentId,
                 shareType = 'V'
             ));
+
+            // by default, the current user will be the owner of the new file
+            // so we need to make sure we aren't trying to redundantly share
+            // access to this record with the same user else get error:
+            // "INSUFFICIENT_ACCESS_OR_READONLY, Invalid sharing type C"
+            if ( UserInfo.getUserId() != attachment.ownerId ) {
+                contentDocumentLinks.add( new ContentDocumentLink(
+                    linkedEntityId = attachment.ownerId,
+                    contentDocumentId = contentVersion.contentDocumentId,
+                    shareType = 'C'
+                ));
+            }
 
         }
 
