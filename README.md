@@ -1,13 +1,14 @@
 Convert Notes & Attachments to Chatter Files
 ============================================
 
-<a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04tj0000001aZiP">
-  <img alt="Deploy to Salesforce"
-       src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/src/main/webapp/resources/img/deploy.png">
-</a>
-
 Batchable apex classes that convert notes and attachments into chatter files to take advantage of rich-text, more sophisticated sharing and file revisions. Read my [blog post](https://douglascayers.wordpress.com/2015/10/10/salesforce-convert-attachments-to-chatter-files/) on the topic.
 
+
+Installation
+------------
+You can easily install these components to your org as an unmanaged package.
+* [Production URL](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tj0000001aZiP)
+* [Sandbox URL](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tj0000001aZiP)
 
 Usage
 -----
