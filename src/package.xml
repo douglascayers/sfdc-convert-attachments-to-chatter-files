@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
-        <members>*</members>
+        <members>ConvertAttachmentsToFilesBatchable</members>
+        <members>ConvertAttachmentsToFilesBatchableTest</members>
+        <members>ConvertNotesToContentNotesBatchable</members>
+        <members>ConvertNotesToContentNotesBatchableTest</members>
         <name>ApexClass</name>
     </types>
     <types>
@@ -9,5 +12,5 @@
         <members>ContentVersion.Original_Record_Parent_ID__c</members>
         <name>CustomField</name>
     </types>
-    <version>34.0</version>
+    <version>36.0</version>
 </Package>

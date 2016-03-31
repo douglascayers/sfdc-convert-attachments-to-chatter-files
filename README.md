@@ -18,6 +18,13 @@ In Salesforce, open the Developer Console and run this anonymous apex snippet:
 
 If you run into governor limits, you may need to reduce the batch size.
 
+You can also optionally choose to delete the original notes and attachments upon conversion.
+Pass the boolean value `true` into the batchable class constructor to enable deletion.
+
+    Boolean deleteUponConversion = true;
+    Database.executeBatch( new ConvertAttachmentsToFilesBatchable( deleteUponConversion ), 100 );
+    Database.executeBatch( new ConvertNotesToContentNotesBatchable( deleteUponConversion ), 100 );
+
 
 Background
 ----------

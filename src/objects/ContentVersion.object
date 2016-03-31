@@ -3,9 +3,9 @@
     <fields>
         <fullName>Original_Record_ID__c</fullName>
         <description>The original note or attachment id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</description>
-        <externalId>false</externalId>
+        <externalId>true</externalId>
         <inlineHelpText>The original note or attachment id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</inlineHelpText>
-        <label>Original Attachment ID</label>
+        <label>Original Record ID</label>
         <length>255</length>
         <required>false</required>
         <trackHistory>false</trackHistory>
@@ -15,9 +15,9 @@
     <fields>
         <fullName>Original_Record_Parent_ID__c</fullName>
         <description>The original note or attachment parent id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</description>
-        <externalId>false</externalId>
+        <externalId>true</externalId>
         <inlineHelpText>The original note or attachment parent id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</inlineHelpText>
-        <label>Original Attachment Parent ID</label>
+        <label>Original Record Parent ID</label>
         <length>255</length>
         <required>false</required>
         <trackHistory>false</trackHistory>

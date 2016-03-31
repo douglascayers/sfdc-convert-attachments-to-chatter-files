@@ -1,51 +1,43 @@
 /**
- * Converts existing Attachments into ContentVersion records (aka Chatter Files).
+ * Converts standard Attachments into fancy Chatter Files.
+ * If desired, you may choose to have the old attachments deleted upon conversion.
+ * By default the original attachment records will not be deleted and continue to take up storage.
  *
- * ----------
- * Background
- * ----------
- * In the Winter 16 release, Salesforce introduces a new related list called Files.
- * This new related list specifically shows only Chatter Files shared to the record.
- * Seeing as this is the future of Salesforce content, you may want to plan migrating
- * your existing Attachments to Chatter Files. That is the function of this class.
- * http://docs.releasenotes.salesforce.com/en-us/winter16/release-notes/rn_chatter_files_related_list.htm#topic-title
+ * Usage:
+ *      Database.executeBatch( new ConvertAttachmentsToFilesBatchable(), 200 );
  *
- * --------------
- * Pre-Requisites
- * --------------
- * 1. To simplify the conversion code, two custom fields need to be added
- *    to the ContentVersion object to store the original attachment id and its parent id.
- *    a. Go to Setup | Customize | Salesforce Files | Fields
- *    b. Create new field Text(255) named "Original Attachment ID" with API name "original_record_ID__c"
- *    c. Create new field Text(255) named "Original Attachment Parent ID" with API name "original_record_Parent_ID__c"
+ *      Boolean deleteAttachmentsUponConversion = true;
+ *      Database.executeBatch( new ConvertAttachmentsToFilesBatchable( deleteAttachmentsUponConversion ), 200 );
  *
- * -------------------
- * Questions & Answers
- * -------------------
- * Q. Why would I want to do this?
- * A. Because Chatter Files provide you much more capabilities around sharing the file
- *    with other users, groups, and records. It also supports file previews and revisions.
- *    It is the future of managing content in Salesforce.
- *
- * Q. Where can I learn more about ContentVersion object?
- * A. https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentversion.htm
- *
- * Q. How do I run this class to convert the attachments?
- * A. In Salesforce, open the Developer Console and run this anonymous apex snippet:
- *        Database.executeBatch( new ConvertAttachmentsToFilesBatchable(), 200 );
- *    If you run into governor limits, you may need to reduce the batch size from 200.
- *
- * -------
- * Credits
- * -------
- * Code adapted from Chirag Mehta's post on stackoverflow.
- * http://stackoverflow.com/questions/11395148/related-content-stored-in-which-object-how-to-create-related-content-recor
+ * https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files
  */
 public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SObject> {
 
+    // should the Attachments be deleted upon conversion to ContentVersion?
+    // Deleting them reduces redundant data storage.
+    // Make sure you've backed up your data before enabling this.
+    private Boolean deleteAttachmentsUponConversion;
+
+    // Constructor
+    public ConvertAttachmentsToFilesBatchable() {
+        this( false );
+    }
+
+    // Constructor
+    public ConvertAttachmentsToFilesBatchable( Boolean deleteAttachmentsUponConversion ) {
+        this.deleteAttachmentsUponConversion = deleteAttachmentsUponConversion;
+    }
+
     public Database.QueryLocator start( Database.BatchableContext context ) {
+
         System.debug( 'Starting: ' + context );
-        return Database.getQueryLocator( 'SELECT id, ownerId, parentId, name, body, description FROM Attachment' );
+
+        return Database.getQueryLocator([
+            SELECT
+                id, ownerId, parentId, name, body, description
+            FROM
+                Attachment
+        ]);
     }
 
     public void execute( Database.BatchableContext context, List<Attachment> attachments ) {
@@ -105,6 +97,8 @@ public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SO
                 id IN :contentVersions
         ];
 
+        System.debug( 'contentVersions = ' + contentVersions );
+
         /*
          * Step 3
          * Create ContentDocumentLinks to share the new content
@@ -116,6 +110,9 @@ public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SO
         for ( ContentVersion contentVersion : contentVersions ) {
 
             Attachment attachment = contentVersionToAttachmentsMap.get( contentVersion.id );
+
+            System.debug( 'contentVersion = ' + contentVersion );
+            System.debug( 'oldAttachment = ' + attachment );
 
             // share the new file with the same parent entity of the old attachment
             contentDocumentLinks.add( new ContentDocumentLink(
@@ -138,12 +135,20 @@ public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SO
 
         }
 
+        System.debug( 'inserting content document links: ' + contentDocumentLinks );
         insert contentDocumentLinks;
+
+        if ( this.deleteAttachmentsUponConversion ) {
+            System.debug( 'deleting original attachments: ' + attachments );
+            delete attachments;
+        }
 
     }
 
     public void finish( Database.BatchableContext context ) {
+
         System.debug( 'Finishing: ' + context );
+
     }
 
 }
