@@ -1,11 +1,43 @@
+/**
+ * Converts standard Notes into fancy ContentNotes.
+ * If desired, you may choose to have the old notes deleted upon conversion.
+ * By default the original note records will not be deleted and continue to take up storage.
+ *
+ * Usage:
+ *      Database.executeBatch( new ConvertNotesToContentNotesBatchable(), 200 );
+ *
+ *      Boolean deleteNotesUponConversion = true;
+ *      Database.executeBatch( new ConvertNotesToContentNotesBatchable( deleteNotesUponConversion ), 200 );
+ *
+ * https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files
+ */
 public with sharing class ConvertNotesToContentNotesBatchable implements Database.Batchable<SObject> {
+
+    // should the Notes be deleted upon conversion to ContentNote?
+    // Deleting them reduces redundant data storage.
+    // Make sure you've backed up your data before enabling this.
+    private Boolean deleteNotesUponConversion;
+
+    // Constructor
+    public ConvertNotesToContentNotesBatchable() {
+        this( false );
+    }
+
+    // Constructor
+    public ConvertNotesToContentNotesBatchable( Boolean deleteNotesUponConversion ) {
+        this.deleteNotesUponConversion = deleteNotesUponConversion;
+    }
 
     public Database.QueryLocator start( Database.BatchableContext context ) {
 
         System.debug( 'Starting: ' + context );
 
-        return Database.getQueryLocator( 'SELECT id, ownerId, parentId, title, body FROM Note' );
-
+        return Database.getQueryLocator([
+            SELECT
+                id, ownerId, parentId, title, body
+            FROM
+                Note
+        ]);
     }
 
     public void execute( Database.BatchableContext context, List<Note> notes ) {
@@ -141,12 +173,17 @@ public with sharing class ConvertNotesToContentNotesBatchable implements Databas
         System.debug( 'updating content versions: ' + contentVersions );
         update contentVersions;
 
+        if ( this.deleteNotesUponConversion ) {
+            System.debug( 'deleting original notes: ' + notes );
+            delete notes;
         }
 
-        public void finish( Database.BatchableContext context ) {
+    }
 
-            System.debug( 'Finishing: ' + context );
+    public void finish( Database.BatchableContext context ) {
 
-        }
+        System.debug( 'Finishing: ' + context );
+
+    }
 
 }
