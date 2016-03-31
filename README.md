@@ -1,7 +1,7 @@
 Convert Notes & Attachments to Chatter Files
 ============================================
 
-<a href="https://githubsfdeploy.herokuapp.com?owner=douglascayers&repo=sfdc-convert-attachments-to-chatter-files">
+<a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04tj0000001aZiP">
   <img alt="Deploy to Salesforce"
        src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/src/main/webapp/resources/img/deploy.png">
 </a>
