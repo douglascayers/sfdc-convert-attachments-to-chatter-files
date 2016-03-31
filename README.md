@@ -50,15 +50,11 @@ Example page layout with the new **Files** and **Notes** related lists added:
 Example results after running the conversion code:
 ![screenshot](/images/related-lists-post-conversion.png)
 
+
 Pre-Requisites
 --------------
-To simplify the conversion code, two custom fields need to be added to the ContentVersion object to store the original attachment id and its parent id. **If you click the Deploy to Salesforce button above then these fields are created for you.**
-
-1. Go to **Setup | Customize | Salesforce Files | Fields**
-2. Create new field Text(255) named **Original Record ID**
-3. Create new field Text(255) named **Original Record Parent ID**
-
-![screenshot](/images/content-version-custom-fields.png)
+To install this package then you must have [enhanced notes enabled](http://docs.releasenotes.salesforce.com/en-us/winter16/release-notes/notes_admin_setup.htm).
+![screenshot](/images/notes-settings.png)
 
 
 Credits
