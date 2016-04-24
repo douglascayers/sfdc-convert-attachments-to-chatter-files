@@ -6,7 +6,8 @@ Batchable apex classes that convert notes and attachments into chatter files to 
 
 Installation
 ------------
-You can easily install these components to your org as an unmanaged package.
+You can easily install these components to your org straight from github or as an unmanaged package.
+* [Deploy from Github](https://githubsfdeploy.herokuapp.com)
 * [Production URL](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tj0000001aZiP)
 * [Sandbox URL](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tj0000001aZiP)
 
