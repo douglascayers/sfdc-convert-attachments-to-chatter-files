@@ -59,7 +59,7 @@ public with sharing class ConvertNotesToContentNotesBatchable implements Databas
             // that user as a 'collaborator' of this note so they can read/write it
             contentNotes.add( new ContentNote(
                 title = note.title,
-                content = Blob.valueOf( note.body )
+                content = Blob.valueOf( ( note.body == null ) ? '' : note.body )
             ));
 
         }
