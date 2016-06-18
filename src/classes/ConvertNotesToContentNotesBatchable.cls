@@ -57,7 +57,7 @@
  *
  * https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files
  */
-public with sharing class ConvertNotesToContentNotesBatchable implements Database.Batchable<SObject> {
+public with sharing class ConvertNotesToContentNotesBatchable implements Database.Batchable<SObject>, Database.Stateful {
 
     // Should the Notes be deleted upon conversion to ContentNote?
     // Deleting them reduces redundant data storage.
