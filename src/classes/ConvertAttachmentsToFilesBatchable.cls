@@ -56,7 +56,7 @@
  *
  * https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files
  */
-public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SObject> {
+public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SObject>, Database.Stateful {
 
     // Should the Attachments be deleted upon conversion to ContentVersion?
     // Deleting them reduces redundant data storage.
