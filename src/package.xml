@@ -9,6 +9,7 @@
     </types>
     <types>
         <members>ContentVersion.Original_Record_ID__c</members>
+        <members>ContentVersion.Original_Record_Owner_ID__c</members>
         <members>ContentVersion.Original_Record_Parent_ID__c</members>
         <name>CustomField</name>
     </types>
