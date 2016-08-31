@@ -137,9 +137,21 @@ public with sharing class ConvertNotesToContentNotesBatchable implements Databas
             // oddly, ContentNote object does not allow you to set OwnerId
             // nor can you set CreatedById or CreatedDate even with 'Create Audit Fields' permission
             // but we can update the generated ContentVersion record with original owner id later
+
+            // also, it's important that we escape special characters
+            // logic inspired by David Reed (http://www.ktema.org//2016/08/24/importing-notes-into-salesforce/)
+            // https://help.salesforce.com/apex/HTViewSolution?id=000230867&language=en_US
+            String noteBody = ( ( note.body == null ) ? '' : note.body )
+                .escapeXml()
+                .replace('\r\n', '<br>')
+                .replace('\r', '<br>')
+                .replace('\n', '<br>')
+                .replace('&apos;', '&#39;')
+            ;
+
             contentNotes.add( new ContentNote(
                 title = note.title,
-                content = Blob.valueOf( ( note.body == null ) ? '' : note.body )
+                content = Blob.valueOf( noteBody )
             ));
 
         }
