@@ -22,5 +22,9 @@
 		<members>Convert_Attachments_to_Files_Settings__c</members>
 		<name>CustomObject</name>
 	</types>
+	<types>
+		<members>ConvertAttachmentsToFilesTrigger</members>
+		<name>ApexTrigger</name>
+	</types>
 	<version>37.0</version>
 </Package>

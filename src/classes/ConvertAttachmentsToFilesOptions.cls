@@ -27,6 +27,10 @@ public class ConvertAttachmentsToFilesOptions {
     // Only the file owner and administrator will have access to the file.
     public Boolean convertIfFeedTrackingDisabledOnParentObject { get; set; }
 
+    // Should Attachments of EmailMessage records related to Cases be converted to Files?
+    // The File will belong at the Case level. Only applies to Incoming Emails for Email-to-Case.
+    public Boolean convertInboundEmailMessageAttachmentsToFilesOnCases { get; set; }
+
     // Scope the conversion to just attachments related to specific records
     // if null then ALL attachments in the system will be converted
     // if empty then NO attachments will be converted
@@ -37,6 +41,15 @@ public class ConvertAttachmentsToFilesOptions {
         this.deleteAttachmentsUponConversion = false;
         this.sharePrivateAttachmentsWithParentRecord = false;
         this.convertIfFeedTrackingDisabledOnParentObject = false;
+        this.convertInboundEmailMessageAttachmentsToFilesOnCases = false;
+        this.parentIds = null;
+    }
+
+    public ConvertAttachmentsToFilesOptions( Convert_Attachments_to_Files_Settings__c settings ) {
+        this.deleteAttachmentsUponConversion = settings.delete_attachment_once_converted__c;
+        this.sharePrivateAttachmentsWithParentRecord = settings.share_private_attachments__c;
+        this.convertIfFeedTrackingDisabledOnParentObject = settings.convert_if_feed_tracking_disabled__c;
+        this.convertInboundEmailMessageAttachmentsToFilesOnCases = settings.convert_inbound_email_attachments__c;
         this.parentIds = null;
     }
 

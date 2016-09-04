@@ -26,6 +26,7 @@ public class ConvertAttachmentsToFilesService {
 
         System.debug( '[ConvertAttachmentsToFilesService.convert] Options: ' + this.options );
 
+        List<ConversionRequest> conversionRequests = buildConversionRequests( attachments );
         List<ConversionResult> conversionResults = new List<ConversionResult>();
 
         /*
@@ -35,16 +36,17 @@ public class ConvertAttachmentsToFilesService {
          * records sharing the file with the parent record.
          */
 
-        List<Attachment> attachmentsToConvert = new List<Attachment>();
+        List<ConversionRequest> requestsToConvert = new List<ConversionRequest>();
 
-        for ( Attachment attachment : attachments ) {
+        for ( ConversionRequest request : conversionRequests ) {
 
+            Attachment attachment = request.attachment;
             SObjectType parentSObjectType = attachment.parentId.getSObjectType();
             DescribeSObjectResult parentDescribe = parentSObjectType.getDescribe();
 
             if ( parentDescribe.isFeedEnabled() || this.options.convertIfFeedTrackingDisabledOnParentObject ) {
 
-                attachmentsToConvert.add( attachment );
+                requestsToConvert.add( request );
 
             } else {
 
@@ -69,7 +71,9 @@ public class ConvertAttachmentsToFilesService {
 
         List<ContentVersion> contentVersions = new List<ContentVersion>();
 
-        for ( Attachment attachment : attachmentsToConvert ) {
+        for ( ConversionRequest request : requestsToConvert ) {
+
+            Attachment attachment = request.attachment;
 
             contentVersions.add( new ContentVersion(
                 versionData = attachment.body,
@@ -93,18 +97,18 @@ public class ConvertAttachmentsToFilesService {
         // to share the new file with the attachments parent entity and owner.
         // We build this map here using the loop because at this point in the code
         // we are guaranteed that the index of both lists reference the "same" attachment/file
-        Map<ID, Attachment> contentVersionToAttachmentsMap = new Map<ID, Attachment>();
+        Map<ID, ConversionRequest> contentVersionToAttachmentsMap = new Map<ID, ConversionRequest>();
         for ( Integer i = 0; i < contentVersions.size(); i++ ) {
 
             contentVersionToAttachmentsMap.put(
                 contentVersions[i].id,
-                attachmentsToConvert[i]
+                requestsToConvert[i]
             );
 
             ConversionResult result = new ConversionResult();
             result.success = true;
             result.contentVersionId = contentVersions[i].id;
-            result.attachmentId = attachmentsToConvert[i].id;
+            result.attachmentId = requestsToConvert[i].attachment.id;
 
             System.debug( '[ConvertAttachmentsToFilesService.convert] conversion result = ' + result );
 
@@ -142,7 +146,8 @@ public class ConvertAttachmentsToFilesService {
 
         for ( ContentVersion contentVersion : contentVersions ) {
 
-            Attachment attachment = contentVersionToAttachmentsMap.get( contentVersion.id );
+            ConversionRequest request = contentVersionToAttachmentsMap.get( contentVersion.id );
+            Attachment attachment = request.attachment;
 
             System.debug( '[ConvertAttachmentsToFilesService.convert] contentVersion = ' + contentVersion );
             System.debug( '[ConvertAttachmentsToFilesService.convert] oldAttachment = ' + attachment );
@@ -150,7 +155,7 @@ public class ConvertAttachmentsToFilesService {
             // retain original ownership
             contentVersion.ownerId = attachment.ownerId;
 
-            SObjectType parentSObjectType = attachment.parentId.getSObjectType();
+            SObjectType parentSObjectType = request.shareToEntityId.getSObjectType();
             DescribeSObjectResult parentDescribe = parentSObjectType.getDescribe();
 
             if ( parentDescribe.isFeedEnabled() ) {
@@ -161,20 +166,20 @@ public class ConvertAttachmentsToFilesService {
                     // share the new file with the same parent entity of the old attachment
                     // any user with visibility to this record has visibility to this file
                     contentDocumentLinks.add( new ContentDocumentLink(
-                        linkedEntityId = attachment.parentId,
+                        linkedEntityId = request.shareToEntityId,
                         contentDocumentId = contentVersion.contentDocumentId,
                         shareType = 'V'
                     ));
 
                 } else {
 
-                    System.debug( LoggingLevel.WARN, 'Not creating ContentDocumentLink to share ContentDocument (' + contentVersion.contentDocumentId + ') with Parent Record (' + attachment.parentId + ') because attachment record (' + attachment.id + ') is private. Either make attachment record not private or enable the [Share Private Attachments?] custom setting.' );
+                    System.debug( LoggingLevel.WARN, 'Not creating ContentDocumentLink to share ContentDocument (' + contentVersion.contentDocumentId + ') with Parent Record (' + request.shareToEntityId + ') because attachment record (' + attachment.id + ') is private. Either make attachment record not private or enable the [Share Private Attachments?] custom setting.' );
 
                 }
 
             } else {
 
-                System.debug( LoggingLevel.WARN, 'Not creating ContentDocumentLink to share ContentDocument (' + contentVersion.contentDocumentId + ') with Parent Record (' + attachment.parentId + ') because [' + parentSObjectType + '] does not have Chatter Feed Tracking enabled.' );
+                System.debug( LoggingLevel.WARN, 'Not creating ContentDocumentLink to share ContentDocument (' + contentVersion.contentDocumentId + ') with Parent Record (' + request.shareToEntityId + ') because [' + parentSObjectType + '] does not have Chatter Feed Tracking enabled.' );
 
             }
 
@@ -191,11 +196,105 @@ public class ConvertAttachmentsToFilesService {
         }
 
         if ( this.options.deleteAttachmentsUponConversion ) {
-            System.debug( '[ConvertAttachmentsToFilesService.convert] deleting original attachments: ' + attachmentsToConvert );
-            delete attachmentsToConvert;
+
+            List<Attachment> attachmentsToDelete = new List<Attachment>();
+
+            for ( ContentVersion contentVersion : contentVersions ) {
+                attachmentsToDelete.add( new Attachment( id = contentVersion.original_record_id__c ) );
+            }
+
+            System.debug( '[ConvertAttachmentsToFilesService.convert] deleting original attachments: ' + attachmentsToDelete );
+
+            delete attachmentsToDelete;
+
         }
 
         return conversionResults;
+    }
+
+    private List<ConversionRequest> buildConversionRequests( List<Attachment> attachments ) {
+
+        List<ConversionRequest> requests = new List<ConversionRequest>();
+
+        Set<ID> emailMessageIds = new Set<ID>();
+
+        for ( Attachment attachment : attachments ) {
+
+            SObjectType parentSObjectType = attachment.parentId.getSObjectType();
+
+            Boolean isParentEmailMessage = ( EmailMessage.sObjectType == parentSObjectType );
+            Boolean doConvertInboundEmails = this.options.convertInboundEmailMessageAttachmentsToFilesOnCases;
+
+            if ( isParentEmailMessage && doConvertInboundEmails ) {
+
+                emailMessageIds.add( attachment.parentId );
+
+            } else {
+
+                ConversionRequest request = new ConversionRequest();
+                request.attachment = attachment;
+                request.shareToEntityId = attachment.parentId;
+
+                requests.add( request );
+
+            }
+
+        }
+
+        if ( emailMessageIds.size() > 0 ) {
+
+            Map<ID, EmailMessage> emailMessagesMap = new Map<ID, EmailMessage>([
+                SELECT
+                    id, parentId
+                FROM
+                    EmailMessage
+                WHERE
+                    id IN :emailMessageIds
+                    AND
+                    incoming = true
+                    AND
+                    hasAttachment = true
+                    AND
+                    parentId != null
+            ]);
+
+            for ( Attachment attachment : attachments ) {
+
+                EmailMessage message = emailMessagesMap.get( attachment.parentId );
+
+                if ( message != null ) {
+
+                    ConversionRequest request = new ConversionRequest();
+                    request.attachment = attachment;
+                    request.shareToEntityId = message.parentId;
+
+                    requests.add( request );
+
+                }
+
+            }
+
+        }
+
+        return requests;
+    }
+
+    /**
+     * Generally speaking, attachment conversions share the new file with the attachment's parent.
+     * However, there may be instances where that is not possible and you want a "next best thing".
+     * This is exactly the scenario when wanting to convert attachments of inbound email messages
+     * to Cases (e.g. customers using Email-2-Case). The EmailMessage object does not support Feed Tracking
+     * so the file can't be shared to it, but we can share the file to the Case. Ergo, Email-2-Case conversions
+     * would specify the Case ID as the entity to share with instead of the EmailMessage ID.
+     */
+    public class ConversionRequest {
+
+        // the record to convert into file
+        public Attachment attachment { get; set; }
+
+        // the entity to share the file to via ContentDocumentLink record
+        public ID shareToEntityId { get; set; }
+
     }
 
     public class ConversionResult {

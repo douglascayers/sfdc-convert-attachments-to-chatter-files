@@ -217,6 +217,28 @@ private class ConvertAttachmentsToFilesServiceTest {
 
     }
 
+    @isTest
+    static void test_init_options_from_settings() {
+
+        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getInstance();
+        settings.Convert_If_Feed_Tracking_Disabled__c = true;
+        settings.Convert_Inbound_Email_Attachments__c = true;
+        settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Share_Private_Attachments__c = true;
+
+        Test.startTest();
+
+        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
+
+        Test.stopTest();
+
+        System.assertEquals( settings.Convert_If_Feed_Tracking_Disabled__c, options.convertIfFeedTrackingDisabledOnParentObject );
+        System.assertEquals( settings.Convert_Inbound_Email_Attachments__c, options.convertInboundEmailMessageAttachmentsToFilesOnCases );
+        System.assertEquals( settings.Delete_Attachment_Once_Converted__c, options.deleteAttachmentsUponConversion );
+        System.assertEquals( settings.Share_Private_Attachments__c, options.sharePrivateAttachmentsWithParentRecord );
+
+    }
+
     private static User newUser( ID profileId, String firstName, String lastName, String email ) {
         Integer rand = Math.round( Math.random() * 1000 );
         return new User(
