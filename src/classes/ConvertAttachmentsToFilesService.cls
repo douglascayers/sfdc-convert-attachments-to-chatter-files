@@ -17,17 +17,23 @@ public class ConvertAttachmentsToFilesService {
      * Each attachment record should have these fields populated:
      *  - Id
      *  - ParentId
-     *  - OwnerId
+     *  - OwnerId (of an active user)
      *  - Name
      *  - Description
      *  - Body
+     *  - IsPrivate
      */
     public List<ConversionResult> convert( List<Attachment> attachments ) {
 
         System.debug( '[ConvertAttachmentsToFilesService.convert] Options: ' + this.options );
 
         List<ConversionRequest> conversionRequests = buildConversionRequests( attachments );
-        List<ConversionResult> conversionResults = new List<ConversionResult>();
+
+        // attachmentId ==> conversion result
+        // as a map for easy retrieval throughout the various steps doing the conversion
+        // and creation of content document links to share new file with parent record.
+        // we update the message field on the result occasionally in subsequent steps
+        Map<ID, ConversionResult> conversionResultsMap = new Map<ID, ConversionResult>();
 
         /*
          * Step 0
@@ -58,7 +64,7 @@ public class ConvertAttachmentsToFilesService {
 
                 System.debug( LoggingLevel.WARN, '[ConvertAttachmentsToFilesService.convert] conversion result = ' + result );
 
-                conversionResults.add( result );
+                conversionResultsMap.put( attachment.id, result );
 
             }
 
@@ -75,6 +81,8 @@ public class ConvertAttachmentsToFilesService {
 
             Attachment attachment = request.attachment;
 
+            // note, we cannot set the ownerId on create but
+            // we are able to update the ownerId, so we do that in later step
             contentVersions.add( new ContentVersion(
                 versionData = attachment.body,
                 title = attachment.name,
@@ -112,7 +120,7 @@ public class ConvertAttachmentsToFilesService {
 
             System.debug( '[ConvertAttachmentsToFilesService.convert] conversion result = ' + result );
 
-            conversionResults.add( result );
+            conversionResultsMap.put( requestsToConvert[i].attachment.id, result );
 
         }
 
@@ -153,6 +161,7 @@ public class ConvertAttachmentsToFilesService {
             System.debug( '[ConvertAttachmentsToFilesService.convert] oldAttachment = ' + attachment );
 
             // retain original ownership
+            // we couldn't set ownerId on create but we can on update
             contentVersion.ownerId = attachment.ownerId;
 
             SObjectType parentSObjectType = request.shareToEntityId.getSObjectType();
@@ -173,28 +182,44 @@ public class ConvertAttachmentsToFilesService {
 
                 } else {
 
-                    System.debug( LoggingLevel.WARN, 'Not creating ContentDocumentLink to share ContentDocument (' + contentVersion.contentDocumentId + ') with Parent Record (' + request.shareToEntityId + ') because attachment record (' + attachment.id + ') is private. Either make attachment record not private or enable the [Share Private Attachments?] custom setting.' );
+                    String message  = 'Not creating ContentDocumentLink to share ContentDocument (' + contentVersion.contentDocumentId + ') with Parent Record (' + request.shareToEntityId + ') because attachment record (' + attachment.id + ') is private. ';
+                           message += 'Either make attachment record not private or enable the [Share Private Attachments?] custom setting.';
+
+                    conversionResultsMap.get( attachment.id ).message += ' ' + message;
+
+                    System.debug( LoggingLevel.WARN, message );
 
                 }
 
             } else {
 
-                System.debug( LoggingLevel.WARN, 'Not creating ContentDocumentLink to share ContentDocument (' + contentVersion.contentDocumentId + ') with Parent Record (' + request.shareToEntityId + ') because [' + parentSObjectType + '] does not have Chatter Feed Tracking enabled.' );
+                String message = 'Not creating ContentDocumentLink to share ContentDocument (' + contentVersion.contentDocumentId + ') with Parent Record (' + request.shareToEntityId + ') because [' + parentSObjectType + '] does not have Chatter Feed Tracking enabled.';
+
+                conversionResultsMap.get( attachment.id ).message += ' ' + message;
+
+                System.debug( LoggingLevel.WARN, message );
 
             }
 
         }
 
+        // apply updates to content versions, specifically setting owner id to original attachment owner id
         if ( contentVersions.size() > 0 ) {
+
             System.debug( '[ConvertAttachmentsToFilesService.convert] updating content versions: ' + contentVersions );
             update contentVersions;
+
         }
 
+        // create share links between new file and original attachment parent entity
         if ( contentDocumentLinks.size() > 0 ) {
+
             System.debug( '[ConvertAttachmentsToFilesService.convert] inserting content document links: ' + contentDocumentLinks );
             insert contentDocumentLinks;
+
         }
 
+        // lastly, delete the original attachments that were successfully converted into files
         if ( this.options.deleteAttachmentsUponConversion ) {
 
             List<Attachment> attachmentsToDelete = new List<Attachment>();
@@ -209,14 +234,27 @@ public class ConvertAttachmentsToFilesService {
 
         }
 
-        return conversionResults;
+        return conversionResultsMap.values();
     }
 
+    /**
+     * Inspects each attachment and applies various logic to determine the entity that the newly converted file
+     * should be shared with. For example, majority of attachments converted to files will be shared with their original parent.
+     * But some records may need to be shared with a different entity, such as with Email-2-Case scenario.
+     * The attachment of an inbound EmailMessage can't be shared as a file to EmailMessage object because it doesn't support Feed Tracking,
+     * but we can share the file with the parent Case. So, the conversion request generated for attachments of inbound EmailMessages
+     * might say to share the new file with the parent case instead.
+     */
     private List<ConversionRequest> buildConversionRequests( List<Attachment> attachments ) {
 
         List<ConversionRequest> requests = new List<ConversionRequest>();
 
+        // for any attachments related to EmailMessage then
+        // we put the email message id in the set to query for more details
+        // and we put the attachment in the list to know the specific records
+        // to analyze in subsequent step with the queried email messages
         Set<ID> emailMessageIds = new Set<ID>();
+        List<Attachment> emailMessageAttachments = new List<Attachment>();
 
         for ( Attachment attachment : attachments ) {
 
@@ -228,6 +266,7 @@ public class ConvertAttachmentsToFilesService {
             if ( isParentEmailMessage && doConvertInboundEmails ) {
 
                 emailMessageIds.add( attachment.parentId );
+                emailMessageAttachments.add( attachment );
 
             } else {
 
@@ -243,6 +282,10 @@ public class ConvertAttachmentsToFilesService {
 
         if ( emailMessageIds.size() > 0 ) {
 
+            // note, the parent id of email message is a case
+            // if Enhanced Email is enabled then parent id may be blank if not related to a case
+            // https://releasenotes.docs.salesforce.com/en-us/summer16/release-notes/rn_sales_productivity_email_enhanced_setup.htm
+            // https://releasenotes.docs.salesforce.com/en-us/summer16/release-notes/emailadmin_enhanced_email_considerations.htm
             Map<ID, EmailMessage> emailMessagesMap = new Map<ID, EmailMessage>([
                 SELECT
                     id, parentId
@@ -258,15 +301,28 @@ public class ConvertAttachmentsToFilesService {
                     parentId != null
             ]);
 
-            for ( Attachment attachment : attachments ) {
+            for ( Attachment attachment : emailMessageAttachments ) {
 
                 EmailMessage message = emailMessagesMap.get( attachment.parentId );
 
+                // if the email message was an incoming message related to a case
+                // then let's relate the converted file to the case, not email message,
+                // otherwise setup standard request to relate converted file to attachment parent.
+                // even though it may fail in conversion we have error handling setup further
+                // along in the conversion logic, not here
                 if ( message != null ) {
 
                     ConversionRequest request = new ConversionRequest();
                     request.attachment = attachment;
                     request.shareToEntityId = message.parentId;
+
+                    requests.add( request );
+
+                } else {
+
+                    ConversionRequest request = new ConversionRequest();
+                    request.attachment = attachment;
+                    request.shareToEntityId = attachment.parentId;
 
                     requests.add( request );
 

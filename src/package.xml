@@ -10,6 +10,7 @@
 		<members>ConvertAttachmentsToFilesQueueableTest</members>
 		<members>ConvertAttachmentsToFilesServiceTest</members>
 		<members>ConvertAttachmentsToFilesBatchableTest</members>
+		<members>ConvertAttachmentsToFilesEmailService</members>
 		<name>ApexClass</name>
 	</types>
 	<types>

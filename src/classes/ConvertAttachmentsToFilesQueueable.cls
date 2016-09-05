@@ -42,6 +42,10 @@ public class ConvertAttachmentsToFilesQueueable implements Queueable {
 
         System.debug( '[ConvertAttachmentsToFilesQueueable.execute] Conversion results: ' + results );
 
+        if ( this.options.conversionResultEmailNotificationAddresses != null ) {
+            ConvertAttachmentsToFilesEmailService.sendEmail( this.options.conversionResultEmailNotificationAddresses, results );
+        }
+
     }
 
 }

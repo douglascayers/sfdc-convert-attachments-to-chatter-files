@@ -57,12 +57,17 @@ public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SO
     public void execute( Database.BatchableContext context, List<Attachment> attachments ) {
 
         System.debug( '[ConvertAttachmentsToFilesBatchable.execute] Executing: ' + context );
+        System.debug( '[ConvertAttachmentsToFilesBatchable.execute] Options: ' + this.options );
 
         ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( this.options );
 
         List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( attachments );
 
         System.debug( '[ConvertAttachmentsToFilesBatchable.execute] Conversion results: ' + results );
+
+        if ( this.options.conversionResultEmailNotificationAddresses != null ) {
+            ConvertAttachmentsToFilesEmailService.sendEmail( this.options.conversionResultEmailNotificationAddresses, results );
+        }
 
     }
 

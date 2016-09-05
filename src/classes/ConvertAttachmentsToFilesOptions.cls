@@ -31,6 +31,9 @@ public class ConvertAttachmentsToFilesOptions {
     // The File will belong at the Case level. Only applies to Incoming Emails for Email-to-Case.
     public Boolean convertInboundEmailMessageAttachmentsToFilesOnCases { get; set; }
 
+    // Email addresses to send conversion result information to after a batch of attachments are converted to files.
+    public List<String> conversionResultEmailNotificationAddresses { get; set; }
+
     // Scope the conversion to just attachments related to specific records
     // if null then ALL attachments in the system will be converted
     // if empty then NO attachments will be converted
@@ -42,6 +45,7 @@ public class ConvertAttachmentsToFilesOptions {
         this.sharePrivateAttachmentsWithParentRecord = false;
         this.convertIfFeedTrackingDisabledOnParentObject = false;
         this.convertInboundEmailMessageAttachmentsToFilesOnCases = false;
+        this.conversionResultEmailNotificationAddresses = null;
         this.parentIds = null;
     }
 
@@ -50,7 +54,13 @@ public class ConvertAttachmentsToFilesOptions {
         this.sharePrivateAttachmentsWithParentRecord = settings.share_private_attachments__c;
         this.convertIfFeedTrackingDisabledOnParentObject = settings.convert_if_feed_tracking_disabled__c;
         this.convertInboundEmailMessageAttachmentsToFilesOnCases = settings.convert_inbound_email_attachments__c;
+        this.conversionResultEmailNotificationAddresses = null;
         this.parentIds = null;
+
+        if ( String.isNotBlank( settings.conversion_result_email_notifications__c ) ) {
+            this.conversionResultEmailNotificationAddresses = settings.conversion_result_email_notifications__c.split(',');
+        }
+
     }
 
 }
