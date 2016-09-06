@@ -47,7 +47,7 @@ public class ConvertAttachmentsToFilesService {
         for ( ConversionRequest request : conversionRequests ) {
 
             Attachment attachment = request.attachment;
-            SObjectType parentSObjectType = attachment.parentId.getSObjectType();
+            SObjectType parentSObjectType = request.shareToEntityId.getSObjectType();
             DescribeSObjectResult parentDescribe = parentSObjectType.getDescribe();
 
             if ( parentDescribe.isFeedEnabled() || this.options.convertIfFeedTrackingDisabledOnParentObject ) {
@@ -259,7 +259,6 @@ public class ConvertAttachmentsToFilesService {
         for ( Attachment attachment : attachments ) {
 
             SObjectType parentSObjectType = attachment.parentId.getSObjectType();
-
             Boolean isParentEmailMessage = ( EmailMessage.sObjectType == parentSObjectType );
             Boolean doConvertInboundEmails = this.options.convertInboundEmailMessageAttachmentsToFilesOnCases;
 
@@ -345,10 +344,10 @@ public class ConvertAttachmentsToFilesService {
      */
     public class ConversionRequest {
 
-        // the record to convert into file
+        // the record to convert into file; required
         public Attachment attachment { get; set; }
 
-        // the entity to share the file to via ContentDocumentLink record
+        // the entity to share the file to via ContentDocumentLink record; required
         public ID shareToEntityId { get; set; }
 
     }
@@ -358,14 +357,20 @@ public class ConvertAttachmentsToFilesService {
         // true if attachment was converted; false otherwise
         public Boolean success { get; set; }
 
+        // if of the attachment being converted, should always be populated
+        public ID attachmentId { get; set; }
+
         // id of the converted file, if successful, null otherwise
         public ID contentVersionId { get; set; }
 
-        // if of the attachment being converted
-        public ID attachmentId { get; set; }
-
         // if not successful then the error message
+        // even if success is true may include message if could not share file to intended parent entity
         public String message { get; set; }
+
+        public ConversionResult() {
+            this.success = false;
+            this.message = '';
+        }
 
     }
 

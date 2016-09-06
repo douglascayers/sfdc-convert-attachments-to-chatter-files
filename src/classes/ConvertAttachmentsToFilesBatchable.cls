@@ -74,6 +74,7 @@ public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SO
     public void finish( Database.BatchableContext context ) {
 
         System.debug( '[ConvertAttachmentsToFilesBatchable.finish] Finishing: ' + context );
+        System.debug( '[ConvertAttachmentsToFilesBatchable.finish] Options: ' + this.options );
 
     }
 

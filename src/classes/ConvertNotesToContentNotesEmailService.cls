@@ -1,8 +1,8 @@
-public class ConvertAttachmentsToFilesEmailService {
+public class ConvertNotesToContentNotesEmailService {
 
     // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_forcecom_email_outbound.htm
 
-    public static void sendEmail( List<String> recipients, List<ConvertAttachmentsToFilesService.ConversionResult> conversionResults ) {
+    public static void sendEmail( List<String> recipients, List<ConvertNotesToContentNotesService.ConversionResult> conversionResults ) {
 
         // First, reserve email capacity for the current Apex transaction to ensure
         // that we won't exceed our daily email limits when sending email after
@@ -11,7 +11,7 @@ public class ConvertAttachmentsToFilesEmailService {
 
         Messaging.SingleEmailMessage emailMessage = new Messaging.SingleEmailMessage();
         emailMessage.setToAddresses( recipients );
-        emailMessage.setSubject( 'Convert Attachments to Files Results' );
+        emailMessage.setSubject( 'Convert Notes to ContentNotes Results' );
         emailMessage.setHtmlBody( buildHtmlBody( conversionResults ) );
 
         if ( !Test.isRunningTest() ) {
@@ -20,12 +20,12 @@ public class ConvertAttachmentsToFilesEmailService {
 
     }
 
-    private static String buildHtmlBody( List<ConvertAttachmentsToFilesService.ConversionResult> conversionResults ) {
+    private static String buildHtmlBody( List<ConvertNotesToContentNotesService.ConversionResult> conversionResults ) {
 
-        List<ConvertAttachmentsToFilesService.ConversionResult> successResults = new List<ConvertAttachmentsToFilesService.ConversionResult>();
-        List<ConvertAttachmentsToFilesService.ConversionResult> failureResults = new List<ConvertAttachmentsToFilesService.ConversionResult>();
+        List<ConvertNotesToContentNotesService.ConversionResult> successResults = new List<ConvertNotesToContentNotesService.ConversionResult>();
+        List<ConvertNotesToContentNotesService.ConversionResult> failureResults = new List<ConvertNotesToContentNotesService.ConversionResult>();
 
-        for ( ConvertAttachmentsToFilesService.ConversionResult result : conversionResults ) {
+        for ( ConvertNotesToContentNotesService.ConversionResult result : conversionResults ) {
             if ( result.success ) {
                 successResults.add( result );
             } else {
@@ -38,8 +38,8 @@ public class ConvertAttachmentsToFilesEmailService {
         html += '<table border="1" cellspacing="3" cellpadding="3">' +
                     '<tr>' +
                         '<th>Success</th>' +
-                        '<th>Attachment ID</th>' +
-                        '<th>Content Version ID</th>' +
+                        '<th>Note ID</th>' +
+                        '<th>Content Note ID</th>' +
                         '<th>Message</th>' +
                     '</tr>';
 
@@ -51,18 +51,18 @@ public class ConvertAttachmentsToFilesEmailService {
         return html;
     }
 
-    private static String buildHtmlTableRows( List<ConvertAttachmentsToFilesService.ConversionResult> conversionResults ) {
+    private static String buildHtmlTableRows( List<ConvertNotesToContentNotesService.ConversionResult> conversionResults ) {
 
         String html = '';
 
         String baseUrl = URL.getSalesforceBaseUrl().toExternalForm() + '/';
 
-        for ( ConvertAttachmentsToFilesService.ConversionResult result : conversionResults ) {
+        for ( ConvertNotesToContentNotesService.ConversionResult result : conversionResults ) {
             html +=
                 '<tr>' +
                     '<td>' + buildHtmlSuccess( result.success ) + '</td>' +
-                    '<td>' + buildHtmlLink( result.attachmentId, baseUrl + defaultIfBlank( result.attachmentId ) ) + '</td>' +
-                    '<td>' + buildHtmlLink( result.contentVersionId, baseUrl + defaultIfBlank( result.contentVersionId ) ) + '</td>' +
+                    '<td>' + buildHtmlLink( result.noteId, baseUrl + defaultIfBlank( result.noteId ) ) + '</td>' +
+                    '<td>' + buildHtmlLink( result.contentNoteId, baseUrl + defaultIfBlank( result.contentNoteId ) ) + '</td>' +
                     '<td>' + defaultIfBlank( result.message ) + '</td>' +
                 '</tr>';
         }

@@ -14,6 +14,18 @@
         <type>Checkbox</type>
     </fields>
     <fields>
+        <fullName>Conversion_Result_Email_Notifications__c</fullName>
+        <description>Comma-separated list of email addresses to send conversion result information to after each batch of conversions. Email may contain up to 200 conversion results at a time indicating which were successful and any warnings. If blank then no emails are sent.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Comma-separated list of email addresses to send conversion result information to after each batch of conversions. Email may contain up to 200 conversion results at a time indicating which were successful and any warnings. If blank then no emails are sent.</inlineHelpText>
+        <label>Conversion Result Email Notifications</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>Convert_If_Feed_Tracking_Disabled__c</fullName>
         <defaultValue>false</defaultValue>
         <description>If Chatter Feed Tracking is disabled for the attachment&apos;s parent object then the converted File won&apos;t be able to be shared with the parent record. Enable this option to convert the attachment anyways even though it will not be shared with any records.</description>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <description>Controls when and how certain notes are converted to files.</description>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Conversion_Result_Email_Notifications__c</fullName>
+        <description>Comma-separated list of email addresses to send conversion result information to after each batch of conversions. Email may contain up to 200 conversion results at a time indicating which were successful and any warnings. If blank then no emails are sent.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Comma-separated list of email addresses to send conversion result information to after each batch of conversions. Email may contain up to 200 conversion results at a time indicating which were successful and any warnings. If blank then no emails are sent.</inlineHelpText>
+        <label>Conversion Result Email Notifications</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Convert_If_Feed_Tracking_Disabled__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>If Chatter Feed Tracking is disabled for the note&apos;s parent object then the converted note won&apos;t be able to be shared with the parent record. Enable this option to convert the note anyways even though it will not be shared with any records.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>If Chatter Feed Tracking is disabled for the note&apos;s parent object then the converted note won&apos;t be able to be shared with the parent record. Enable this option to convert the note anyways even though it will not be shared with any records.</inlineHelpText>
+        <label>Convert If Feed Tracking Disabled?</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Convert_in_Near_Real_Time__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Enables &apos;after insert&apos; trigger on Note that enqueues job to convert into ContentNotes in near real-time. This async conversion does not slow down save transaction, and if &apos;Delete Notes&apos; option is enabled then deletes in separate transaction too.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Enables &apos;after insert&apos; trigger on Note that enqueues job to convert into ContentNotes in near real-time. This async conversion does not slow down save transaction, and if &apos;Delete Notes&apos; option is enabled then deletes in separate transaction too.</inlineHelpText>
+        <label>Convert in Near Real Time?</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Delete_Note_Once_Converted__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>When checked then conversion process will delete the original Note once successfully converted to ContentNote. You may want to delete them to save storage space in your org.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>When checked then conversion process will delete the original Note once successfully converted to ContentNote. You may want to delete them to save storage space in your org.</inlineHelpText>
+        <label>Delete Note Once Converted?</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Share_Private_Notes__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Notes have &apos;IsPrivate&apos; field that limits access to owner and admins. ContentNotes related to records are not private. Enable this option to share converted private notes with their parent record and to anyone who has access to the parent record.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Notes have &apos;IsPrivate&apos; field that limits access to owner and admins. ContentNotes related to records are not private. Enable this option to share converted private notes with their parent record and to anyone who has access to the parent record.</inlineHelpText>
+        <label>Share Private Notes?</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <label>Convert Notes to ContentNotes Settings</label>
+    <visibility>Public</visibility>
+</CustomObject>
