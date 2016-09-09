@@ -1,196 +1,116 @@
+/**
+ * Test class assumes Chatter Feed Tracking is enabled for Account object.
+ */
 @isTest
 private class ConvertNotesToContentNotesBatchableTest {
 
     @isTest
-    static void test_batch_no_delete() {
-
-        Account account = new Account(
-            name = 'Test Account'
-        );
-
-        insert account;
-
-        Note note = new Note(
-            title = 'Test Title',
-            body = 'Test Body',
-            parentId = account.id
-        );
-
-        insert note;
+    static void test_schedulable() {
 
         Test.startTest();
 
-        ConvertNotesToContentNotesBatchable batchable = new ConvertNotesToContentNotesBatchable();
-
-        Database.executeBatch( batchable, 100 );
+        System.schedule( 'Conversion Job', '0 0 13 * * ?', new ConvertNotesToContentNotesSchedulable() );
 
         Test.stopTest();
-
-        ContentVersion cv = [ SELECT id, contentDocumentId FROM ContentVersion WHERE original_record_id__c = :note.id AND isLatest = true ];
-        System.assert( cv != null );
-
-        ContentDocumentLink cdl = [ SELECT id, linkedEntityId FROM ContentDocumentLink WHERE contentDocumentId = :cv.contentDocumentId AND linkedEntityId = :account.id ];
-        System.assert( cdl != null );
-
-        ContentNote cn = [ SELECT id, latestPublishedVersionId FROM ContentNote WHERE latestPublishedVersionId = :cv.id ];
-        System.assert( cn != null );
-
-        List<Note> notes = new List<Note>([ SELECT id FROM Note WHERE id = :note.id ]);
-        System.assertEquals( 1, notes.size() );
 
     }
 
     @isTest
-    static void test_batch_yes_delete() {
+    static void test_real_time_trigger() {
 
-        Account account = new Account(
+        Convert_Notes_to_ContentNotes_Settings__c settings = Convert_Notes_to_ContentNotes_Settings__c.getInstance();
+        settings.Convert_in_Near_Real_Time__c = true;
+        settings.Delete_Note_Once_Converted__c = true;
+
+        upsert settings;
+
+        Account acct = new Account(
             name = 'Test Account'
         );
 
-        insert account;
+        insert acct;
+
+        Test.startTest();
 
         Note note = new Note(
-            title = 'Test Title',
-            body = 'Test Body',
-            parentId = account.id
+            title = 'Hello World.txt',
+            body = 'Goodnight Moon',
+            parentId = acct.id
         );
 
         insert note;
 
-        Test.startTest();
-
-        ConvertNotesToContentNotesBatchable batchable = new ConvertNotesToContentNotesBatchable();
-        batchable.deleteNotesUponConversion = true;
-
-        Database.executeBatch( batchable, 100 );
-
         Test.stopTest();
 
-        ContentVersion cv = [ SELECT id, contentDocumentId FROM ContentVersion WHERE original_record_id__c = :note.id AND isLatest = true ];
-        System.assert( cv != null );
-
-        ContentDocumentLink cdl = [ SELECT id, linkedEntityId FROM ContentDocumentLink WHERE contentDocumentId = :cv.contentDocumentId AND linkedEntityId = :account.id ];
-        System.assert( cdl != null );
-
-        ContentNote cn = [ SELECT id, latestPublishedVersionId FROM ContentNote WHERE latestPublishedVersionId = :cv.id ];
-        System.assert( cn != null );
-
-        List<Note> notes = new List<Note>([ SELECT id FROM Note WHERE id = :note.id ]);
-        System.assertEquals( 0, notes.size() );
-
-    }
-
-    @isTest
-    static void test_no_share_private_notes_with_parent_record() {
-
-        Account account = new Account(
-            name = 'Test Account'
-        );
-
-        insert account;
-
-        Note note = new Note(
-            title = 'Test Title',
-            body = 'Test Body',
-            parentId = account.id,
-            isPrivate = true
-        );
-
-        insert note;
-
-        Test.startTest();
-
-        ConvertNotesToContentNotesBatchable batchable = new ConvertNotesToContentNotesBatchable();
-        batchable.sharePrivateNotesWithParentRecord = false;
-
-        Database.executeBatch( batchable, 100 );
-
-        Test.stopTest();
-
-        ContentVersion cv = [ SELECT id, contentDocumentId FROM ContentVersion WHERE original_record_id__c = :note.id AND isLatest = true ];
-        System.assert( cv != null );
-
-        List<ContentDocumentLink> cdl = [ SELECT id, linkedEntityId FROM ContentDocumentLink WHERE contentDocumentId = :cv.contentDocumentId AND linkedEntityId = :account.id ];
-        System.assertEquals( 0, cdl.size() );
-
-        ContentNote cn = [ SELECT id, latestPublishedVersionId FROM ContentNote WHERE latestPublishedVersionId = :cv.id ];
-        System.assert( cn != null );
-
-    }
-
-    @isTest
-    static void test_yes_share_private_notes_with_parent_record() {
-
-        Account account = new Account(
-            name = 'Test Account'
-        );
-
-        insert account;
-
-        Note note = new Note(
-            title = 'Test Title',
-            body = 'Test Body',
-            parentId = account.id,
-            isPrivate = true
-        );
-
-        insert note;
-
-        Test.startTest();
-
-        ConvertNotesToContentNotesBatchable batchable = new ConvertNotesToContentNotesBatchable();
-        batchable.sharePrivateNotesWithParentRecord = true;
-
-        Database.executeBatch( batchable, 100 );
-
-        Test.stopTest();
-
-        ContentVersion cv = [ SELECT id, contentDocumentId FROM ContentVersion WHERE original_record_id__c = :note.id AND isLatest = true ];
-        System.assert( cv != null );
-
-        ContentDocumentLink cdl = [ SELECT id, linkedEntityId FROM ContentDocumentLink WHERE contentDocumentId = :cv.contentDocumentId AND linkedEntityId = :account.id ];
-        System.assert( cdl != null );
-
-        ContentNote cn = [ SELECT id, latestPublishedVersionId FROM ContentNote WHERE latestPublishedVersionId = :cv.id ];
-        System.assert( cn != null );
+        // because the trigger invokes a queueable which is asynchronous
+        // we are unable to assert the side effects here, all we can do
+        // is test that nothing blows up and assume we are getting code coverage
 
     }
 
     @isTest
     static void test_scope_conversion() {
 
+        Convert_Notes_to_ContentNotes_Settings__c settings = Convert_Notes_to_ContentNotes_Settings__c.getInstance();
+        settings.Convert_If_Feed_Tracking_Disabled__c = true;
+        settings.Delete_Note_Once_Converted__c = true;
+        settings.Share_Private_Notes__c = true;
+        settings.Conversion_Result_Email_Notifications__c = 'test@example.com';
+
+        upsert settings;
+
+        Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
+
+        User user1, user2;
+
+        // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
+        System.runAs( new User( id = UserInfo.getUserId() ) ) {
+
+            user1 = newUser( p.id, 'Alpha', 'User 1', 'user_1@example.com' );
+            user2 = newUser( p.id, 'Beta',  'User 2', 'user_2@example.com' );
+
+            insert new List<User>{ user1, user2 };
+
+        }
+
         Account acct1 = new Account(
+            ownerId = user1.id,
             name = 'Test Account 1'
         );
 
         insert acct1;
 
         Account acct2 = new Account(
+            ownerId = user2.id,
             name = 'Test Account 2'
         );
 
         insert acct2;
 
         Note note1 = new Note(
-            title = 'Test Title 1',
-            body = 'Test Body 1',
-            parentId = acct1.id
+            title = 'Hello World 1.txt',
+            body = 'Goodnight Moon',
+            parentId = acct1.id,
+            ownerId = user1.id
         );
 
         insert note1;
 
         Note note2 = new Note(
-            title = 'Test Title 2',
-            body = 'Test Body 2',
-            parentId = acct2.id
+            title = 'Hello World 2.txt',
+            body = 'Goodnight Moon 2',
+            parentId = acct2.id,
+            ownerId = user2.id
         );
 
         insert note2;
 
         Test.startTest();
 
-        ConvertNotesToContentNotesBatchable batchable = new ConvertNotesToContentNotesBatchable();
-        batchable.parentIds = new Set<ID>{ acct1.id };
+        ConvertNotesToContentNotesOptions options = new ConvertNotesToContentNotesOptions( settings );
+        options.parentIds = new Set<ID>{ acct1.id };
+
+        ConvertNotesToContentNotesBatchable batchable = new ConvertNotesToContentNotesBatchable( options );
 
         Database.executeBatch( batchable, 100 );
 
@@ -202,9 +122,6 @@ private class ConvertNotesToContentNotesBatchableTest {
 
         ContentDocumentLink cdl = [ SELECT id, linkedEntityId FROM ContentDocumentLink WHERE contentDocumentId = :cv.get(0).contentDocumentId AND linkedEntityId = :acct1.id ];
         System.assert( cdl != null );
-
-        ContentNote cn = [ SELECT id, latestPublishedVersionId FROM ContentNote WHERE latestPublishedVersionId = :cv.get(0).id ];
-        System.assert( cn != null );
 
     }
 
@@ -226,26 +143,29 @@ private class ConvertNotesToContentNotesBatchableTest {
         }
 
         Account acct = new Account(
+            ownerId = user1.id,
             name = 'Test Account'
         );
 
         insert acct;
 
-        Note note1, note2;
-
-        note1 = new Note(
-            ownerId = user1.id,
-            title = 'Note 1',
-            parentId = acct.id
+        Note note1 = new Note(
+            title = 'Hello World 1.txt',
+            body = 'Goodnight Moon',
+            parentId = acct.id,
+            ownerId = user1.id
         );
 
-        note2 = new Note(
-            ownerId = user2.id,
-            title = 'Note 2',
-            parentId = acct.id
+        insert note1;
+
+        Note note2 = new Note(
+            title = 'Hello World 2.txt',
+            body = 'Goodnight Moon 2',
+            parentId = acct.id,
+            ownerId = user2.id
         );
 
-        insert new List<Note>{ note1, note2 };
+        insert note2;
 
         System.runAs( new User( id = UserInfo.getUserId() ) ) {
 
@@ -257,7 +177,7 @@ private class ConvertNotesToContentNotesBatchableTest {
         // at this point we have notes:
         // one owned by an active user
         // one owned by an inactive user
-        // after conversion the active user should own the new note
+        // after conversion the active user should own the new file
         // but the inactive user will not be related to the record
 
         Test.startTest();
@@ -276,9 +196,6 @@ private class ConvertNotesToContentNotesBatchableTest {
 
         ContentDocumentLink cdl = [ SELECT id, linkedEntityId FROM ContentDocumentLink WHERE contentDocumentId = :cv.get(0).contentDocumentId AND linkedEntityId = :acct.id ];
         System.assert( cdl != null );
-
-        ContentNote cn = [ SELECT id, latestPublishedVersionId FROM ContentNote WHERE latestPublishedVersionId = :cv.get(0).id ];
-        System.assert( cn != null );
 
     }
 

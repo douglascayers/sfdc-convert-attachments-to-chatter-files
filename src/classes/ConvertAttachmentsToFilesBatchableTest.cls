@@ -5,6 +5,50 @@
 private class ConvertAttachmentsToFilesBatchableTest {
 
     @isTest
+    static void test_schedulable() {
+
+        Test.startTest();
+
+        System.schedule( 'Conversion Job', '0 0 13 * * ?', new ConvertAttachmentsToFilesSchedulable() );
+
+        Test.stopTest();
+
+    }
+
+    @isTest
+    static void test_real_time_trigger() {
+
+        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getInstance();
+        settings.Convert_in_Near_Real_Time__c = true;
+        settings.Delete_Attachment_Once_Converted__c = true;
+
+        upsert settings;
+
+        Account acct = new Account(
+            name = 'Test Account'
+        );
+
+        insert acct;
+
+        Test.startTest();
+
+        Attachment attachment = new Attachment(
+            name = 'Hello World.txt',
+            body = Blob.valueOf('Hello World'),
+            parentId = acct.id
+        );
+
+        insert attachment;
+
+        Test.stopTest();
+
+        // because the trigger invokes a queueable which is asynchronous
+        // we are unable to assert the side effects here, all we can do
+        // is test that nothing blows up and assume we are getting code coverage
+
+    }
+
+    @isTest
     static void test_scope_conversion() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getInstance();
