@@ -40,7 +40,7 @@ Please note, the settings you can toggle available to you are exactly the same r
 |Delete Attachment Once Converted?       |Deletes attachment once converted. This can save storage space. Backup your data!                |
 |Convert If Feed Tracking Disabled?      |If parent record does not support Chatter Files, still convert it? It won't be shared to record. |
 |Conversion Result Email Notifications   |Comma-delimited list of email addresses to send conversion success/failure results to.           |
-|Chatter Post to Case Inbound Email File?|TODO: Chatter Post with converted File so Case Team can quickly and easily collaborate on it.    |
+|Chatter Post to Case Inbound Email File?|(not yet implemented) Chatter Post with converted File so Case Team can quickly and easily collaborate on it.|
 
 
 |Note Settings                           |Description                                                                                         |
