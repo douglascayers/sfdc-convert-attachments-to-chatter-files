@@ -1,7 +1,11 @@
 Convert Notes & Attachments to Chatter Files
 ============================================
 
-Batchable apex classes that convert notes and attachments into chatter files to take advantage of rich-text, more sophisticated sharing and file revisions. Read my [blog post](https://douglascayers.wordpress.com/2015/10/10/salesforce-convert-attachments-to-chatter-files/) on the topic.
+This project contains multiple apex classes (triggers, queueables, batchables, schedulables) to assist with the manual or automatic conversion of
+classic [Notes](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_note.htm) and [Attachments](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_attachment.htm)
+into [Enhanced Notes](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentnote.htm) and [Chatter Files](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentversion.htm)
+to take advantage of rich-text, and more sophisticated sharing and file revisions.
+You may like to read my [blog post](https://douglascayers.wordpress.com/2015/10/10/salesforce-convert-attachments-to-chatter-files/) on the topic.
 
 
 Installation
@@ -13,34 +17,37 @@ You can easily install these components to your org straight from github or as a
 
 Usage
 -----
-The quickest way to kick off the conversion is to use the Developer Console.
-Navigate to Developer Console > Debug > Open Execute Anonymous Window.
+There are three main ways to perform the conversions:
+1. Manually invoke a batchable class for a one-time conversion of notes or attachments in database
+2. Schedule a batchable class for periodic conversions of notes or attachments in database (e.g. daily, monthly)
+3. Enable a trigger to near real-time convert notes or attachments as they are inserted
 
-The default options are to **not** delete the records after conversion,
-and to ignore **private** notes and attachments or records owned by **inactive** owners.
-Please read the specific sections below about those topics to learn why
-and what to consider before enabling the options to override the defaults.
+When you choose option `1` or `2` then you likely are kicking off the process using Developer Console.
+You will want to configure some preferences with the `ConvertAttachmentsToFilesOptions` or `ConvertNotesToContentNotesOptions` classes
+when you execute or schedule the pertinent batchable class, `ConvertAttachmentsToFilesBatchable` or `ConvertNotesToContentNotesBatchable`.
 
-*Default Options*
+When you choose option `3` then you configure your preferences instead using **custom settings**.
+This project includes two custom settings, **Convert Attachments to Files Settings** and **Convert Notes to ContentNotes Settings**.
+They are hierarchical settings and you likely only need the default organization level values configured.
 
-    Database.executeBatch( new ConvertNotesToContentNotesBatchable(), 200 );
-    Database.executeBatch( new ConvertAttachmentsToFilesBatchable(), 200 );
+|Attachment Settings                     |Description                                                                                      |
+|----------------------------------------|-------------------------------------------------------------------------------------------------|
+|Convert in Near Real Time?              |Enables trigger to convert attachments to files. Invokes queuable to process them asynchronously.|
+|Convert Inbound Email Attachments?      |Case Feed Only: converts inbound email attachments to files shared with the Case.                |
+|Share Private Attachments?              |If private attachment is converted, will share its access with the parent record or not.         |
+|Delete Attachment Once Converted?       |Deletes attachment once converted. This can save storage space. Backup your data!                |
+|Convert If Feed Tracking Disabled?      |If parent record does not support Chatter Files, still convert it? It won't be shared to record. |
+|Conversion Result Email Notifications   |Comma-delimited list of email addresses to send conversion success/failure results to.           |
+|Chatter Post to Case Inbound Email File?|TODO: Chatter Post with converted File so Case Team can quickly and easily collaborate on it.    |
 
-*Customizable Options (set one or more as desired)*
 
-    ConvertNotesToContentNotesBatchable notesBatchable = new ConvertNotesToContentNotesBatchable();
-    notesBatchable.deleteNotesUponConversion = true;
-    notesBatchable.sharePrivateNotesWithParentRecord = true;
-    notesBatchable.parentIds = new Set<ID>{ '001j0000003ZS24', '001j0000003ZS1z' };
-    Database.executeBatch( notesBatchable, 100 );
-
-    ConvertAttachmentsToFilesBatchable filesBatchable = new ConvertAttachmentsToFilesBatchable();
-    filesBatchable.deleteAttachmentsUponConversion = true;
-    filesBatchable.sharePrivateAttachmentsWithParentRecord = true;
-    filesBatchable.parentIds = new Set<ID>{ '001j0000003ZS24', '001j0000003ZS1z' };
-    Database.executeBatch( filesBatchable, 100 );
-
-If you run into governor limits, you may need to reduce the batch size.
+|Note Settings                           |Description                                                                                         |
+|----------------------------------------|----------------------------------------------------------------------------------------------------|
+|Convert in Near Real Time?              |Enables trigger to convert notes to enhanced notes. Invokes queuable to process them asynchronously.|
+|Share Private Attachments?              |If private note is converted, will share its access with the parent record or not.                  |
+|Delete Attachment Once Converted?       |Deletes note once converted. This can save storage space. Backup your data!                         |
+|Convert If Feed Tracking Disabled?      |If parent record does not support Chatter Files, still convert it? It won't be shared to record.    |
+|Conversion Result Email Notifications   |Comma-delimited list of email addresses to send conversion success/failure results to.              |
 
 
 Private Notes / Attachments
@@ -82,7 +89,7 @@ Selecting Parent IDs
 --------------------
 You may want to test conversion on a subset of records rather than convert
 your entire database all at once. To do this you can specify `parentIds` on the
-batchable classes which takes a Set of record ids who are the parent entities
+option classes which takes a Set of record ids who are the parent entities
 that the notes or attachments belong to that you want to convert.
 
 
@@ -97,7 +104,8 @@ Migrating to Files instead of Attachments is a good idea because Chatter Files
 provide you much more capabilities around sharing the file with other users, groups, and records.
 It also supports file previews and revisions. It is the future of managing content in Salesforce.
 
-Furthermore, Salesforce released new Notes feature that supports rich-text and the same sharing capabilities as Chatter Files. In fact, the new Notes feature is built on top of the same Chatter Files technology!
+Furthermore, Salesforce released new Notes feature that supports rich-text and the same sharing capabilities as Chatter Files.
+In fact, the new Notes feature is built on top of the same Chatter Files technology!
 
 Learn more at:
 * http://docs.releasenotes.salesforce.com/en-us/winter16/release-notes/rn_chatter_files_related_list.htm#topic-title
@@ -119,5 +127,5 @@ To install this package then you must have [enhanced notes enabled](http://docs.
 
 Credits
 -------
-Code adapted from Chirag Mehta's post on stackoverflow.
-http://stackoverflow.com/questions/11395148/related-content-stored-in-which-object-how-to-create-related-content-recor
+* Code adapted from Chirag Mehta's [post on stackoverflow](http://stackoverflow.com/questions/11395148/related-content-stored-in-which-object-how-to-create-related-content-recor).
+* Note content escaping adapted from David Reed's [project](https://github.com/davidmreed/DMRNoteAttachmentImporter).
