@@ -18,6 +18,7 @@ You can easily install these components to your org straight from github or as a
 Usage
 -----
 There are three main ways to perform the conversions:
+
 1. Manually invoke a batchable class for a one-time conversion of notes or attachments in database
 2. Schedule a batchable class for periodic conversions of notes or attachments in database (e.g. daily, monthly)
 3. Enable a trigger to near real-time convert notes or attachments as they are inserted
@@ -29,6 +30,7 @@ when you execute or schedule the pertinent batchable class, `ConvertAttachmentsT
 When you choose option `3` then you configure your preferences instead using **custom settings**.
 This project includes two custom settings, **Convert Attachments to Files Settings** and **Convert Notes to ContentNotes Settings**.
 They are hierarchical settings and you likely only need the default organization level values configured.
+Please note, the settings you can toggle available to you are exactly the same regardless which option (1, 2, or 3) you choose.
 
 |Attachment Settings                     |Description                                                                                      |
 |----------------------------------------|-------------------------------------------------------------------------------------------------|
@@ -48,6 +50,43 @@ They are hierarchical settings and you likely only need the default organization
 |Delete Attachment Once Converted?       |Deletes note once converted. This can save storage space. Backup your data!                         |
 |Convert If Feed Tracking Disabled?      |If parent record does not support Chatter Files, still convert it? It won't be shared to record.    |
 |Conversion Result Email Notifications   |Comma-delimited list of email addresses to send conversion success/failure results to.              |
+
+
+Examples
+--------
+
+*Manually Invoke Batchable Class*
+
+    // default options per custom setting
+    Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getInstance();
+    ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
+
+    // or, explicitly set options for this run
+    ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
+    options.deleteAttachmentsUponConversion = false;
+
+    // then run batchable
+    ConvertAttachmentsToFilesBatchable batchable = new ConvertAttachmentsToFilesBatchable( options );
+    Database.executeBatch( batchable, 100 );
+
+*Schedule Batachable Class*
+
+    // default options per custom setting
+    Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getInstance();
+    ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
+
+    // or, explicitly set options for this run
+    ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
+    options.deleteAttachmentsUponConversion = false;
+
+    // then schedule job
+    // note, to change options after job is scheduled you need to stop the job and kick it off again with new option selections
+    System.schedule( 'Convert Attachments to Files Job', '0 0 13 * * ?', new ConvertAttachmentsToFilesSchedulable( options ) );
+
+*Enable Trigger for Real-Time*
+
+    In Setup, check or uncheck the "Convert in Real Time?" custom setting.
+    The apex triggers look at those values in real-time to know whether to convert or not.
 
 
 Private Notes / Attachments
