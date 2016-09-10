@@ -35,7 +35,7 @@ Please note, the settings you can toggle available to you are exactly the same r
 |Attachment Settings                     |Description                                                                                      |
 |----------------------------------------|-------------------------------------------------------------------------------------------------|
 |Convert in Near Real Time?              |Enables trigger to convert attachments to files. Invokes queuable to process them asynchronously.|
-|Convert Inbound Email Attachments?      |Case Feed Only: converts inbound email attachments to files shared with the Case.                |
+|Convert Inbound Email Attachments?      |Email-2-Case Only: converts inbound email attachments to files shared with the Case.                |
 |Share Private Attachments?              |If private attachment is converted, will share its access with the parent record or not.         |
 |Delete Attachment Once Converted?       |Deletes attachment once converted. This can save storage space. Backup your data!                |
 |Convert If Feed Tracking Disabled?      |If parent record does not support Chatter Files, still convert it? It won't be shared to record. |
@@ -46,8 +46,8 @@ Please note, the settings you can toggle available to you are exactly the same r
 |Note Settings                           |Description                                                                                         |
 |----------------------------------------|----------------------------------------------------------------------------------------------------|
 |Convert in Near Real Time?              |Enables trigger to convert notes to enhanced notes. Invokes queuable to process them asynchronously.|
-|Share Private Attachments?              |If private note is converted, will share its access with the parent record or not.                  |
-|Delete Attachment Once Converted?       |Deletes note once converted. This can save storage space. Backup your data!                         |
+|Share Private Notes?                    |If private note is converted, will share its access with the parent record or not.                  |
+|Delete Note Once Converted?             |Deletes note once converted. This can save storage space. Backup your data!                         |
 |Convert If Feed Tracking Disabled?      |If parent record does not support Chatter Files, still convert it? It won't be shared to record.    |
 |Conversion Result Email Notifications   |Comma-delimited list of email addresses to send conversion success/failure results to.              |
 
