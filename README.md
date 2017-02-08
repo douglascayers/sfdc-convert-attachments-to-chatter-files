@@ -1,6 +1,9 @@
 Convert Notes & Attachments to Chatter Files
 ============================================
 
+Overview
+--------
+
 This project contains multiple apex classes (triggers, queueables, batchables, schedulables) to assist with the manual or automatic conversion of
 classic [Notes](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_note.htm) and [Attachments](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_attachment.htm)
 into [Enhanced Notes](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentnote.htm) and [Chatter Files](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentversion.htm)
@@ -10,13 +13,13 @@ You may like to read my [blog post](https://douglascayers.wordpress.com/2015/10/
 
 Installation
 ------------
-You can easily install these components to your org straight from github or as an unmanaged package.
+
 * [Deploy from Github](https://githubsfdeploy.herokuapp.com)
-* [See Releases Page](https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/releases)
 
 
 Usage
 -----
+
 There are three main ways to perform the conversions:
 
 1. Manually invoke a batchable class for a one-time conversion of notes or attachments in database
@@ -132,6 +135,12 @@ option classes which takes a Set of record ids who are the parent entities
 that the notes or attachments belong to that you want to convert.
 
 
+Max Documents or Versions Published Governor Limit
+--------------------------------------------------
+
+When converting classic Notes & Attachments the new data is stored in the `ContentVersion` object. There is a [limit to how many of these records can be created in a 24 hour period](https://help.salesforce.com/articleView?id=limits_general.htm&language=en_US&type=0). If you have a lot of Notes & Attachments to convert plan around this limit and split the work across multiple days.
+
+
 Background
 ----------
 In the Winter 16 release, Salesforce introduces a new related list called Files.
@@ -160,7 +169,8 @@ Example results after running the conversion code:
 
 Pre-Requisites
 --------------
-To install this package then you must have [enhanced notes enabled](http://docs.releasenotes.salesforce.com/en-us/winter16/release-notes/notes_admin_setup.htm).
+
+To install this solution then you must have [enhanced notes enabled](http://docs.releasenotes.salesforce.com/en-us/winter16/release-notes/notes_admin_setup.htm).
 ![screenshot](/images/notes-settings.png)
 
 
