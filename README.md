@@ -116,6 +116,13 @@ your entire database all at once. To do this you can specify `parentIds` on the
 option classes which takes a Set of record ids who are the parent entities
 that the notes or attachments belong to that you want to convert.
 
+    ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
+    options.parentIds = new Set<ID>{ 'id_of_record_whose_attachments_to_convert' };
+
+    // then run batchable
+    ConvertAttachmentsToFilesBatchable batchable = new ConvertAttachmentsToFilesBatchable( options );
+    Database.executeBatch( batchable, 100 );
+
 
 Max Documents or Versions Published Governor Limit
 --------------------------------------------------
