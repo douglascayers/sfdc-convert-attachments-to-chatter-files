@@ -4,8 +4,90 @@
 @isTest
 private class ConvertAttachmentsToFilesServiceTest {
 
+    /**
+     * https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/9
+     */
     @isTest
-    static void test_no_delete() {
+    static void test_partner_community_users() {
+
+        UserRole r1 = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
+
+        Profile p1 = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
+        Profile p2 = [ SELECT id FROM Profile WHERE name = 'Partner Community User' ];
+
+        User user1, user2;
+
+        // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
+        System.runAs( new User( id = UserInfo.getUserId() ) ) {
+
+            user1 = newUser( p1.id, r1.id, 'Alpha', 'User 1', 'user_1@example.com' );
+
+            insert user1;
+
+        }
+
+        Account acct = new Account(
+            ownerId = user1.id,
+            name = 'Community Account'
+        );
+
+        insert acct;
+
+        Contact cont = new Contact(
+            accountId = acct.id,
+            firstName = 'Beta',
+            lastName = 'User 2'
+        );
+
+        insert cont;
+
+        // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
+        System.runAs( new User( id = UserInfo.getUserId() ) ) {
+
+            user2 = newUser( p2.id, null, 'Beta',  'User 2', 'user_2@example.com' );
+
+            user2.contactId = cont.id;
+
+            insert user2;
+
+        }
+
+        Test.startTest();
+
+        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+        settings.convert_in_near_real_time__c = true;
+        upsert settings;
+
+        System.runAs( user2 ) {
+
+            Attachment attachment1 = new Attachment(
+                name = 'Hello World.txt',
+                body = Blob.valueOf( 'Goodnight Moon' ),
+                parentId = acct.id,
+                ownerId = user2.id
+            );
+
+            insert attachment1;
+
+            Attachment attachment2 = new Attachment(
+                name = 'Hello World.txt',
+                body = Blob.valueOf( 'Goodnight Moon' ),
+                parentId = cont.id,
+                ownerId = user2.id
+            );
+
+            insert attachment2;
+
+        }
+
+        Test.stopTest();
+
+    }
+
+    @isTest
+    static void test_special_characters() {
+
+        UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
 
         Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
 
@@ -14,8 +96,115 @@ private class ConvertAttachmentsToFilesServiceTest {
         // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
         System.runAs( new User( id = UserInfo.getUserId() ) ) {
 
-            user1 = newUser( p.id, 'Alpha', 'User 1', 'user_1@example.com' );
-            user2 = newUser( p.id, 'Beta',  'User 2', 'user_2@example.com' );
+            user1 = newUser( p.id, role.id, 'Alpha', 'User 1', 'user_1@example.com' );
+            user2 = newUser( p.id, role.id, 'Beta',  'User 2', 'user_2@example.com' );
+
+            insert new List<User>{ user1, user2 };
+
+        }
+
+        Account account = new Account(
+            ownerId = user1.id,
+            name = 'Test Account'
+        );
+
+        insert account;
+
+        Attachment plainAttachment = new Attachment(
+            name = 'Hello World.txt',
+            body = Blob.valueOf( 'Goodnight Moon' ),
+            parentId = account.id,
+            ownerId = user1.id
+        );
+
+        Attachment specialTitleAttachment = new Attachment(
+            name = 'Hello ! @ # $ % ^ & * ( )  + = - _ \' \" , . ? / \\ [ ] { } | ` ~ < >',
+            body = Blob.valueOf( 'Goodnight Moon' ),
+            parentId = account.id,
+            ownerId = user1.id
+        );
+
+        Attachment specialBodyAttachment = new Attachment(
+            name = 'Hello World.txt',
+            body = Blob.valueOf( 'Hello ! @ # $ % ^ & * ( )  + = - _ \' \" , . ? / \\ [ ] { } | ` ~ < >' ),
+            parentId = account.id,
+            ownerId = user1.id
+        );
+
+        Attachment specialTitleAndBodyAttachment = new Attachment(
+            name = 'Hello ! @ # $ % ^ & * ( )  + = - _ \' \" , . ? / \\ [ ] { } | ` ~ < >',
+            body = Blob.valueOf( 'Hello ! @ # $ % ^ & * ( )  + = - _ \' \" , . ? / \\ [ ] { } | ` ~ < >' ),
+            parentId = account.id,
+            ownerId = user1.id
+        );
+
+        Attachment htmlBodyAttachment = new Attachment(
+            name = 'Hello World.html',
+            body = Blob.valueOf( '<b>bold</b> <u>underline</u> <i>italic</i> <ul><li>list item</li></ul> <ol><li>list item</li></ol> <a href="www.salesforce.com">link</a> <div></div> <p></p> &nbsp;' ),
+            parentId = account.id,
+            ownerId = user1.id
+        );
+
+        Attachment githubIssue8 = new Attachment(
+            name = 'Meeting Agenda 2016-06-16 agenda.pdf',
+            body = Blob.valueOf( 'Meeting Agenda 2016-06-16 agenda.pdf' ),
+            parentId = account.id,
+            ownerId = user1.id
+        );
+
+        Attachment[] attachments = new Attachment[] { plainAttachment, specialTitleAttachment, specialBodyAttachment, specialTitleAndBodyAttachment, htmlBodyAttachment, githubIssue8 };
+
+        // ensure user1 owns the records
+        System.runAs( user1 ) {
+            insert attachments;
+        }
+
+        attachments = [
+            SELECT
+                id, parentId, ownerId, name, description, body, isPrivate,
+                createdById, createdDate, lastModifiedById, lastModifiedDate
+            FROM
+                Attachment
+            WHERE
+                id IN :attachments
+        ];
+
+        Test.startTest();
+
+        List<ConvertAttachmentsToFilesService.ConversionResult> results = null;
+
+        System.runAs( user1 ) {
+
+            ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService();
+
+            results = service.convert( attachments );
+
+        }
+
+        Test.stopTest();
+
+        System.assertNotEquals( null, results );
+
+        for ( ConvertAttachmentsToFilesService.ConversionResult result : results ) {
+            System.debug( result );
+        }
+
+    }
+
+    @isTest
+    static void test_no_delete() {
+
+        UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
+
+        Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
+
+        User user1, user2;
+
+        // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
+        System.runAs( new User( id = UserInfo.getUserId() ) ) {
+
+            user1 = newUser( p.id, role.id, 'Alpha', 'User 1', 'user_1@example.com' );
+            user2 = newUser( p.id, role.id, 'Beta',  'User 2', 'user_2@example.com' );
 
             insert new List<User>{ user1, user2 };
 
@@ -36,6 +225,16 @@ private class ConvertAttachmentsToFilesServiceTest {
         );
 
         insert attachment;
+
+        attachment = [
+            SELECT
+                id, parentId, ownerId, name, description, body, isPrivate,
+                createdById, createdDate, lastModifiedById, lastModifiedDate
+            FROM
+                Attachment
+            WHERE
+                id = :attachment.id
+        ];
 
         Test.startTest();
 
@@ -59,6 +258,8 @@ private class ConvertAttachmentsToFilesServiceTest {
     @isTest
     static void test_yes_delete() {
 
+        UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
+
         Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
 
         User user1, user2;
@@ -66,8 +267,8 @@ private class ConvertAttachmentsToFilesServiceTest {
         // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
         System.runAs( new User( id = UserInfo.getUserId() ) ) {
 
-            user1 = newUser( p.id, 'Alpha', 'User 1', 'user_1@example.com' );
-            user2 = newUser( p.id, 'Beta',  'User 2', 'user_2@example.com' );
+            user1 = newUser( p.id, role.id, 'Alpha', 'User 1', 'user_1@example.com' );
+            user2 = newUser( p.id, role.id, 'Beta',  'User 2', 'user_2@example.com' );
 
             insert new List<User>{ user1, user2 };
 
@@ -89,11 +290,20 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         insert attachment;
 
+        attachment = [
+            SELECT
+                id, parentId, ownerId, name, description, body, isPrivate,
+                createdById, createdDate, lastModifiedById, lastModifiedDate
+            FROM
+                Attachment
+            WHERE
+                id = :attachment.id
+        ];
+
         Test.startTest();
 
         ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
         options.deleteAttachmentsUponConversion = true;
-        options.conversionResultEmailNotificationAddresses = new String[] { 'test@example.com' };
 
         ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( options );
 
@@ -115,6 +325,8 @@ private class ConvertAttachmentsToFilesServiceTest {
     @isTest
     static void test_no_share_private_attachments_with_parent_record() {
 
+        UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
+
         Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
 
         User user1, user2;
@@ -122,8 +334,8 @@ private class ConvertAttachmentsToFilesServiceTest {
         // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
         System.runAs( new User( id = UserInfo.getUserId() ) ) {
 
-            user1 = newUser( p.id, 'Alpha', 'User 1', 'user_1@example.com' );
-            user2 = newUser( p.id, 'Beta',  'User 2', 'user_2@example.com' );
+            user1 = newUser( p.id, role.id, 'Alpha', 'User 1', 'user_1@example.com' );
+            user2 = newUser( p.id, role.id, 'Beta',  'User 2', 'user_2@example.com' );
 
             insert new List<User>{ user1, user2 };
 
@@ -146,11 +358,20 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         insert attachment;
 
+        attachment = [
+            SELECT
+                id, parentId, ownerId, name, description, body, isPrivate,
+                createdById, createdDate, lastModifiedById, lastModifiedDate
+            FROM
+                Attachment
+            WHERE
+                id = :attachment.id
+        ];
+
         Test.startTest();
 
         ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
         options.sharePrivateAttachmentsWithParentRecord = false;
-        options.conversionResultEmailNotificationAddresses = new String[] { 'test@example.com' };
 
         ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( options );
 
@@ -169,6 +390,8 @@ private class ConvertAttachmentsToFilesServiceTest {
     @isTest
     static void test_yes_share_private_attachments_with_parent_record() {
 
+        UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
+
         Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
 
         User user1, user2;
@@ -176,8 +399,8 @@ private class ConvertAttachmentsToFilesServiceTest {
         // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
         System.runAs( new User( id = UserInfo.getUserId() ) ) {
 
-            user1 = newUser( p.id, 'Alpha', 'User 1', 'user_1@example.com' );
-            user2 = newUser( p.id, 'Beta',  'User 2', 'user_2@example.com' );
+            user1 = newUser( p.id, role.id, 'Alpha', 'User 1', 'user_1@example.com' );
+            user2 = newUser( p.id, role.id, 'Beta',  'User 2', 'user_2@example.com' );
 
             insert new List<User>{ user1, user2 };
 
@@ -200,11 +423,20 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         insert attachment;
 
+        attachment = [
+            SELECT
+                id, parentId, ownerId, name, description, body, isPrivate,
+                createdById, createdDate, lastModifiedById, lastModifiedDate
+            FROM
+                Attachment
+            WHERE
+                id = :attachment.id
+        ];
+
         Test.startTest();
 
         ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
         options.sharePrivateAttachmentsWithParentRecord = true;
-        options.conversionResultEmailNotificationAddresses = new String[] { 'test@example.com' };
 
         ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( options );
 
@@ -221,172 +453,11 @@ private class ConvertAttachmentsToFilesServiceTest {
     }
 
     @isTest
-    static void test_inbound_email_and_do_convert() {
-
-        Case cs = new Case(
-            subject = 'Test'
-        );
-
-        insert cs;
-
-        EmailMessage message1 = new EmailMessage(
-            parentId = cs.id,
-            incoming = true,
-            fromAddress = 'test@example.org',
-            toAddress = 'user@example.org',
-            subject = 'Test Email'
-        );
-
-        insert message1;
-
-        EmailMessage message2 = new EmailMessage(
-            parentId = cs.id,
-            incoming = false,
-            fromAddress = 'test@example.org',
-            toAddress = 'user@example.org',
-            subject = 'Test Email'
-        );
-
-        insert message2;
-
-        Attachment attachment1 = new Attachment(
-            name = 'Hello World.txt',
-            body = Blob.valueOf('Hello World'),
-            parentId = message1.id
-        );
-
-        insert attachment1;
-
-        Attachment attachment2 = new Attachment(
-            name = 'Hello World.txt',
-            body = Blob.valueOf('Hello World'),
-            parentId = message2.id
-        );
-
-        insert attachment2;
-
-        Test.startTest();
-
-        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
-        options.conversionResultEmailNotificationAddresses = new String[] { 'test@example.com' };
-        options.convertInboundEmailMessageAttachmentsToFilesOnCases = true;
-        options.convertIfFeedTrackingDisabledOnParentObject = true;
-
-        ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( options );
-
-        List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert([
-            SELECT
-                id, ownerId, owner.isActive, parentId, name, description, body, isPrivate
-            FROM
-                Attachment
-        ]);
-
-        Test.stopTest();
-
-        System.debug( results );
-
-        for ( ConvertAttachmentsToFilesService.ConversionResult result : results ) {
-            if ( result.attachmentId == attachment1.id ) {
-                System.assertEquals( true, result.success );
-                System.assert( String.isBlank( result.message ) );
-            } else if ( result.attachmentId == attachment2.id ) {
-                System.assertEquals( true, result.success );
-                System.assert( String.isNotBlank( result.message ) );
-            }
-        }
-
-        ConvertAttachmentsToFilesEmailService.sendEmail( new String[] { 'test@example.com' }, results );
-
-    }
-
-    @isTest
-    static void test_inbound_email_and_do_not_convert() {
-
-        Case cs = new Case(
-            subject = 'Test'
-        );
-
-        insert cs;
-
-        EmailMessage message1 = new EmailMessage(
-            parentId = cs.id,
-            incoming = true,
-            fromAddress = 'test@example.org',
-            toAddress = 'user@example.org',
-            subject = 'Test Email'
-        );
-
-        insert message1;
-
-        EmailMessage message2 = new EmailMessage(
-            parentId = cs.id,
-            incoming = false,
-            fromAddress = 'test@example.org',
-            toAddress = 'user@example.org',
-            subject = 'Test Email'
-        );
-
-        insert message2;
-
-        Attachment attachment1 = new Attachment(
-            name = 'Hello World.txt',
-            body = Blob.valueOf('Hello World'),
-            parentId = message1.id
-        );
-
-        insert attachment1;
-
-        Attachment attachment2 = new Attachment(
-            name = 'Hello World.txt',
-            body = Blob.valueOf('Hello World'),
-            parentId = message2.id
-        );
-
-        insert attachment2;
-
-        Test.startTest();
-
-        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
-        options.conversionResultEmailNotificationAddresses = new String[] { 'test@example.com' };
-        options.convertInboundEmailMessageAttachmentsToFilesOnCases = true;
-        options.convertIfFeedTrackingDisabledOnParentObject = false;
-
-        ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( options );
-
-        List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert([
-            SELECT
-                id, ownerId, owner.isActive, parentId, name, description, body, isPrivate
-            FROM
-                Attachment
-        ]);
-
-        Test.stopTest();
-
-        System.debug( results );
-
-        for ( ConvertAttachmentsToFilesService.ConversionResult result : results ) {
-            if ( result.attachmentId == attachment1.id ) {
-                System.assertEquals( true, result.success );
-                System.assert( String.isBlank( result.message ) );
-            } else if ( result.attachmentId == attachment2.id ) {
-                System.assertEquals( false, result.success );
-                System.assert( String.isNotBlank( result.message ) );
-            }
-        }
-
-        ConvertAttachmentsToFilesEmailService.sendEmail( new String[] { 'test@example.com' }, results );
-
-    }
-
-    @isTest
     static void test_init_options_from_settings() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getInstance();
-        settings.Convert_If_Feed_Tracking_Disabled__c = true;
-        settings.Convert_Inbound_Email_Attachments__c = true;
         settings.Delete_Attachment_Once_Converted__c = true;
         settings.Share_Private_Attachments__c = true;
-        settings.Conversion_Result_Email_Notifications__c = 'test@example.com';
 
         Test.startTest();
 
@@ -394,19 +465,17 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         Test.stopTest();
 
-        System.assertEquals( settings.Convert_If_Feed_Tracking_Disabled__c, options.convertIfFeedTrackingDisabledOnParentObject );
-        System.assertEquals( settings.Convert_Inbound_Email_Attachments__c, options.convertInboundEmailMessageAttachmentsToFilesOnCases );
         System.assertEquals( settings.Delete_Attachment_Once_Converted__c, options.deleteAttachmentsUponConversion );
         System.assertEquals( settings.Share_Private_Attachments__c, options.sharePrivateAttachmentsWithParentRecord );
-        System.assertEquals( settings.Conversion_Result_Email_Notifications__c, options.conversionResultEmailNotificationAddresses[0] );
 
     }
 
-    private static User newUser( ID profileId, String firstName, String lastName, String email ) {
+    private static User newUser( ID profileId, ID roleId, String firstName, String lastName, String email ) {
         Integer rand = Math.round( Math.random() * 1000 );
         return new User(
             isActive = true,
             profileId = profileId,
+            userRoleId = roleId,
             alias = firstName.substring(0,1) + lastName.substring(1,5),
             firstName = firstName,
             lastName = lastName,

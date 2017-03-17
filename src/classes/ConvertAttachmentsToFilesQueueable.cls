@@ -4,19 +4,28 @@
  *
  * Actual conversion for the execution is delegated to ConvertAttachmentsToFilesService.
  */
-public class ConvertAttachmentsToFilesQueueable implements Queueable {
+public with sharing class ConvertAttachmentsToFilesQueueable implements Queueable {
 
     private ConvertAttachmentsToFilesOptions options { get; set; }
 
     private Set<ID> attachmentIds { get; set; }
 
+    // if context user is a community user then we
+    // need to pass on the network id to assign to ContentVersion
+    private ID networkId { get; set; }
+
     public ConvertAttachmentsToFilesQueueable( Set<ID> attachmentIds ) {
-        this( attachmentIds, new ConvertAttachmentsToFilesOptions() );
+        this( attachmentIds, new ConvertAttachmentsToFilesOptions(), Network.getNetworkId() );
     }
 
     public ConvertAttachmentsToFilesQueueable( Set<ID> attachmentIds, ConvertAttachmentsToFilesOptions options ) {
+        this( attachmentIds, options, Network.getNetworkId() );
+    }
+
+    public ConvertAttachmentsToFilesQueueable( Set<ID> attachmentIds, ConvertAttachmentsToFilesOptions options, ID networkId ) {
         this.attachmentIds = attachmentIds;
         this.options = options;
+        this.networkId = networkId;
     }
 
     public void execute( QueueableContext context ) {
@@ -25,26 +34,21 @@ public class ConvertAttachmentsToFilesQueueable implements Queueable {
 
         List<Attachment> attachments = new List<Attachment>([
             SELECT
-                id, parentId, ownerId, name, description, body, isPrivate
+                id, parentId, ownerId, name, description, body, isPrivate,
+                createdById, createdDate, lastModifiedById, lastModifiedDate
             FROM
                 Attachment
             WHERE
                 id IN :this.attachmentIds
-                AND
-                owner.isActive = true
             ORDER BY
                 parentId
         ]);
 
-        ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( this.options );
+        ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( this.options, this.networkId );
 
         List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( attachments );
 
         System.debug( '[ConvertAttachmentsToFilesQueueable.execute] Conversion results: ' + results );
-
-        if ( this.options.conversionResultEmailNotificationAddresses != null ) {
-            ConvertAttachmentsToFilesEmailService.sendEmail( this.options.conversionResultEmailNotificationAddresses, results );
-        }
 
     }
 

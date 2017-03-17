@@ -1,4 +1,13 @@
-public class ConvertAttachmentsToFilesSchedulable implements Schedulable {
+/**
+ * Designed for scheduling periodic job to perform batch conversion of attachments.
+ *
+ * For a more real-time or near real-time conversion of attachments to files, consider these other options:
+ *      1. In Setup | Customize | Salesforce Files | Settings | General Settings,
+ *         enable the options "Files uploaded to the Attachments related list on records are uploaded as Salesforce Files".
+ *      2. Use the ConvertAttachmentsToFilesTrigger by enabling custom setting
+ *         Convert_Attachments_to_Files_Settings.Convert_in_Near_Real_Time__c = true.
+ */
+public with sharing class ConvertAttachmentsToFilesSchedulable implements Schedulable {
 
     private ConvertAttachmentsToFilesOptions options { get; set; }
 

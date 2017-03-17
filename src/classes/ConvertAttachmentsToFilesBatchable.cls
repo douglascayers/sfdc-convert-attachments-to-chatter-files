@@ -4,7 +4,7 @@
  *
  * Actual conversion for each batch execution is delegated to ConvertAttachmentsToFilesService.
  */
-public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SObject>, Database.Stateful {
+public with sharing class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SObject>, Database.Stateful {
 
     private ConvertAttachmentsToFilesOptions options { get; set; }
 
@@ -27,11 +27,10 @@ public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SO
 
             return Database.getQueryLocator([
                 SELECT
-                    id, ownerId, owner.isActive, parentId, name, body, description, isPrivate
+                    id, parentId, ownerId, name, description, body, isPrivate,
+                    createdById, createdDate, lastModifiedById, lastModifiedDate
                 FROM
                     Attachment
-                WHERE
-                    owner.isActive = true
                 ORDER BY
                     parentId
             ]);
@@ -40,13 +39,12 @@ public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SO
 
             return Database.getQueryLocator([
                 SELECT
-                    id, ownerId, owner.isActive, parentId, name, body, description, isPrivate
+                    id, parentId, ownerId, name, description, body, isPrivate,
+                    createdById, createdDate, lastModifiedById, lastModifiedDate
                 FROM
                     Attachment
                 WHERE
                     parentId IN :this.options.parentIds
-                    AND
-                    owner.isActive = true
                 ORDER BY
                     parentId
             ]);
@@ -64,10 +62,6 @@ public class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SO
         List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( attachments );
 
         System.debug( '[ConvertAttachmentsToFilesBatchable.execute] Conversion results: ' + results );
-
-        if ( this.options.conversionResultEmailNotificationAddresses != null ) {
-            ConvertAttachmentsToFilesEmailService.sendEmail( this.options.conversionResultEmailNotificationAddresses, results );
-        }
 
     }
 

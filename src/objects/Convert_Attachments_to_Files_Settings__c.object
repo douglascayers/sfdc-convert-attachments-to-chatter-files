@@ -4,48 +4,6 @@
     <description>Controls when and how certain attachments are converted to files.</description>
     <enableFeeds>false</enableFeeds>
     <fields>
-        <fullName>Chatter_Post_to_Case_Inbound_Email_File__c</fullName>
-        <defaultValue>false</defaultValue>
-        <description>For Email-to-Case when the Attachment of Inbound EmailMessage is converted to File, do you want a Chatter Post to be made on the Case with the File so team can begin collaborating and commenting about it? Best when Case Team follows the Case too.</description>
-        <externalId>false</externalId>
-        <inlineHelpText>For Email-to-Case when the Attachment of Inbound EmailMessage is converted to File, do you want a Chatter Post to be made on the Case with the File so team can begin collaborating and commenting about it? Best when Case Team follows the Case too.</inlineHelpText>
-        <label>Chatter Post to Case Inbound Email File?</label>
-        <trackTrending>false</trackTrending>
-        <type>Checkbox</type>
-    </fields>
-    <fields>
-        <fullName>Conversion_Result_Email_Notifications__c</fullName>
-        <description>Comma-separated list of email addresses to send conversion result information to after each batch of conversions. Email may contain up to 200 conversion results at a time indicating which were successful and any warnings. If blank then no emails are sent.</description>
-        <externalId>false</externalId>
-        <inlineHelpText>Comma-separated list of email addresses to send conversion result information to after each batch of conversions. Email may contain up to 200 conversion results at a time indicating which were successful and any warnings. If blank then no emails are sent.</inlineHelpText>
-        <label>Conversion Result Email Notifications</label>
-        <length>255</length>
-        <required>false</required>
-        <trackTrending>false</trackTrending>
-        <type>Text</type>
-        <unique>false</unique>
-    </fields>
-    <fields>
-        <fullName>Convert_If_Feed_Tracking_Disabled__c</fullName>
-        <defaultValue>false</defaultValue>
-        <description>If Chatter Feed Tracking is disabled for the attachment&apos;s parent object then the converted File won&apos;t be able to be shared with the parent record. Enable this option to convert the attachment anyways even though it will not be shared with any records.</description>
-        <externalId>false</externalId>
-        <inlineHelpText>If Chatter Feed Tracking is disabled for the attachment&apos;s parent object then the converted File won&apos;t be able to be shared with the parent record. Enable this option to convert the attachment anyways even though it will not be shared with any records.</inlineHelpText>
-        <label>Convert If Feed Tracking Disabled?</label>
-        <trackTrending>false</trackTrending>
-        <type>Checkbox</type>
-    </fields>
-    <fields>
-        <fullName>Convert_Inbound_Email_Attachments__c</fullName>
-        <defaultValue>false</defaultValue>
-        <description>Should Attachments of EmailMessage records related to Cases be converted to Files? The File will belong at the Case level. Only applies to Incoming Emails for Email-to-Case.</description>
-        <externalId>false</externalId>
-        <inlineHelpText>Should Attachments of EmailMessage records related to Cases be converted to Files? The File will belong at the Case level. Only applies to Incoming Emails for Email-to-Case.</inlineHelpText>
-        <label>Convert Inbound Email Attachments?</label>
-        <trackTrending>false</trackTrending>
-        <type>Checkbox</type>
-    </fields>
-    <fields>
         <fullName>Convert_in_Near_Real_Time__c</fullName>
         <defaultValue>false</defaultValue>
         <description>Enables &apos;after insert&apos; trigger on Attachment that enqueues job to convert into Files in near real-time. This async conversion does not slow down save transaction, and if &apos;Delete Attachments&apos; option is enabled then deletes in separate transaction too.</description>
@@ -74,6 +32,42 @@
         <label>Share Private Attachments?</label>
         <trackTrending>false</trackTrending>
         <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Share_Type__c</fullName>
+        <defaultValue>&quot;V&quot;</defaultValue>
+        <description>The ContentDocumentLink.ShareType value to use for converted files.
+V = view only
+I = inferred by user&apos;s editability of related record
+C = collaborator, view/edit (not supported if related to standard objects)</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The ContentDocumentLink.ShareType value to use for converted files.
+V = view only
+I = inferred by user&apos;s editability of related record
+C = collaborator, view/edit (not supported if related to standard objects)</inlineHelpText>
+        <label>Share Type</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Visibility__c</fullName>
+        <defaultValue>&quot;InternalUsers&quot;</defaultValue>
+        <description>The ContentDocumentLink.Visibility value to use for converted files. For any user with permission to view the file, this further controls which set of users can actually see it.
+&quot;InternalUsers&quot; = only internal users with permission to view file
+&quot;AllUsers&quot; = all users, including community users, with permission to view file</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The ContentDocumentLink.Visibility value to use for converted files.
+&quot;InternalUsers&quot; = only internal users with permission to view file
+&quot;AllUsers&quot; = all users, including community users, with permission to view file</inlineHelpText>
+        <label>Visibility</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
     </fields>
     <label>Convert Attachments to Files Settings</label>
     <visibility>Public</visibility>

@@ -52,11 +52,10 @@ private class ConvertAttachmentsToFilesBatchableTest {
     static void test_scope_conversion() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getInstance();
-        settings.Convert_If_Feed_Tracking_Disabled__c = true;
-        settings.Convert_Inbound_Email_Attachments__c = true;
+        settings.Share_Type__c = 'I';
+        settings.Visibility__c = 'AllUsers';
         settings.Delete_Attachment_Once_Converted__c = true;
         settings.Share_Private_Attachments__c = true;
-        settings.Conversion_Result_Email_Notifications__c = 'test@example.com';
 
         upsert settings;
 

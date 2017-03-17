@@ -2,7 +2,32 @@
  * Represents configuration options to pass to conversion service
  * to influence how the conversion will be handled with the attachments.
  */
-public class ConvertAttachmentsToFilesOptions {
+public with sharing class ConvertAttachmentsToFilesOptions {
+
+    // The ContentDocumentLink.ShareType value to use for converted files.
+    // This controls user's view/edit ability of the file.
+    //
+    // Options:
+    //     'V' = view only
+    //     'I' = inferred view or edit based on user's similar access to related record
+    //     'C' = collaborator, view and edit (not supported if related to standard object)
+    //
+    // If you have communities enabled then consider 'V' or 'I'.
+    // The default is 'V'.
+    //
+    public String shareType { get; set; }
+
+    // The ContentDocumentLink.Visibility value to use for converted files.
+    // This controls whether file is visible to internal users only or all users.
+    //
+    // Options:
+    //     'InternalUsers' = available only to internal users who have permission to see file
+    //     'AllUsers' = available to all users, including community users, who have permission to see file
+    //
+    // If you have communities enabled then consider 'AllUsers'.
+    // The default is 'InternalUsers'.
+    //
+    public String visibility { get; set; }
 
     // Should the Attachments be deleted upon conversion to ContentVersion?
     // Deleting them reduces redundant data storage.
@@ -20,20 +45,6 @@ public class ConvertAttachmentsToFilesOptions {
     // As with the delete option, I err on the side of caution and do nothing unless you enable this option.
     public Boolean sharePrivateAttachmentsWithParentRecord { get; set; }
 
-    // ContentDocumentLink records cannot be linked with records whose object type
-    // does not support Chatter Feed Tracking. This option indicates whether to
-    // skip those attachments related to non-feed-tracking parents (false) or
-    // to go ahead and convert them (true) but the File won't be shared to any records.
-    // Only the file owner and administrator will have access to the file.
-    public Boolean convertIfFeedTrackingDisabledOnParentObject { get; set; }
-
-    // Should Attachments of EmailMessage records related to Cases be converted to Files?
-    // The File will belong at the Case level. Only applies to Incoming Emails for Email-to-Case.
-    public Boolean convertInboundEmailMessageAttachmentsToFilesOnCases { get; set; }
-
-    // Email addresses to send conversion result information to after a batch of attachments are converted to files.
-    public List<String> conversionResultEmailNotificationAddresses { get; set; }
-
     // Scope the conversion to just attachments related to specific records
     // if null then ALL attachments in the system will be converted
     // if empty then NO attachments will be converted
@@ -41,26 +52,19 @@ public class ConvertAttachmentsToFilesOptions {
     public Set<ID> parentIds { get; set; }
 
     public ConvertAttachmentsToFilesOptions() {
+        this.shareType = 'I';
+        this.visibility = 'InternalUsers';
         this.deleteAttachmentsUponConversion = false;
         this.sharePrivateAttachmentsWithParentRecord = false;
-        this.convertIfFeedTrackingDisabledOnParentObject = false;
-        this.convertInboundEmailMessageAttachmentsToFilesOnCases = false;
-        this.conversionResultEmailNotificationAddresses = null;
         this.parentIds = null;
     }
 
     public ConvertAttachmentsToFilesOptions( Convert_Attachments_to_Files_Settings__c settings ) {
+        this.shareType = settings.share_type__c;
+        this.visibility = settings.visibility__c;
         this.deleteAttachmentsUponConversion = settings.delete_attachment_once_converted__c;
         this.sharePrivateAttachmentsWithParentRecord = settings.share_private_attachments__c;
-        this.convertIfFeedTrackingDisabledOnParentObject = settings.convert_if_feed_tracking_disabled__c;
-        this.convertInboundEmailMessageAttachmentsToFilesOnCases = settings.convert_inbound_email_attachments__c;
-        this.conversionResultEmailNotificationAddresses = null;
         this.parentIds = null;
-
-        if ( String.isNotBlank( settings.conversion_result_email_notifications__c ) ) {
-            this.conversionResultEmailNotificationAddresses = settings.conversion_result_email_notifications__c.split(',');
-        }
-
     }
 
 }
