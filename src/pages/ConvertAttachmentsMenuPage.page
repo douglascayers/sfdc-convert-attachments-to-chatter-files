@@ -1,0 +1,56 @@
+<apex:page>
+
+    <apex:slds/>
+
+    <div class="slds-scope">
+
+        <div class="slds-page-header slds-box">
+            <p class="slds-page-header__title">
+                Convert Attachments to Files
+            </p>
+        </div>
+
+        <div class="slds-m-around--large"/>
+
+        <div class="slds-grid slds-grid--vertical-align-center slds-grid--pull-padded-medium">
+
+            <div class="slds-col slds-p-horizontal--medium slds-size--1-of-3">
+                <a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}" class="slds-text-link--reset2" style="text-decoration: none;">
+                    <div class="slds-box slds-theme--shade">
+                        <h3 class="slds-text-heading--small">Conversion Settings</h3>
+                        <p class="slds-text-color--default">Customize sharing and conversion options.</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="slds-col slds-p-horizontal--medium slds-size--1-of-3">
+                <a href="#" class="slds-text-link--reset2" style="text-decoration: none;">
+                    <div class="slds-box slds-theme--shade">
+                        <h3 class="slds-text-heading--small">Conversion Frequency</h3>
+                        <p class="slds-text-color--default">Choose how often to convert attachments to files.</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="slds-col slds-p-horizontal--medium slds-size--1-of-3">
+                <a href="#" class="slds-text-link--reset2" style="text-decoration: none;">
+                    <div class="slds-box slds-theme--shade">
+                        <h3 class="slds-text-heading--small">Test Conversion</h3>
+                        <p class="slds-text-color--default">Run a one-time conversion job limited to specific parent records.</p>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="slds-m-around--large"/>
+
+        <div>
+            <p>
+                Developed by <a href="https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files" target="_blank">Doug Ayers</a>
+            </p>
+        </div>
+
+    </div>
+
+</apex:page>

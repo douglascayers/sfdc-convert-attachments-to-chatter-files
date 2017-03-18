@@ -1,0 +1,179 @@
+<apex:page controller="ConvertAttachmentsSettingsController">
+
+    <apex:slds/>
+
+    <apex:form>
+
+        <div class="slds-scope">
+
+            <div class="slds-page-header slds-box">
+                <nav role="navigation" aria-label="Breadcrumbs">
+                    <ol class="slds-breadcrumb slds-list--horizontal">
+                        <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Menu</a></li>
+                        <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}">Conversion Settings</a></li>
+                    </ol>
+                </nav>
+                <p class="slds-page-header__title">
+                    Convert Attachments to Files
+                </p>
+            </div>
+
+            <div class="slds-m-around--large"/>
+
+            <div>
+                <p>
+                    Files have more powerful sharing options than attachments, one of the many reasons to switch to files!
+                </p>
+                <p>
+                    Please take a moment to carefully review your conversion sharing options below.
+                </p>
+            </div>
+
+            <div class="slds-m-around--large"/>
+
+            <apex:outputPanel id="mainPanel" layout="block">
+
+                <apex:outputPanel rendered="{!NOT(ISBLANK(saveMessage))}">
+                    <div class="slds-m-bottom--small">
+                        <div id="saveMessageContainer" class="slds-notify_container" style="position: relative;">
+                            <div class="slds-notify slds-notify--alert {!IF(saveSuccess, 'slds-theme--success', 'slds-theme--error')} slds-theme--alert-texture" role="alert">
+                                <button class="slds-button slds-notify__close slds-button--icon-inverse" title="Close" onclick="dismissMessages(0); return false;">
+                                    X
+                                    <span class="slds-assistive-text">Close</span>
+                                </button>
+                                <span class="slds-assistive-text">{!IF(saveSuccess, 'Success', 'Error')}</span>
+                                <h2>
+                                    <apex:outputText value="{!saveMessage}"/>
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                </apex:outputPanel>
+
+                <apex:pageBlock mode="maindetail">
+
+                    <div class="slds-box slds-m-top--small slds-m-bottom--small">
+
+                        <apex:pageBlockSection columns="1">
+
+                                <apex:selectRadio label="Who should converted files of private attachments be shared with?"
+                                                  value="{!settings.Share_Private_Attachments__c}"
+                                                  layout="pageDirection">
+
+                                    <apex:selectOption
+                                        itemLabel="Keep files private; only the attachment's creator and System Administrators may access the files"
+                                        itemValue="false"
+                                    />
+
+                                    <apex:selectOption
+                                        itemLabel="Share the files with all users who have access to the attachment's parent record"
+                                        itemValue="true"
+                                    />
+
+                                </apex:selectRadio>
+
+                        </apex:pageBlockSection>
+
+                    </div>
+
+                    <div class="slds-box slds-m-top--small slds-m-bottom--small">
+
+                        <apex:pageBlockSection columns="1">
+
+                                <apex:selectRadio label="Which community of users who have access to the attachment's parent record get access to the converted files?"
+                                                  value="{!settings.Visibility__c}"
+                                                  layout="pageDirection">
+
+                                    <apex:selectOption
+                                        itemLabel="Internal Users Only"
+                                        itemValue="InternalUsers"
+                                    />
+
+                                    <apex:selectOption
+                                        itemLabel="Internal and External Users"
+                                        itemValue="AllUsers"
+                                    />
+
+                                </apex:selectRadio>
+
+                        </apex:pageBlockSection>
+
+                    </div>
+
+                    <div class="slds-box slds-m-top--small slds-m-bottom--small">
+
+                        <apex:pageBlockSection columns="1">
+
+                                <apex:selectRadio label="How should view or edit access to the converted file be granted to users with access to the attachment's parent record?"
+                                                  value="{!settings.Share_Type__c}"
+                                                  layout="pageDirection">
+
+                                    <apex:selectOption
+                                        itemLabel="Users can only view the file but cannot edit it, even if the user can edit the attachment's parent record"
+                                        itemValue="V"
+                                    />
+
+                                    <apex:selectOption
+                                        itemLabel="Users inherit view or edit access to the file based on their view or edit access to the attachment's parent record"
+                                        itemValue="I"
+                                    />
+
+                                </apex:selectRadio>
+
+                        </apex:pageBlockSection>
+
+                    </div>
+
+                    <div class="slds-box slds-m-top--small slds-m-bottom--small">
+
+                        <apex:pageBlockSection columns="1">
+
+                                <apex:selectRadio label="What should happen to the original attachments once converted?"
+                                                  value="{!settings.Delete_Attachment_Once_Converted__c}"
+                                                  layout="pageDirection">
+
+                                    <apex:selectOption
+                                        itemLabel="Keep them; I have great plans for the attachments..."
+                                        itemValue="false"
+                                    />
+
+                                    <apex:selectOption
+                                        itemLabel="Delete them; they have served their purpose!"
+                                        itemValue="true"
+                                    />
+
+                                </apex:selectRadio>
+
+                        </apex:pageBlockSection>
+
+                    </div>
+
+                </apex:pageBlock>
+
+                <div class="slds-form-element">
+                    <button type="button" class="slds-button slds-button--brand" onclick="clearTimeout(timerId); save();">Save</button>
+                    <button type="button" class="slds-button slds-button--neutral" onclick="cancel();">Cancel</button>
+                </div>
+
+                <apex:actionFunction name="save" action="{!save}" rerender="mainPanel" oncomplete="if ( '{!saveSuccess}' == 'true' ) { dismissMessages(5000); }"/>
+                <apex:actionFunction name="cancel" action="{!URLFOR($Page.ConvertAttachmentsMenuPage)}" immediate="true"/>
+
+                <script>
+
+                    var timerId;
+
+                    function dismissMessages( waitTime ) {
+                        timerId = setTimeout( function() {
+                            document.getElementById('saveMessageContainer').className += ' slds-hide';
+                        }, waitTime );
+                    }
+
+                </script>
+
+            </apex:outputPanel>
+
+        </div>
+
+    </apex:form>
+
+</apex:page>
