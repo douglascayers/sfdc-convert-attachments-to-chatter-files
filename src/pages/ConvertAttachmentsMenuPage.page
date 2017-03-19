@@ -2,6 +2,12 @@
 
     <apex:slds/>
 
+    <style>
+        .slds-scope .menu-grid .slds-box {
+            height: 100%;
+        }
+    </style>
+
     <div class="slds-scope">
 
         <div class="slds-page-header slds-box">
@@ -12,35 +18,62 @@
 
         <div class="slds-m-around--large"/>
 
-        <div class="slds-grid slds-grid--vertical-align-center slds-grid--pull-padded-medium">
+        <div class="menu-grid slds-grid slds-grid--vertical-stretch slds-grid--pull-padded-medium">
 
-            <div class="slds-col slds-p-horizontal--medium slds-size--1-of-3">
-                <a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}" class="slds-text-link--reset2" style="text-decoration: none;">
+            <div class="slds-p-horizontal--medium slds-size--1-of-3">
+                <a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}" style="text-decoration: none;">
                     <div class="slds-box slds-theme--shade">
-                        <h3 class="slds-text-heading--small">Conversion Settings</h3>
-                        <p class="slds-text-color--default">Customize sharing and conversion options.</p>
+                        <h3 class="slds-text-heading--small">1. Setup Conversion Settings</h3>
+                        <p class="slds-text-color--default">
+                            Customize sharing and conversion options.
+                            <br/>
+                            Decide who gets view or edit access to converted files.
+                            <br/>
+                            Decide if converted files become available to external communities.
+                        </p>
                     </div>
                 </a>
             </div>
 
-            <div class="slds-col slds-p-horizontal--medium slds-size--1-of-3">
-                <a href="#" class="slds-text-link--reset2" style="text-decoration: none;">
+            <div class="menu-grid-col slds-p-horizontal--medium slds-size--1-of-3">
+                <a href="#" style="text-decoration: none;">
                     <div class="slds-box slds-theme--shade">
-                        <h3 class="slds-text-heading--small">Conversion Frequency</h3>
-                        <p class="slds-text-color--default">Choose how often to convert attachments to files.</p>
+                        <h3 class="slds-text-heading--small">2. Test Conversion</h3>
+                        <p class="slds-text-color--default">
+                            Run a one-time conversion job limited to specific parent records.
+                            <br/>
+                            Take it for a test drive before automating the solution or converting in bulk.
+                        </p>
                     </div>
                 </a>
             </div>
 
-            <div class="slds-col slds-p-horizontal--medium slds-size--1-of-3">
-                <a href="#" class="slds-text-link--reset2" style="text-decoration: none;">
+            <div class="menu-grid-col slds-p-horizontal--medium slds-size--1-of-3">
+                <a href="#" style="text-decoration: none;">
                     <div class="slds-box slds-theme--shade">
-                        <h3 class="slds-text-heading--small">Test Conversion</h3>
-                        <p class="slds-text-color--default">Run a one-time conversion job limited to specific parent records.</p>
+                        <h3 class="slds-text-heading--small">3. Automate Conversion</h3>
+                        <p class="slds-text-color--default">
+                            Choose how often to convert attachments to files.
+                            <br/>
+                            Even after initial conversion, attachments might still be created for various reasons,
+                            such as attachments created from inbound Email-2-Case or third-party integrations.
+                        </p>
                     </div>
                 </a>
             </div>
 
+        </div>
+
+        <div class="slds-m-around--large"/>
+
+        <div class="slds-notify_container" style="position: relative;">
+            <div class="slds-notify slds-notify--toast slds-theme--warning" role="alert">
+                <div class="slds-notify__content">
+                    <h2 class="slds-text-heading--small">
+                        Always test in a sandbox and backup your data first before performing conversions in production.
+                    </h2>
+                </div>
+            </div>
         </div>
 
         <div class="slds-m-around--large"/>
