@@ -10,78 +10,80 @@
 
     <div class="slds-scope">
 
-        <div class="slds-page-header slds-box">
-            <p class="slds-page-header__title">
-                Convert Attachments to Files
-            </p>
-        </div>
+        <div class="slds-m-around--large">
 
-        <div class="slds-m-around--large"/>
-
-        <div class="menu-grid slds-grid slds-grid--vertical-stretch slds-grid--pull-padded-medium">
-
-            <div class="slds-p-horizontal--medium slds-size--1-of-3">
-                <a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}" style="text-decoration: none;">
-                    <div class="slds-box slds-theme--shade">
-                        <h3 class="slds-text-heading--small">1. Setup Conversion Settings</h3>
-                        <p class="slds-text-color--default">
-                            Customize sharing and conversion options.
-                            <br/>
-                            Decide who gets view or edit access to converted files.
-                            <br/>
-                            Decide if converted files become available to external communities.
-                        </p>
-                    </div>
-                </a>
+            <div class="slds-page-header slds-box">
+                <nav role="navigation" aria-label="Breadcrumbs">
+                    <ol class="slds-breadcrumb slds-list--horizontal">
+                        <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Main Menu</a></li>
+                    </ol>
+                </nav>
+                <p class="slds-page-header__title">
+                    Convert Attachments to Files
+                </p>
             </div>
 
-            <div class="menu-grid-col slds-p-horizontal--medium slds-size--1-of-3">
-                <a href="#" style="text-decoration: none;">
-                    <div class="slds-box slds-theme--shade">
-                        <h3 class="slds-text-heading--small">2. Test Conversion</h3>
-                        <p class="slds-text-color--default">
-                            Run a one-time conversion job limited to specific parent records.
-                            <br/>
-                            Take it for a test drive before automating the solution or converting in bulk.
-                        </p>
-                    </div>
-                </a>
+            <div class="slds-m-around--large"/>
+
+            <div class="menu-grid slds-grid slds-grid--vertical-stretch slds-grid--pull-padded-medium">
+
+                <div class="slds-p-horizontal--medium slds-size--1-of-3">
+                    <a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}" style="text-decoration: none;">
+                        <div class="slds-box slds-theme--shade">
+                            <h3 class="slds-text-heading--small">1. Setup Conversion Settings</h3>
+                            <p class="slds-text-color--default">
+                                Customize sharing and conversion options.
+                            </p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="menu-grid-col slds-p-horizontal--medium slds-size--1-of-3">
+                    <a href="{!URLFOR($Page.ConvertAttachmentsRunOncePage)}" style="text-decoration: none;">
+                        <div class="slds-box slds-theme--shade">
+                            <h3 class="slds-text-heading--small">2. Test Conversion</h3>
+                            <p class="slds-text-color--default">
+                                Run a test conversion job limited to specific parent records.
+                            </p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="menu-grid-col slds-p-horizontal--medium slds-size--1-of-3">
+                    <a href="{!URLFOR($Page.ConvertAttachmentsSchedulePage)}" style="text-decoration: none;">
+                        <div class="slds-box slds-theme--shade">
+                            <h3 class="slds-text-heading--small">3. Automate Conversion</h3>
+                            <p class="slds-text-color--default">
+                                Choose how often to convert new attachments to files.
+                            </p>
+                        </div>
+                    </a>
+                </div>
+
             </div>
 
-            <div class="menu-grid-col slds-p-horizontal--medium slds-size--1-of-3">
-                <a href="#" style="text-decoration: none;">
-                    <div class="slds-box slds-theme--shade">
-                        <h3 class="slds-text-heading--small">3. Automate Conversion</h3>
-                        <p class="slds-text-color--default">
-                            Choose how often to convert attachments to files.
-                            <br/>
-                            Even after initial conversion, attachments might still be created for various reasons,
-                            such as attachments created from inbound Email-2-Case or third-party integrations.
-                        </p>
+            <div class="slds-m-around--large"/>
+
+            <div class="slds-notify_container" style="position: relative;">
+                <div class="slds-notify slds-notify--toast slds-theme--warning" role="alert">
+                    <div class="slds-notify__content">
+                        <h2 class="slds-text-heading--small">
+                            Always test in a sandbox and backup your data first before performing conversions in production.
+                        </h2>
                     </div>
-                </a>
-            </div>
-
-        </div>
-
-        <div class="slds-m-around--large"/>
-
-        <div class="slds-notify_container" style="position: relative;">
-            <div class="slds-notify slds-notify--toast slds-theme--warning" role="alert">
-                <div class="slds-notify__content">
-                    <h2 class="slds-text-heading--small">
-                        Always test in a sandbox and backup your data first before performing conversions in production.
-                    </h2>
                 </div>
             </div>
-        </div>
 
-        <div class="slds-m-around--large"/>
+            <div class="slds-m-around--large"/>
 
-        <div>
-            <p>
-                Developed by <a href="https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files" target="_blank">Doug Ayers</a>
-            </p>
+            <div class="slds-panel slds-align--absolute-center">
+                <p>
+                    &copy; 2017 <a href="https://douglascayers.com" target="_blank">Douglas C. Ayers</a>.
+                    View project on <a href="https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files" target="_blank">GitHub</a>.
+                    Licensed under <a href="https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/blob/master/LICENSE" target="_blank">MIT License</a>.
+                </p>
+            </div>
+
         </div>
 
     </div>

@@ -1,3 +1,6 @@
 <apex:page showHeader="true" sidebar="true">
-	
+
+                            Even after initial conversion, attachments might still be created for various reasons,
+                            such as attachments created from inbound Email-2-Case or third-party integrations.
+
 </apex:page>

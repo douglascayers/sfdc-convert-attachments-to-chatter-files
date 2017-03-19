@@ -2,8 +2,9 @@ public with sharing class ConvertAttachmentsSettingsController {
 
     public Convert_Attachments_to_Files_Settings__c settings { get; set; }
 
-    public String saveMessage { get; set; }
-    public Boolean saveSuccess { get; set; }
+    public String message { get; set; }
+
+    public Boolean success { get; set; }
 
     public ConvertAttachmentsSettingsController() {
 
@@ -21,8 +22,8 @@ public with sharing class ConvertAttachmentsSettingsController {
 
             upsert this.settings;
 
-            this.saveMessage = 'Settings saved successfully!';
-            this.saveSuccess = true;
+            this.message = 'Settings saved successfully!';
+            this.success = true;
 
         } catch ( Exception e ) {
 
@@ -32,8 +33,8 @@ public with sharing class ConvertAttachmentsSettingsController {
 
             this.settings.id = originalId;
 
-            this.saveMessage = e.getMessage();
-            this.saveSuccess = false;
+            this.message = e.getMessage();
+            this.success = false;
 
         }
 
