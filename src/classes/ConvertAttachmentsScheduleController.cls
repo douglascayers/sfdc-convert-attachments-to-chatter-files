@@ -1,38 +1,41 @@
 public with sharing class ConvertAttachmentsScheduleController {
 
-    public ScheduleRequest request { get; set; }
-
-    public Boolean enableTrigger { get; set; }
+    public Convert_Attachments_to_Files_Settings__c settings { get; set; }
 
     public String message { get; set; }
 
     public Boolean success { get; set; }
 
     public ConvertAttachmentsScheduleController() {
-        this.request = new ScheduleRequest();
-        this.enableTrigger = Convert_Attachments_to_Files_Settings__c.getInstance().Convert_in_Near_Real_Time__c;
+
+        this.settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+
     }
 
     public void save() {
 
+        SavePoint sp = Database.setSavePoint();
 
+        ID originalId = this.settings.id;
 
-    }
+        try {
 
-    public class ScheduleRequest {
+            upsert this.settings;
 
-        public Boolean sunday { get; set; }
-        public Boolean monday { get; set; }
-        public Boolean tuesday { get; set; }
-        public Boolean wednesday { get; set; }
-        public Boolean thursday { get; set; }
-        public Boolean friday { get; set; }
-        public Boolean saturday { get; set; }
+            this.message = 'Settings saved successfully!';
+            this.success = true;
 
-        public Integer timeOfDay { get; set; } // 0-23 military time
+        } catch ( Exception e ) {
 
-        public ScheduleRequest() {
-            this.timeOfDay = 0;
+            System.debug( LoggingLevel.ERROR, e.getMessage() + ' : ' + e.getStackTraceString() );
+
+            Database.rollback( sp );
+
+            this.settings.id = originalId;
+
+            this.message = e.getMessage();
+            this.success = false;
+
         }
 
     }

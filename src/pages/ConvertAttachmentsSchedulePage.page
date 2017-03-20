@@ -10,7 +10,7 @@
             margin-bottom: inherit; /* undo classic styling so slds is applied */
         }
 
-        .slds-scope h2 {
+        .slds-scope .section-title {
             background-color: #d8edff;
             border-radius: 5px;
             padding: 0.4em;
@@ -75,13 +75,14 @@
 
                         <div class="slds-box slds-m-top--small slds-m-bottom--small">
 
-                            <h2 class="slds-text-heading--medium slds-m-bottom--small section-title">
+                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
                                 <b>Enable Attachments uploaded to Notes &amp; Attachments related list upload as Files instead</b>
-                            </h2>
+                            </p>
 
                             <p class="slds-m-bottom--medium">
-                                To help avoid creation of attachments when users upload them in the Salesforce Classic UI,
-                                it is recommended that you enable this Salesforce Files setting.
+                                If your users upload attachments in Salesforce Classic then you may want to enable this setting so they are uploaded as files instead.
+                                <br/>
+                                Click <a href="/setup/content/FilesGeneralSettings.apexp">here</a> to be taken to the Salesforce Files Settings page in Setup, or follow below directions.
                             </p>
 
                             <p class="slds-m-bottom--medium">
@@ -110,9 +111,9 @@
 
                         <div class="slds-box slds-m-top--small slds-m-bottom--small">
 
-                            <h2 class="slds-text-heading--medium slds-m-bottom--small section-title">
+                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
                                 <b>Enable Attachment Trigger</b>
-                            </h2>
+                            </p>
 
                             <p class="slds-m-bottom--medium">
                                 If you have integrations that create new attachments, this trigger will submit a background job to convert them to files as they are inserted.
@@ -128,66 +129,54 @@
 
                                     <apex:inputCheckbox id="enable-trigger-checkbox"
                                                         label="Enable Trigger"
-                                                        value="{!enableTrigger}"/>
+                                                        value="{!settings.Convert_in_Near_Real_Time__c}"/>
 
                                 </apex:pageBlockSection>
 
                             </p>
+
+                            <div class="slds-grid slds-grid--align-center">
+                                <div slds="slds-col">
+                                    <apex:commandButton value=" Save " action="{!save}" styleClass="slds-button slds-button--brand"/>
+                                </div>
+                            </div>
 
                         </div>
 
                         <div class="slds-box slds-m-top--small slds-m-bottom--small">
 
-                            <h2 class="slds-text-heading--medium slds-m-bottom--small section-title">
+                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
                                 <b>Schedule Job</b>
-                            </h2>
+                            </p>
 
                             <p class="slds-m-bottom--medium">
                                 Schedule a recurring job to convert new attachments to files.
+                                <br/>
+                                You might consider this option if you have scenarios where new attachments are created but are <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_triggers_ignoring_operations.htm" target="_blank">not causing the trigger to fire</a>.
+                                <br/>
+                                Click <a href="/ui/setup/apex/batch/ScheduleBatchApexPage?setupid=ApexClasses&ac=ConvertAttachmentsToFilesSchedulable&job_name=Convert+Attachments+to+Files+Job&retURL=/08e?retURL=%2Fui%2Fsetup%2FSetup%3Fsetupid%3DJobs&setupid=ScheduledJobs">here</a> to be taken to the Schedule Job page in Setup, or follow below directions.
+                            </p>
+
+                            <p class="slds-m-bottom--medium">
+                                <ol class="slds-list--ordered">
+                                    <li class="slds-item">
+                                        From Setup, enter <b>Apex Classes</b> in the <b>Quick Find</b> box, then select <b>Schedule Apex</b> button.
+                                    </li>
+                                    <li class="slds-item">
+                                        Specify Apex Class "ConvertAttachmentsToFilesSchedulable" and your desired schedule.
+                                    </li>
+                                </ol>
                             </p>
 
                             <p class="slds-m-bottom--medium">
                                 Please carefully review your <a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}">conversion and sharing settings</a> before enabling this option.
-                            </p>
-
-                            <p class="slds-m-bottom--medium">
-
-                                <apex:pageBlockSection columns="1">
-
-<pre>
-    // Schedule
-
-        // Days
-        [ Sun ] [ Mon ] [ Tue ] [ Wed ] [ Thu ] [ Fri ] [ Sat ]
-
-        // Time (company default time zone)
-        [ picklist ] // 12:00 AM through 11:00 PM
-
-            Please review your conversion settings before enabling this option.
-
-            If new attachments are still created in your system,
-            you may want to have a regularly scheduled batch job mass convert the attachments to files on a daily basis.
-
-            This page lets you setup a daily scheduled job.
-
-            For more advanced scheduling options like multiple times a day or specific time of the day other than on the hour, please consult a developer to specify custom cron expressions using the Developer Console.
-
-</pre>
-
-                                </apex:pageBlockSection>
-
+                                <br/>
+                                If you change your settings you must re-schedule this job for the changes to take effect.
                             </p>
 
                         </div>
 
                     </apex:pageBlock>
-
-                    <div class="slds-grid slds-grid--align-center">
-                        <div slds="slds-col">
-                            <apex:commandButton value=" Save " action="{!save}" styleClass="slds-button slds-button--brand"/>
-                            <apex:commandButton value=" Cancel " action="{!URLFOR($Page.ConvertAttachmentsMenuPage)}" styleClass="slds-button slds-button--neutral"/>
-                        </div>
-                    </div>
 
                     <script>
 
@@ -209,21 +198,5 @@
         </div>
 
     </apex:form>
-
-
-if any scheduled job exists for the ConvertAttachmentsToFilesSchedulable
-
-
-on button click, if neutral then make default and check hidden box
-on button click, if default then make neutral and uncheck hidden box
-
-
-<div class="slds-button-group" role="group">
-  <button class="slds-button slds-button--neutral">Refresh</button>
-  <button class="slds-button slds-button--neutral">Edit</button>
-  <button class="slds-button slds-button--neutral">Save</button>
-</div>
-
-
 
 </apex:page>

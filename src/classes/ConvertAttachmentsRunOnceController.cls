@@ -17,6 +17,8 @@ public with sharing class ConvertAttachmentsRunOnceController {
 
     public void submitJob() {
 
+        SavePoint sp = Database.setSavePoint();
+
         try {
 
             Set<ID> parentIds = new Set<ID>();
@@ -45,6 +47,8 @@ public with sharing class ConvertAttachmentsRunOnceController {
         } catch ( Exception e ) {
 
             System.debug( LoggingLevel.ERROR, e.getMessage() + ' : ' + e.getStackTraceString() );
+
+            Database.rollback( sp );
 
             this.message = e.getMessage();
             this.success = false;
