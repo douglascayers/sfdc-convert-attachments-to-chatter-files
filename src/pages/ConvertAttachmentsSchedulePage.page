@@ -1,6 +1,6 @@
 <apex:page controller="ConvertAttachmentsScheduleController">
 
-    <apex:slds/>
+    <apex:slds />
 
     <apex:includeScript value="https://code.jquery.com/jquery-3.2.0.min.js"/>
 
@@ -18,7 +18,7 @@
 
     </style>
 
-    <apex:form>
+    <apex:form >
 
         <div class="slds-scope">
 
@@ -52,7 +52,7 @@
 
                 <apex:outputPanel id="mainPanel" layout="block">
 
-                    <apex:pageMessages/>
+                    <apex:pageMessages />
 
                     <apex:outputPanel rendered="{!NOT(ISBLANK(message))}">
                         <div class="slds-m-bottom--small">

@@ -1,6 +1,6 @@
 <apex:page controller="ConvertAttachmentsRunOnceController">
 
-    <apex:slds/>
+    <apex:slds />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/default.min.css"></link>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js"></script>
@@ -20,7 +20,7 @@
 
     </style>
 
-    <apex:form>
+    <apex:form >
 
         <div class="slds-scope">
 
@@ -52,7 +52,7 @@
 
                 <apex:outputPanel id="mainPanel" layout="block">
 
-                    <apex:pageMessages/>
+                    <apex:pageMessages />
 
                     <apex:pageBlock mode="maindetail">
 

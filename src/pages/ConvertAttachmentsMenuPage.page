@@ -1,6 +1,6 @@
-<apex:page>
+<apex:page >
 
-    <apex:slds/>
+    <apex:slds />
 
     <style>
 

@@ -1,6 +1,6 @@
 <apex:page controller="ConvertAttachmentsSettingsController">
 
-    <apex:slds/>
+    <apex:slds />
 
     <style>
 
@@ -10,7 +10,7 @@
 
     </style>
 
-    <apex:form>
+    <apex:form >
 
         <div class="slds-scope">
 
@@ -43,7 +43,7 @@
 
                 <apex:outputPanel id="mainPanel" layout="block">
 
-                    <apex:pageMessages/>
+                    <apex:pageMessages />
 
                     <apex:outputPanel rendered="{!NOT(ISBLANK(message))}">
                         <div class="slds-m-bottom--small">
@@ -75,13 +75,11 @@
                                                   value="{!settings.Share_Private_Attachments__c}"
                                                   layout="pageDirection">
 
-                                    <apex:selectOption
-                                        itemLabel="Keep files private; only the attachment's creator and System Administrators may access the files"
+                                    <apex:selectOption itemLabel="Keep files private; only the attachment's creator and System Administrators may access the files"
                                         itemValue="false"
                                     />
 
-                                    <apex:selectOption
-                                        itemLabel="Share the files with all users who have access to the attachment's parent record"
+                                    <apex:selectOption itemLabel="Share the files with all users who have access to the attachment's parent record"
                                         itemValue="true"
                                     />
 
@@ -102,13 +100,11 @@
                                                   value="{!settings.Visibility__c}"
                                                   layout="pageDirection">
 
-                                    <apex:selectOption
-                                        itemLabel="Internal Users Only"
+                                    <apex:selectOption itemLabel="Internal Users Only"
                                         itemValue="InternalUsers"
                                     />
 
-                                    <apex:selectOption
-                                        itemLabel="Internal and External Users (recommended if you use communities)"
+                                    <apex:selectOption itemLabel="Internal and External Users (recommended if you use communities)"
                                         itemValue="AllUsers"
                                     />
 
@@ -129,13 +125,11 @@
                                                   value="{!settings.Share_Type__c}"
                                                   layout="pageDirection">
 
-                                    <apex:selectOption
-                                        itemLabel="Users can only view the file but cannot edit it, even if the user can edit the attachment's parent record"
+                                    <apex:selectOption itemLabel="Users can only view the file but cannot edit it, even if the user can edit the attachment's parent record"
                                         itemValue="V"
                                     />
 
-                                    <apex:selectOption
-                                        itemLabel="Users inherit view or edit access to the file based on their view or edit access to the attachment's parent record (recommended)"
+                                    <apex:selectOption itemLabel="Users inherit view or edit access to the file based on their view or edit access to the attachment's parent record (recommended)"
                                         itemValue="I"
                                     />
 
@@ -156,13 +150,11 @@
                                                   value="{!settings.Delete_Attachment_Once_Converted__c}"
                                                   layout="pageDirection">
 
-                                    <apex:selectOption
-                                        itemLabel="Keep them; I have great plans for the attachments..."
+                                    <apex:selectOption itemLabel="Keep them; I have great plans for the attachments..."
                                         itemValue="false"
                                     />
 
-                                    <apex:selectOption
-                                        itemLabel="Delete them; I have backups and I need the data storage back!"
+                                    <apex:selectOption itemLabel="Delete them; I have backups and I need the data storage back!"
                                         itemValue="true"
                                     />
 
