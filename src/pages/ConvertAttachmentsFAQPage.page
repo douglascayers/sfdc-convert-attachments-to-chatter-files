@@ -2,10 +2,20 @@
 
     <apex:slds/>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/default.min.css"></link>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
     <style>
 
         .slds-scope .apexp .bPageBlock p {
             margin-bottom: inherit; /* undo classic styling so slds is applied */
+        }
+
+        .slds-scope .section-title {
+            background-color: #d8edff;
+            border-radius: 5px;
+            padding: 0.4em;
         }
 
     </style>
@@ -32,7 +42,9 @@
 
                 <div>
                     <p>
-                        Frequently Asked Questions
+                        If you encounter an issue not mentioned here, you can <a href="https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues">submit an issue</a> on the GitHub project.
+                        <br/>
+                        I will make every effort to respond in a timely manner but remember that I maintain this open source project in my free time. Thanks!
                     </p>
                 </div>
 
@@ -46,13 +58,84 @@
 
                         <div class="slds-box slds-m-top--small slds-m-bottom--small">
 
-                            todo
+                            <a name="error-apex-heap-size-limit"/>
+
+                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
+                                <b>Error: Apex Heap Size Too Large</b>
+                            </p>
+
+                            <p class="slds-m-bottom--small">
+                                This error usually means too many large attachments are trying to be converted to files in the same transaction.
+                                <br/>
+                                The conversion jobs are restricted to <a href="https://developer.salesforce.com/docs/atlas.en-us.salesforce_app_limits_cheatsheet.meta/salesforce_app_limits_cheatsheet/salesforce_app_limits_platform_apexgov.htm" target="_blank">Apex Governor Limit of 12MB</a>, so the total size of all attachments being converted in same transaction must be less than 12MB.
+                                <br/>
+                            </p>
+
+                            <p class="slds-m-bottom--small">
+                                Try reducing the batch size when running the conversion jobs.
+                                <br/>
+                                Manually move all large attachments to files whose size exceeds the Apex Governor Limit.
+                                <br/>
+                                If you have the near real-time trigger enabled, try reducing the number of attachments being inserted in the same transaction.
+                                <br/>
+                                If you have the conversion job scheduled, reschedule it to use a reduced batch size, for example in Developer Console do:
+                            </p>
+
+                            <pre><code class="java">
+String jobName = 'Convert Attachments to Files Job';
+Integer batchSize = 100; // reduce as needed until Heap Limit error goes away
+String cron = '0 0 13 * * ?'; // when to run job, this expression means 1:00 AM every day
+
+Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
+
+// create job
+ConvertAttachmentsToFilesSchedulable job = new ConvertAttachmentsToFilesSchedulable( batchSize, options );
+
+// delete currently scheduled job
+for ( CronJobDetail job : [ SELECT id FROM CronJobDetail WHERE name = :jobName ] ) {
+System.abortJob( job.id );
+}
+
+// schedule new job
+System.schedule( jobName, cron, job );
+                            </code></pre>
 
                         </div>
 
                         <div class="slds-box slds-m-top--small slds-m-bottom--small">
 
-                            todo
+                            <a name="error-content-publication-limit-exceeded"/>
+
+                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
+                                <b>Error: ContentPublication Limit Exceeded</b>
+                            </p>
+
+                            <p class="slds-m-bottom--small">
+                                This limit represents the amount of files that can be added to Content per 24 hours.
+                                <br/>
+                                The default limit is 36,000 files per 24 hours but may be <a href="https://help.salesforce.com/articleView?id=000232943" target="_blank">increased by contacting Salesforce Support</a>.
+                            </p>
+
+                            <p class="slds-m-bottom--small">
+                                Due to Governor Limits, you will need to throttle the amount of attachments you try to convert in a 24 hour period.
+                            </p>
+
+                        </div>
+
+                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
+
+                            <a name="which-objects-support-files"/>
+
+                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
+                                <b>Which Objects Support Salesforce Files?</b>
+                            </p>
+
+                            <p class="slds-m-bottom--small">
+                                Generally speaking, most standard and custom objects that support Notes &amp; Attachments also support Salesforce Files.
+                                <br/>
+                                There are some exceptions such as Tasks, Events, and EmailMessages which do not support Files and so their attachments cannot be converted.
+                            </p>
 
                         </div>
 
