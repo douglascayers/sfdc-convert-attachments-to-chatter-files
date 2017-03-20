@@ -2,6 +2,14 @@
 
     <apex:slds/>
 
+    <style>
+
+        .slds-scope .apexp .bPageBlock p {
+            margin-bottom: inherit; /* undo classic styling so slds is applied */
+        }
+
+    </style>
+
     <apex:form>
 
         <div class="slds-scope">
@@ -35,6 +43,8 @@
 
                 <apex:outputPanel id="mainPanel" layout="block">
 
+                    <apex:pageMessages/>
+
                     <apex:outputPanel rendered="{!NOT(ISBLANK(message))}">
                         <div class="slds-m-bottom--small">
                             <div id="messageContainer" class="slds-notify_container" style="position: relative;">
@@ -58,7 +68,10 @@
 
                             <apex:pageBlockSection columns="1">
 
-                                <apex:selectRadio label="Who should converted files of private attachments be shared with?"
+                                <apex:outputLabel value="Who should converted files of private attachments be shared with?"
+                                                  style="font-weight: bold;"/>
+
+                                <apex:selectRadio label=""
                                                   value="{!settings.Share_Private_Attachments__c}"
                                                   layout="pageDirection">
 
@@ -82,7 +95,10 @@
 
                             <apex:pageBlockSection columns="1">
 
-                                <apex:selectRadio label="Which community of users who have access to the attachment's parent record get access to the converted files?"
+                                <apex:outputLabel value="Which community of users who have access to the attachment's parent record get access to the converted files?"
+                                                  style="font-weight: bold;"/>
+
+                                <apex:selectRadio label=""
                                                   value="{!settings.Visibility__c}"
                                                   layout="pageDirection">
 
@@ -106,11 +122,10 @@
 
                             <apex:pageBlockSection columns="1">
 
-                                <apex:pageBlockSectionItem>
+                                <apex:outputLabel value="How should view or edit access to the converted file be granted to users with access to the attachment's parent record?"
+                                                  style="font-weight: bold;"/>
 
-                                <apex:outputLabel value="How should view or edit access to the converted file be granted to users with access to the attachment's parent record?"/>
-
-                                <apex:selectRadio
+                                <apex:selectRadio label=""
                                                   value="{!settings.Share_Type__c}"
                                                   layout="pageDirection">
 
@@ -126,8 +141,6 @@
 
                                 </apex:selectRadio>
 
-                                </apex:pageBlockSectionItem>
-
                             </apex:pageBlockSection>
 
                         </div>
@@ -136,7 +149,10 @@
 
                             <apex:pageBlockSection columns="1">
 
-                                <apex:selectRadio label="What should happen to the original attachments once converted?"
+                                <apex:outputLabel value="What should happen to the original attachments once converted?"
+                                                  style="font-weight: bold;"/>
+
+                                <apex:selectRadio label=""
                                                   value="{!settings.Delete_Attachment_Once_Converted__c}"
                                                   layout="pageDirection">
 

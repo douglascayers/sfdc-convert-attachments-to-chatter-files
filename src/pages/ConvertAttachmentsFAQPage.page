@@ -1,0 +1,69 @@
+<apex:page controller="ConvertAttachmentsRunOnceController">
+
+    <apex:slds/>
+
+    <style>
+
+        .slds-scope .apexp .bPageBlock p {
+            margin-bottom: inherit; /* undo classic styling so slds is applied */
+        }
+
+    </style>
+
+    <apex:form>
+
+        <div class="slds-scope">
+
+            <div class="slds-m-around--large">
+
+                <div class="slds-page-header slds-box">
+                    <nav role="navigation" aria-label="Breadcrumbs">
+                        <ol class="slds-breadcrumb slds-list--horizontal">
+                            <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Main Menu</a></li>
+                            <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsFAQPage)}">Troubleshooting</a></li>
+                        </ol>
+                    </nav>
+                    <p class="slds-page-header__title">
+                        Convert Attachments to Files
+                    </p>
+                </div>
+
+                <div class="slds-m-around--large"/>
+
+                <div>
+                    <p>
+                        Frequently Asked Questions
+                    </p>
+                </div>
+
+                <div class="slds-m-around--large"/>
+
+                <apex:outputPanel id="mainPanel" layout="block">
+
+                    <apex:pageMessages/>
+
+                    <apex:pageBlock mode="maindetail">
+
+                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
+
+                            todo
+
+                        </div>
+
+                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
+
+                            todo
+
+                        </div>
+
+                    </apex:pageBlock>
+
+                </apex:outputPanel>
+
+            </div>
+
+        </div>
+
+    </apex:form>
+
+</apex:page>

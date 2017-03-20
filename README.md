@@ -81,7 +81,8 @@ Examples
 
     // then schedule job
     // note, to change options after job is scheduled you need to stop the job and kick it off again with new option selections
-    System.schedule( 'Convert Attachments to Files Job', '0 0 13 * * ?', new ConvertAttachmentsToFilesSchedulable( options ) );
+    Integer batchSize = 100;
+    System.schedule( 'Convert Attachments to Files Job', '0 0 13 * * ?', new ConvertAttachmentsToFilesSchedulable( batchSize, options ) );
 
 *Enable Trigger for Real-Time*
 

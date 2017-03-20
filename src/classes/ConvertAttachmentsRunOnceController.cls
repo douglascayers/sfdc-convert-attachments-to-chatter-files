@@ -11,8 +11,8 @@ public with sharing class ConvertAttachmentsRunOnceController {
     public Boolean success { get; set; }
 
     public ConvertAttachmentsRunOnceController() {
-        this.options = new ConvertAttachmentsToFilesOptions( Convert_Attachments_to_Files_Settings__c.getInstance() );
-        this.batchSize = 200;
+        this.options = new ConvertAttachmentsToFilesOptions( Convert_Attachments_to_Files_Settings__c.getOrgDefaults() );
+        this.batchSize = 100;
     }
 
     public void submitJob() {
@@ -31,13 +31,15 @@ public with sharing class ConvertAttachmentsRunOnceController {
                 this.options.parentIds = parentIds;
             }
 
-            System.debug( 'submitting one-time conversion job: ' + this.options );
+            System.debug( 'submitting one-time conversion job' );
+            System.debug( 'options: ' + this.options );
+            System.debug( 'batchSize: ' + this.batchSize );
 
             ConvertAttachmentsToFilesBatchable job = new ConvertAttachmentsToFilesBatchable( this.options );
 
-            Database.executeBatch( job, this.batchSize );
+            ID jobId = Database.executeBatch( job, this.batchSize );
 
-            this.message = 'Conversion batch job submitted';
+            this.message = 'Conversion batch job submitted: ' + jobId;
             this.success = true;
 
         } catch ( Exception e ) {

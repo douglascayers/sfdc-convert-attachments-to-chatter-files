@@ -3,9 +3,15 @@
     <apex:slds/>
 
     <style>
+
         .slds-scope .menu-grid .slds-box {
             height: 100%;
         }
+
+        .apexp .bPageBlock p {
+            margin-bottom: inherit; /* undo classic styling so slds is applied */
+        }
+
     </style>
 
     <div class="slds-scope">
@@ -55,6 +61,23 @@
                             <h3 class="slds-text-heading--small">3. Automate Conversion</h3>
                             <p class="slds-text-color--default">
                                 Choose how often to convert new attachments to files.
+                            </p>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="slds-m-around--large"/>
+
+            <div class="menu-grid slds-grid slds-grid--vertical-stretch slds-grid--pull-padded-medium">
+
+                <div class="slds-p-horizontal--medium slds-size--1-of-3">
+                    <a href="{!URLFOR($Page.ConvertAttachmentsFAQPage)}" style="text-decoration: none;">
+                        <div class="slds-box slds-theme--shade">
+                            <h3 class="slds-text-heading--small">Troubleshooting</h3>
+                            <p class="slds-text-color--default">
+                                Frequently Asked Questions
                             </p>
                         </div>
                     </a>

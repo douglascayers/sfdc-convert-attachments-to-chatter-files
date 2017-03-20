@@ -1,6 +1,229 @@
-<apex:page showHeader="true" sidebar="true">
+<apex:page controller="ConvertAttachmentsScheduleController">
 
-                            Even after initial conversion, attachments might still be created for various reasons,
-                            such as attachments created from inbound Email-2-Case or third-party integrations.
+    <apex:slds/>
+
+    <apex:includeScript value="https://code.jquery.com/jquery-3.2.0.min.js"/>
+
+    <style>
+
+        .slds-scope .apexp .bPageBlock p {
+            margin-bottom: inherit; /* undo classic styling so slds is applied */
+        }
+
+        .slds-scope h2 {
+            background-color: #d8edff;
+            border-radius: 5px;
+            padding: 0.4em;
+        }
+
+    </style>
+
+    <apex:form>
+
+        <div class="slds-scope">
+
+            <div class="slds-m-around--large">
+
+                <div class="slds-page-header slds-box">
+                    <nav role="navigation" aria-label="Breadcrumbs">
+                        <ol class="slds-breadcrumb slds-list--horizontal">
+                            <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Main Menu</a></li>
+                            <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsSchedulePage)}">Automate Conversion</a></li>
+                        </ol>
+                    </nav>
+                    <p class="slds-page-header__title">
+                        Convert Attachments to Files
+                    </p>
+                </div>
+
+                <div class="slds-m-around--large"/>
+
+                <div>
+                    <p>
+                        Schedule how often new attachments should be converted to files.
+                    </p>
+                    <p>
+                        This may be necessary because attachments might still be created after initial conversion for various reasons,
+                        such as from user uploads or integrations.
+                    </p>
+                </div>
+
+                <div class="slds-m-around--large"/>
+
+                <apex:outputPanel id="mainPanel" layout="block">
+
+                    <apex:pageMessages/>
+
+                    <apex:outputPanel rendered="{!NOT(ISBLANK(message))}">
+                        <div class="slds-m-bottom--small">
+                            <div id="messageContainer" class="slds-notify_container" style="position: relative;">
+                                <div class="slds-notify slds-notify--alert {!IF(success, 'slds-theme--success', 'slds-theme--error')} slds-theme--alert-texture" role="alert">
+                                    <button class="slds-button slds-notify__close slds-button--icon-inverse" title="Close" onclick="dismissMessages(0); return false;">
+                                        X
+                                        <span class="slds-assistive-text">Close</span>
+                                    </button>
+                                    <span class="slds-assistive-text">{!IF(success, 'Success', 'Error')}</span>
+                                    <h2>
+                                        <apex:outputText value="{!message}"/>
+                                    </h2>
+                                </div>
+                            </div>
+                        </div>
+                    </apex:outputPanel>
+
+                    <apex:pageBlock mode="maindetail">
+
+                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
+
+                            <h2 class="slds-text-heading--medium slds-m-bottom--small section-title">
+                                <b>Enable Attachments uploaded to Notes &amp; Attachments related list upload as Files instead</b>
+                            </h2>
+
+                            <p class="slds-m-bottom--medium">
+                                To help avoid creation of attachments when users upload them in the Salesforce Classic UI,
+                                it is recommended that you enable this Salesforce Files setting.
+                            </p>
+
+                            <p class="slds-m-bottom--medium">
+                                <ol class="slds-list--ordered">
+                                    <li class="slds-item">
+                                        From Setup, enter <b>Salesforce Files</b> in the <b>Quick Find</b> box, then select <b>General Settings</b>.
+                                    </li>
+                                    <li class="slds-item">
+                                        Select the option "Files uploaded to the Attachments related list on records are uploaded as Salesforce Files, not as attachments".
+                                    </li>
+                                </ol>
+                            </p>
+
+                            <p class="slds-m-bottom--medium">
+                                This setting only affects the Notes &amp; Attachments related list in Salesforce Classic.
+                                Lightning Experience already enforces this behavior.
+                            </p>
+
+                            <p class="slds-m-bottom--medium">
+                                <a href="https://releasenotes.docs.salesforce.com/en-us/spring16/release-notes/rn_files_notes_attachments_list.htm" target="_blank">
+                                    https://releasenotes.docs.salesforce.com/en-us/spring16/release-notes/rn_files_notes_attachments_list.htm
+                                </a>
+                            </p>
+
+                        </div>
+
+                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
+
+                            <h2 class="slds-text-heading--medium slds-m-bottom--small section-title">
+                                <b>Enable Attachment Trigger</b>
+                            </h2>
+
+                            <p class="slds-m-bottom--medium">
+                                If you have integrations that create new attachments, this trigger will submit a background job to convert them to files as they are inserted.
+                            </p>
+
+                            <p class="slds-m-bottom--medium">
+                                Please carefully review your <a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}">conversion and sharing settings</a> before enabling this option.
+                            </p>
+
+                            <p class="slds-m-bottom--medium">
+
+                                <apex:pageBlockSection columns="1">
+
+                                    <apex:inputCheckbox id="enable-trigger-checkbox"
+                                                        label="Enable Trigger"
+                                                        value="{!enableTrigger}"/>
+
+                                </apex:pageBlockSection>
+
+                            </p>
+
+                        </div>
+
+                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
+
+                            <h2 class="slds-text-heading--medium slds-m-bottom--small section-title">
+                                <b>Schedule Job</b>
+                            </h2>
+
+                            <p class="slds-m-bottom--medium">
+                                Schedule a recurring job to convert new attachments to files.
+                            </p>
+
+                            <p class="slds-m-bottom--medium">
+                                Please carefully review your <a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}">conversion and sharing settings</a> before enabling this option.
+                            </p>
+
+                            <p class="slds-m-bottom--medium">
+
+                                <apex:pageBlockSection columns="1">
+
+<pre>
+    // Schedule
+
+        // Days
+        [ Sun ] [ Mon ] [ Tue ] [ Wed ] [ Thu ] [ Fri ] [ Sat ]
+
+        // Time (company default time zone)
+        [ picklist ] // 12:00 AM through 11:00 PM
+
+            Please review your conversion settings before enabling this option.
+
+            If new attachments are still created in your system,
+            you may want to have a regularly scheduled batch job mass convert the attachments to files on a daily basis.
+
+            This page lets you setup a daily scheduled job.
+
+            For more advanced scheduling options like multiple times a day or specific time of the day other than on the hour, please consult a developer to specify custom cron expressions using the Developer Console.
+
+</pre>
+
+                                </apex:pageBlockSection>
+
+                            </p>
+
+                        </div>
+
+                    </apex:pageBlock>
+
+                    <div class="slds-grid slds-grid--align-center">
+                        <div slds="slds-col">
+                            <apex:commandButton value=" Save " action="{!save}" styleClass="slds-button slds-button--brand"/>
+                            <apex:commandButton value=" Cancel " action="{!URLFOR($Page.ConvertAttachmentsMenuPage)}" styleClass="slds-button slds-button--neutral"/>
+                        </div>
+                    </div>
+
+                    <script>
+
+                        var timerId;
+
+                        function dismissMessages( waitTime ) {
+                            clearTimeout( timerId );
+                            timerId = setTimeout( function() {
+                                document.getElementById('messageContainer').className += ' slds-hide';
+                            }, waitTime );
+                        }
+
+                    </script>
+
+                </apex:outputPanel>
+
+            </div>
+
+        </div>
+
+    </apex:form>
+
+
+if any scheduled job exists for the ConvertAttachmentsToFilesSchedulable
+
+
+on button click, if neutral then make default and check hidden box
+on button click, if default then make neutral and uncheck hidden box
+
+
+<div class="slds-button-group" role="group">
+  <button class="slds-button slds-button--neutral">Refresh</button>
+  <button class="slds-button slds-button--neutral">Edit</button>
+  <button class="slds-button slds-button--neutral">Save</button>
+</div>
+
+
 
 </apex:page>

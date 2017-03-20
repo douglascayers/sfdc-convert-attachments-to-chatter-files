@@ -36,6 +36,7 @@
 		<members>ConvertAttachmentsSettingsPage</members>
 		<members>ConvertAttachmentsSchedulePage</members>
 		<members>ConvertAttachmentsRunOncePage</members>
+		<members>ConvertAttachmentsFAQPage</members>
 		<name>ApexPage</name>
 	</types>
 	<version>39.0</version>

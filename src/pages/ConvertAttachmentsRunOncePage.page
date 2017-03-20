@@ -1,6 +1,14 @@
-<apex:page controller="ConvertAttachmentsRunOnceController">
+<apex:page controller="ConvertAttachmentsRunOnceController" standardStylesheets="false">
 
     <apex:slds/>
+
+    <style>
+
+        .slds-scope .apexp .bPageBlock p {
+            margin-bottom: inherit; /* undo classic styling so slds is applied */
+        }
+
+    </style>
 
     <apex:form>
 
@@ -24,16 +32,15 @@
 
                 <div>
                     <p>
-                        Configure and submit a one-time conversion job. Test on a small set of records by specifying one or more attachment parent record ids.
-                    </p>
-                    <p>
-                        Please carefully review your conversion and sharing options for this one-time run.
+                        Configure and submit a one-time conversion job. You may test on a small set of records by specifying one or more attachment parent record ids, otherwise all attachments will be converted.
                     </p>
                 </div>
 
                 <div class="slds-m-around--large"/>
 
                 <apex:outputPanel id="mainPanel" layout="block">
+
+                    <apex:pageMessages/>
 
                     <apex:outputPanel rendered="{!NOT(ISBLANK(message))}">
                         <div class="slds-m-bottom--small">
@@ -58,10 +65,12 @@
 
                             <apex:pageBlockSection columns="1">
 
-                                <apex:inputTextarea label="(optional) Specify one or more attachment parent record ids separated by commas to limit which attachments to convert."
+                                <apex:outputLabel value="Attachment Parent Record IDs (comma-separated)"
+                                                  style="font-weight: bold;"/>
+
+                                <apex:inputTextArea label=""
                                                     value="{!parentIdsCsv}"
-                                                    rows="3"
-                                                    style="width:90%" />
+                                                    style="width:90%"/>
 
                             </apex:pageBlockSection>
 
@@ -71,110 +80,11 @@
 
                             <apex:pageBlockSection columns="1">
 
-                                <apex:selectRadio label="Who should converted files of private attachments be shared with?"
-                                                  value="{!options.sharePrivateAttachmentsWithParentRecord}"
-                                                  layout="pageDirection">
+                                <apex:outputLabel value="Batch Size"
+                                                  style="font-weight: bold;"/>
 
-                                    <apex:selectOption
-                                        itemLabel="Keep files private; only the attachment's creator and System Administrators may access the files"
-                                        itemValue="false"
-                                    />
-
-                                    <apex:selectOption
-                                        itemLabel="Share the files with all users who have access to the attachment's parent record"
-                                        itemValue="true"
-                                    />
-
-                                </apex:selectRadio>
-
-                            </apex:pageBlockSection>
-
-                        </div>
-
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
-
-                            <apex:pageBlockSection columns="1">
-
-                                <apex:selectRadio label="Which community of users who have access to the attachment's parent record get access to the converted files?"
-                                                  value="{!options.visibility}"
-                                                  layout="pageDirection">
-
-                                    <apex:selectOption
-                                        itemLabel="Internal Users Only"
-                                        itemValue="InternalUsers"
-                                    />
-
-                                    <apex:selectOption
-                                        itemLabel="Internal and External Users (recommended if you use communities)"
-                                        itemValue="AllUsers"
-                                    />
-
-                                </apex:selectRadio>
-
-                            </apex:pageBlockSection>
-
-                        </div>
-
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
-
-                            <apex:pageBlockSection columns="1">
-
-                                <apex:pageBlockSectionItem>
-
-                                <apex:outputLabel value="How should view or edit access to the converted file be granted to users with access to the attachment's parent record?"/>
-
-                                <apex:selectRadio
-                                                  value="{!options.shareType}"
-                                                  layout="pageDirection">
-
-                                    <apex:selectOption
-                                        itemLabel="Users can only view the file but cannot edit it, even if the user can edit the attachment's parent record"
-                                        itemValue="V"
-                                    />
-
-                                    <apex:selectOption
-                                        itemLabel="Users inherit view or edit access to the file based on their view or edit access to the attachment's parent record (recommended)"
-                                        itemValue="I"
-                                    />
-
-                                </apex:selectRadio>
-
-                                </apex:pageBlockSectionItem>
-
-                            </apex:pageBlockSection>
-
-                        </div>
-
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
-
-                            <apex:pageBlockSection columns="1">
-
-                                <apex:selectRadio label="What should happen to the original attachments once converted?"
-                                                  value="{!options.deleteAttachmentsUponConversion}"
-                                                  layout="pageDirection">
-
-                                    <apex:selectOption
-                                        itemLabel="Keep them; I have great plans for the attachments..."
-                                        itemValue="false"
-                                    />
-
-                                    <apex:selectOption
-                                        itemLabel="Delete them; I have backups and I need the data storage back!"
-                                        itemValue="true"
-                                    />
-
-                                </apex:selectRadio>
-
-                                <div class="slds-notify_container" style="position: relative;">
-                                    <div class="slds-notify slds-notify--toast slds-theme--warning" role="alert">
-                                        <div class="slds-notify__content">
-                                            <h2 class="slds-text-heading--small">
-                                                <b>Important:</b> If you choose to delete attachments upon conversion, make sure you have made <a href="https://help.salesforce.com/articleView?id=admin_exportdata.htm" target="_blank">backups</a> of your data.
-                                                Understand that even with <a href="https://help.salesforce.com/articleView?id=home_delete.htm" target="_blank">Recycle Bin</a> some records may not be recoverable depending on <a href="https://developer.salesforce.com/docs/atlas.en-us.salesforce_large_data_volumes_bp.meta/salesforce_large_data_volumes_bp/ldv_deployments_techniques_deleting_data.htm" target="_blank">volume of data</a> deleted.
-                                            </h2>
-                                        </div>
-                                    </div>
-                                </div>
+                                <apex:inputText label=""
+                                                value="{!batchSize}"/>
 
                             </apex:pageBlockSection>
 
@@ -184,10 +94,35 @@
 
                     <div class="slds-grid slds-grid--align-center">
                         <div slds="slds-col">
-                            <apex:commandButton value=" Submit Job " action="{!submitJob}" styleClass="slds-button slds-button--brand"/>
+                            <button class="slds-button slds-button--brand" onclick="showConfirmDialog(); return false;">Submit</button>
                             <apex:commandButton value=" Cancel " action="{!URLFOR($Page.ConvertAttachmentsMenuPage)}" styleClass="slds-button slds-button--neutral"/>
                         </div>
                     </div>
+
+                    <div id="submit-confirm-dialog" role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open slds-hide">
+                        <div class="slds-modal__container">
+                            <div class="slds-modal__header">
+                                <button class="slds-button slds-modal__close slds-button--icon-inverse" onclick="closeConfirmDialog(); return false;" title="Close">
+                                    X
+                                    <span class="slds-assistive-text">Close</span>
+                                </button>
+                                <h2 id="header43" class="slds-text-heading--medium">Confirm Job Submit</h2>
+                            </div>
+                            <div class="slds-modal__content slds-p-around--medium">
+                                <p>
+                                    Make sure you have carefully reviewed your <a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}">conversion and sharing settings</a>
+                                    and have made any necessary data backups.
+                                </p>
+                            </div>
+                            <div class="slds-modal__footer">
+                                <button class="slds-button slds-button--brand" onclick="submitJob(); return false;">Yes, I have</button>
+                                <button class="slds-button slds-button--neutral" onclick="closeConfirmDialog(); return false;">No, let me recheck</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="submit-confirm-dialog-backdrop" class="slds-backdrop slds-backdrop--open slds-hide"></div>
+
+                    <apex:actionFunction name="submitJob" action="{!submitJob}"/>
 
                     <script>
 
@@ -198,6 +133,36 @@
                             timerId = setTimeout( function() {
                                 document.getElementById('messageContainer').className += ' slds-hide';
                             }, waitTime );
+                        }
+
+                        function showConfirmDialog() {
+
+                            var domIds = [ 'submit-confirm-dialog', 'submit-confirm-dialog-backdrop' ];
+
+                            for ( var i = 0; i < domIds.length; i++ ) {
+
+                                var domElmt = document.getElementById( domIds[i] );
+
+                                var className = domElmt.className;
+
+                                domElmt.className = domElmt.className.replace(' slds-hide', '' );
+
+                            }
+
+                        }
+
+                        function closeConfirmDialog() {
+
+                            var domIds = [ 'submit-confirm-dialog', 'submit-confirm-dialog-backdrop' ];
+
+                            for ( var i = 0; i < domIds.length; i++ ) {
+
+                                var domElmt = document.getElementById( domIds[i] );
+
+                                domElmt.className += ' slds-hide';
+
+                            }
+
                         }
 
                     </script>
