@@ -1,5 +1,7 @@
-public with sharing class ConvertAttachmentsScheduleControllerTest {
-	public ConvertAttachmentsScheduleControllerTest() {
-		
-	}
+/**
+ * Developed by Doug Ayers (douglascayers.com)
+ */
+@isTest
+private class ConvertAttachmentsScheduleControllerTest {
+
 }

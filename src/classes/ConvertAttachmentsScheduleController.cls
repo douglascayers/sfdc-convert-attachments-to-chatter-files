@@ -1,3 +1,6 @@
+/**
+ * Developed by Doug Ayers (douglascayers.com)
+ */
 public with sharing class ConvertAttachmentsScheduleController {
 
     public Convert_Attachments_to_Files_Settings__c settings { get; set; }

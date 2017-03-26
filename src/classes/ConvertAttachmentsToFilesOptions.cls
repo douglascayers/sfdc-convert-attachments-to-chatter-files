@@ -1,4 +1,6 @@
 /**
+ * Developed by Doug Ayers (douglascayers.com)
+ *
  * Represents configuration options to pass to conversion service
  * to influence how the conversion will be handled with the attachments.
  */

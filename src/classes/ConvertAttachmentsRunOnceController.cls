@@ -1,3 +1,6 @@
+/**
+ * Developed by Doug Ayers (douglascayers.com)
+ */
 public with sharing class ConvertAttachmentsRunOnceController {
 
     public ConvertAttachmentsToFilesOptions options { get; set; }

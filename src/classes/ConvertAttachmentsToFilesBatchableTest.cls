@@ -1,5 +1,5 @@
 /**
- * Test class assumes Chatter Feed Tracking is enabled for Account object.
+ * Developed by Doug Ayers (douglascayers.com)
  */
 @isTest
 private class ConvertAttachmentsToFilesBatchableTest {

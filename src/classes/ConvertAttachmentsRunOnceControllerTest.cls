@@ -1,5 +1,7 @@
-public with sharing class ConvertAttachmentsRunOnceControllerTest {
-	public ConvertAttachmentsRunOnceControllerTest() {
-		
-	}
+/**
+ * Developed by Doug Ayers (douglascayers.com)
+ */
+@isTest
+private class ConvertAttachmentsRunOnceControllerTest {
+
 }

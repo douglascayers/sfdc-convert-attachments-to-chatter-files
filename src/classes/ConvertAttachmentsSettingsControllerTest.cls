@@ -1,5 +1,7 @@
-public with sharing class ConvertAttachmentsSettingsControllerTest {
-	public ConvertAttachmentsSettingsControllerTest() {
-		
-	}
+/**
+ * Developed by Doug Ayers (douglascayers.com)
+ */
+@isTest
+private class ConvertAttachmentsSettingsControllerTest {
+
 }
