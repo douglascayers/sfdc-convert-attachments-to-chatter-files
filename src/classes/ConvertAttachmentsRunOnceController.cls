@@ -16,6 +16,7 @@ public with sharing class ConvertAttachmentsRunOnceController {
     public ConvertAttachmentsRunOnceController() {
         this.options = new ConvertAttachmentsToFilesOptions( Convert_Attachments_to_Files_Settings__c.getOrgDefaults() );
         this.batchSize = 100;
+        this.parentIdsCsv = '';
     }
 
     public void submitJob() {
