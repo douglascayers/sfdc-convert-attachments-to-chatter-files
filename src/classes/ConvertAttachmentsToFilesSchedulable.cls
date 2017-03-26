@@ -5,8 +5,6 @@
  */
 public with sharing class ConvertAttachmentsToFilesSchedulable implements Schedulable {
 
-    private ConvertAttachmentsToFilesOptions options { get; set; }
-
     private Integer batchSize { get; set; }
 
     public ConvertAttachmentsToFilesSchedulable() {
@@ -14,21 +12,22 @@ public with sharing class ConvertAttachmentsToFilesSchedulable implements Schedu
     }
 
     public ConvertAttachmentsToFilesSchedulable( Integer batchSize ) {
-        this( batchSize, new ConvertAttachmentsToFilesOptions() );
-    }
-
-    public ConvertAttachmentsToFilesSchedulable( Integer batchSize, ConvertAttachmentsToFilesOptions options ) {
         this.batchSize = batchSize;
-        this.options = options;
     }
 
     public void execute( SchedulableContext context ) {
 
+        // we use the instance rather than org defaults here to support
+        // overrides on a user or profile level
+        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getInstance();
+
+        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
+
         System.debug( '[ConvertAttachmentsToFilesSchedulable.execute] Executing: ' + context );
-        System.debug( '[ConvertAttachmentsToFilesSchedulable.execute] Options: ' + this.options );
+        System.debug( '[ConvertAttachmentsToFilesSchedulable.execute] Options: ' + options );
         System.debug( '[ConvertAttachmentsToFilesSchedulable.execute] Batch Size: ' + this.batchSize );
 
-        ConvertAttachmentsToFilesBatchable batchable = new ConvertAttachmentsToFilesBatchable( this.options );
+        ConvertAttachmentsToFilesBatchable batchable = new ConvertAttachmentsToFilesBatchable( options );
 
         Database.executeBatch( batchable, this.batchSize );
 

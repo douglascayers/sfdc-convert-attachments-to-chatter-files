@@ -2,8 +2,6 @@
 
     <apex:slds />
 
-    <apex:includeScript value="https://code.jquery.com/jquery-3.2.0.min.js"/>
-
     <style>
 
         .slds-scope .apexp .bPageBlock p {
@@ -176,7 +174,7 @@
                                 <div class="slds-notify slds-notify--toast slds-theme--warning" role="alert">
                                     <div class="slds-notify__content">
                                         <h2 class="slds-text-heading--small">
-                                            <b>Important:</b> If you change your conversion and sharing settings you must re-schedule this job for the changes to take effect.
+                                            <b>Important:</b> If you change your conversion and sharing settings the scheduled job will use them at its next scheduled run time.
                                         </h2>
                                     </div>
                                 </div>

@@ -5,6 +5,8 @@
  */
 trigger ConvertAttachmentsToFilesTrigger on Attachment ( after insert ) {
 
+    // we use the instance rather than org defaults here to support
+    // overrides on a user or profile level
     Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getInstance();
 
     if ( settings.convert_in_near_real_time__c ) {
