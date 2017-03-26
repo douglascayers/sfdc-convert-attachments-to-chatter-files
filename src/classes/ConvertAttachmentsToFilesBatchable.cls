@@ -9,6 +9,14 @@
 public with sharing class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SObject>, Database.Stateful {
 
     @TestVisible
+    private List<ConvertAttachmentsToFilesService.ConversionResult> mockResults { get; set; }
+
+    @TestVisible
+    private Exception mockException { get; set; }
+
+    // ----------------------------------------------------------
+
+    @TestVisible
     private ConvertAttachmentsToFilesOptions options { get; set; }
 
     public ConvertAttachmentsToFilesBatchable() {
@@ -67,11 +75,23 @@ public with sharing class ConvertAttachmentsToFilesBatchable implements Database
 
             List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( attachments );
 
-            ConvertAttachmentsToFilesLogger.log( results );
+            if ( Test.isRunningTest() ) {
+
+                if ( this.mockException != null ) {
+                    throw this.mockException;
+                }
+
+                if ( this.mockResults != null ) {
+                    results = mockResults;
+                }
+
+            }
+
+            ConvertAttachmentsToFilesLogger.log( context.getJobId(), results );
 
         } catch ( Exception e ) {
 
-            ConvertAttachmentsToFilesLogger.log( e );
+            ConvertAttachmentsToFilesLogger.log( context.getJobId(), e );
 
         }
 

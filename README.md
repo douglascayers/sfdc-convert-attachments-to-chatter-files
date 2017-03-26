@@ -89,10 +89,21 @@ you have the option to specify whether the private attachments should
 or should not be shared with the parent entity once converted into new File.
 
 
+If I run the conversion multiple times, do duplicate files get created for the same attachments?
+------------------------------------------------------------------------------------------------
+No, no duplicate files should be created once an attachment has been converted once.
+When attachments are converted into files we store the `Attachment.ID` in the `ContentVersion.Original_Record_ID__c` field for tracking purposes.
+The conversion logic first checks if there exist any files that have been stamped with the attachment id, if yes then we skip converting that attachment again.
+
+Of course, if you choose the conversion option to delete the attachments upon conversion then no such attachment would exist the second time around.
+But if you choose to keep the attachments post conversion they will not be converted again if you run conversion process multiple times.
+
+
 Disclaimer
 ==========
 
-This is an unofficial conversion tool to migrate Attachments to Salesforce Files.
+This is not an official conversion tool by salesforce.com to migrate Attachments to Salesforce Files.
+This is a personal projecy by Doug Ayers to assist customers in migrating to and adopting Salesforce Files.
 Although this tool has been successfully tested with several customers since 2015 that have
 between dozens to tens of thousands of attachments, please do your own due diligence
 and testing in a sandbox before ever attempting this in production.
@@ -102,7 +113,10 @@ Always make a backup of your data before attempting any data conversion operatio
 You may read the project license [here](https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/blob/master/LICENSE).
 
 
-Credits
-=======
+Special Thanks
+==============
 
+* [Arnab Bose](https://www.linkedin.com/in/abosesf/), [@ArBose](https://twitter.com/ArBose)
+* [Haris Ikram](https://www.linkedin.com/in/harisikram/), [@HarisIkramH](https://twitter.com/HarisIkramH)
+* [David Mendelson](https://www.linkedin.com/in/davidmendelson/)
 * Code adapted from Chirag Mehta's [post on stackoverflow](http://stackoverflow.com/questions/11395148/related-content-stored-in-which-object-how-to-create-related-content-recor).

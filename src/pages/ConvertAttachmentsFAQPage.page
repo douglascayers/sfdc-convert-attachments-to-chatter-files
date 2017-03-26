@@ -154,6 +154,27 @@ System.schedule( jobName, cron, job );
 
                         </div>
 
+                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
+
+                            <a name="which-objects-support-files"/>
+
+                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
+                                <b>If I run the conversion multiple times, do duplicate files get created for the same attachments?</b>
+                            </p>
+
+                            <p class="slds-m-bottom--small">
+                                No, no duplicate files should be created once an attachment has been converted once.
+                                When attachments are converted into files we store the <b>Attachment.ID</b> in the <b>ContentVersion.Original_Record_ID__c</b> field for tracking purposes.
+                                The conversion logic first checks if there exist any files that have been stamped with the attachment id, if yes then we skip converting that attachment again.
+                            </p>
+
+                            <p class="slds-m-bottom--small">
+                                Of course, if you choose the conversion option to delete the attachments upon conversion then no such attachment would exist the second time around.
+                                But if you choose to keep the attachments post conversion they will not be converted again if you run conversion process multiple times.
+                            </p>
+
+                        </div>
+
                     </apex:pageBlock>
 
                 </apex:outputPanel>

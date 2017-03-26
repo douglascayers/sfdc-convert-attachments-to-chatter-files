@@ -254,14 +254,64 @@ private class ConvertAttachmentsToFilesBatchableTest {
 
         Test.startTest();
 
+        ConvertAttachmentsToFilesService.ConversionResult mockResult = new ConvertAttachmentsToFilesService.ConversionResult();
+        mockResult.success = false;
+        mockResult.message = 'Mock Error Result';
+
         ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
 
         ConvertAttachmentsToFilesBatchable batchable = new ConvertAttachmentsToFilesBatchable( options );
+
+        batchable.mockResults = new List<ConvertAttachmentsToFilesService.ConversionResult>{ mockResult };
 
         Database.executeBatch( batchable, 100 );
 
         Test.stopTest();
 
+        System.assertEquals( 0, [ SELECT count() FROM ContentVersion WHERE original_record_id__c = :attachment.id ] );
+        System.assertEquals( 1, [ SELECT count() FROM Convert_Attachments_to_Files_Log__c ] );
+
+    }
+
+    @isTest
+    static void test_conversion_exception() {
+
+        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+        settings.Share_Type__c = 'I'; // invalid share type for files shared to EmailMessages, will cause error we need to test
+        settings.Visibility__c = 'AllUsers';
+        settings.Convert_in_Near_Real_Time__c = false;
+        settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Share_Private_Attachments__c = true;
+
+        upsert settings;
+
+        EmailMessage msg = new EmailMessage(
+            subject = 'Test Email'
+        );
+
+        insert msg;
+
+        Attachment attachment = new Attachment(
+            name = 'Hello World 1.txt',
+            body = Blob.valueOf('Hello World 1'),
+            parentId = msg.id
+        );
+
+        insert attachment;
+
+        Test.startTest();
+
+        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
+
+        ConvertAttachmentsToFilesBatchable batchable = new ConvertAttachmentsToFilesBatchable( options );
+
+        batchable.mockException = new System.NullPointerException();
+
+        Database.executeBatch( batchable, 100 );
+
+        Test.stopTest();
+
+        System.assertEquals( 0, [ SELECT count() FROM ContentVersion WHERE original_record_id__c = :attachment.id ] );
         System.assertEquals( 1, [ SELECT count() FROM Convert_Attachments_to_Files_Log__c ] );
 
     }

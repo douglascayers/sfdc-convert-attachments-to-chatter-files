@@ -14,7 +14,7 @@ private class ConvertAttachmentsToFilesServiceTest {
         settings.Share_Type__c = 'I';
         settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = true;
-        settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Delete_Attachment_Once_Converted__c = false;
         settings.Share_Private_Attachments__c = true;
 
         upsert settings;
@@ -89,6 +89,23 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         // must do assert after stopping test because of async code
         System.assertEquals( 2, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId IN ( :acct.id, :cont.id ) ] );
+
+        System.runAs( user2 ) {
+
+            List<Attachment> attachments = [ SELECT id FROM Attachment ];
+
+            ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService();
+
+            // we should get back both attachment ids as they've already been converted
+            Set<ID> convertedAttachmentIds = service.filterAlreadyConvertedAttachmentIds( attachments );
+            System.assertEquals( 2, convertedAttachmentIds.size() );
+
+            // since both attachments have been converted then no other conversion should occur
+            List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( attachments );
+            System.assertEquals( 0, results.size() );
+            System.assertEquals( 2, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId IN ( :acct.id, :cont.id ) ] );
+
+        }
 
     }
 

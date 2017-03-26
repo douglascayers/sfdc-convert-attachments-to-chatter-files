@@ -8,6 +8,14 @@
  */
 public with sharing class ConvertAttachmentsToFilesQueueable implements Queueable {
 
+    @TestVisible
+    private List<ConvertAttachmentsToFilesService.ConversionResult> mockResults { get; set; }
+
+    @TestVisible
+    private Exception mockException { get; set; }
+
+    // ----------------------------------------------------------------------
+
     private ConvertAttachmentsToFilesOptions options { get; set; }
 
     private Set<ID> attachmentIds { get; set; }
@@ -29,6 +37,8 @@ public with sharing class ConvertAttachmentsToFilesQueueable implements Queueabl
         this.options = options;
         this.networkId = networkId;
     }
+
+    // ----------------------------------------------------------------------
 
     public void execute( QueueableContext context ) {
 
@@ -52,11 +62,23 @@ public with sharing class ConvertAttachmentsToFilesQueueable implements Queueabl
 
             List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( attachments );
 
-            ConvertAttachmentsToFilesLogger.log( results );
+            if ( Test.isRunningTest() ) {
+
+                if ( this.mockException != null ) {
+                    throw this.mockException;
+                }
+
+                if ( this.mockResults != null ) {
+                    results = mockResults;
+                }
+
+            }
+
+            ConvertAttachmentsToFilesLogger.log( context.getJobId(), results );
 
         } catch ( Exception e ) {
 
-            ConvertAttachmentsToFilesLogger.log( e );
+            ConvertAttachmentsToFilesLogger.log( context.getJobId(), e );
 
         }
 
