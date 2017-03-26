@@ -7,13 +7,16 @@ Overview
 Salesforce [announced](https://releasenotes.docs.salesforce.com/en-us/spring17/release-notes/rn_files_add_related_list_to_page_layouts.htm) that in **Winter '18**
 the "Notes & Attachments" related list will no longer have an upload or attach button. Customers will be required to migrate to and adopt Salesforce Files.
 
-At the time of this project, Salesforce has not (yet?) provided a conversion tool from Attachments to Files.
+At the time of this project, Salesforce has not (yet?) provided an official conversion tool from Attachments to Files.
 
 This project enables the manual or automatic conversion of classic [Attachments](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_attachment.htm)
 into [Salesforce Files](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentversion.htm)
-to take advantage of more sophisticated sharing and file revisions.
+to take advantage of more sophisticated features, like sharing, revisions, larger file sizes, etc.
 
-The package includes visualforce pages that let you configure sharing and conversion options, run test conversions, and how to enable near real-time or scheduled conversions.
+The package includes visualforce pages that let you:
+* Configure sharing and conversion options
+* Run test conversions
+* Enable near real-time or scheduled conversions
 
 Additional Background:
 * [Why You Should Add the Files Related List to Your Page Layouts](https://releasenotes.docs.salesforce.com/en-us/spring17/release-notes/rn_files_add_related_list_to_page_layouts.htm)
@@ -37,8 +40,8 @@ Getting Started
 2. Enable setting [Files uploaded to the Attachments related list on records are uploaded as Salesforce Files, not as attachments](https://releasenotes.docs.salesforce.com/en-us/spring16/release-notes/rn_files_notes_attachments_list.htm)
 3. Add "Files" related list to your page layouts (e.g. Accounts, Contacts, Tasks, Events, etc.)
 4. Deploy the package using one of the installation links above
-5. Assign yourself the permission set "Convert Attachments to Files" then switch to the app by the same name
-6. Click on **Setup Conversion Settings** to configure sharing and conversion behavior
+5. Assign yourself the permission set **Convert Attachments to Files** then switch to the app by the same name
+6. On the **Convert Attachments to Files** tab page, click on **Setup Conversion Settings** to configure sharing and conversion behavior
 7. Perform a **test** conversion
 8. Consider **automating** conversion
 
@@ -103,7 +106,7 @@ Disclaimer
 ==========
 
 This is not an official conversion tool by salesforce.com to migrate Attachments to Salesforce Files.
-This is a personal projecy by Doug Ayers to assist customers in migrating to and adopting Salesforce Files.
+This is a personal project by [Doug Ayers](https://douglascayers.com) to assist customers in migrating to and adopting Salesforce Files.
 Although this tool has been successfully tested with several customers since 2015 that have
 between dozens to tens of thousands of attachments, please do your own due diligence
 and testing in a sandbox before ever attempting this in production.
@@ -116,7 +119,8 @@ You may read the project license [here](https://github.com/DouglasCAyers/sfdc-co
 Special Thanks
 ==============
 
-* [Arnab Bose](https://www.linkedin.com/in/abosesf/), [@ArBose](https://twitter.com/ArBose)
-* [Haris Ikram](https://www.linkedin.com/in/harisikram/), [@HarisIkramH](https://twitter.com/HarisIkramH)
-* [David Mendelson](https://www.linkedin.com/in/davidmendelson/)
-* Code adapted from Chirag Mehta's [post on stackoverflow](http://stackoverflow.com/questions/11395148/related-content-stored-in-which-object-how-to-create-related-content-recor).
+* [Arnab Bose](https://www.linkedin.com/in/abosesf/) ([@ArBose](https://twitter.com/ArBose)), Salesforce Product Manager
+* [Haris Ikram](https://www.linkedin.com/in/harisikram/) ([@HarisIkramH](https://twitter.com/HarisIkramH)), Salesforce Product Manager
+* [David Mendelson](https://www.linkedin.com/in/davidmendelson/), Salesforce Product Manager
+* [Rick MacGuigan](https://www.linkedin.com/in/rick-macguigan-4406592b/), a very helpful early adopter and tester!
+* And to everyone who has provided feedback on this project to make it what it is today, thank you!
