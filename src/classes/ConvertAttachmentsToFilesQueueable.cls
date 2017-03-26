@@ -1,4 +1,6 @@
 /**
+ * Developed by Doug Ayers (douglascayers.com)
+ *
  * Designed to be invoked within a trigger or some other scenario where you
  * need exactly one batch of records (up to 200 records) to be converted to Files.
  *
@@ -30,25 +32,33 @@ public with sharing class ConvertAttachmentsToFilesQueueable implements Queueabl
 
     public void execute( QueueableContext context ) {
 
-        System.debug( '[ConvertAttachmentsToFilesQueueable.execute] Executing: ' + context );
+        try {
 
-        List<Attachment> attachments = new List<Attachment>([
-            SELECT
-                id, parentId, ownerId, name, description, body, isPrivate,
-                createdById, createdDate, lastModifiedById, lastModifiedDate
-            FROM
-                Attachment
-            WHERE
-                id IN :this.attachmentIds
-            ORDER BY
-                parentId
-        ]);
+            System.debug( '[ConvertAttachmentsToFilesQueueable.execute] Executing: ' + context );
 
-        ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( this.options, this.networkId );
+            List<Attachment> attachments = new List<Attachment>([
+                SELECT
+                    id, parentId, ownerId, name, description, body, isPrivate,
+                    createdById, createdDate, lastModifiedById, lastModifiedDate
+                FROM
+                    Attachment
+                WHERE
+                    id IN :this.attachmentIds
+                ORDER BY
+                    parentId
+            ]);
 
-        List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( attachments );
+            ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( this.options, this.networkId );
 
-        System.debug( '[ConvertAttachmentsToFilesQueueable.execute] Conversion results: ' + results );
+            List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( attachments );
+
+            ConvertAttachmentsToFilesLogger.log( results );
+
+        } catch ( Exception e ) {
+
+            ConvertAttachmentsToFilesLogger.log( e );
+
+        }
 
     }
 

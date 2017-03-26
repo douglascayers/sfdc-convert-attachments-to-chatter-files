@@ -1,4 +1,4 @@
-<apex:page >
+<apex:page tabStyle="Convert_Attachments_to_Files__tab">
 
     <apex:slds />
 

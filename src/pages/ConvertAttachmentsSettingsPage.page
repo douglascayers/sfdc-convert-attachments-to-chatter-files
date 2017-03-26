@@ -1,4 +1,4 @@
-<apex:page controller="ConvertAttachmentsSettingsController">
+<apex:page controller="ConvertAttachmentsSettingsController" tabStyle="Convert_Attachments_to_Files__tab">
 
     <apex:slds />
 

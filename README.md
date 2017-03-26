@@ -1,98 +1,80 @@
-Convert Attachments to Chatter Files
-====================================
+Convert Attachments to Salesforce Files
+=======================================
 
 Overview
 --------
 
-This project contains multiple apex classes (triggers, queueables, batchables, schedulables) to assist with the manual or automatic conversion of
-classic [Attachments](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_attachment.htm)
-into [Chatter Files](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentversion.htm)
-to take advantage of rich-text, and more sophisticated sharing and file revisions.
-You may like to read my [blog post](https://douglascayers.wordpress.com/2015/10/10/salesforce-convert-attachments-to-chatter-files/) on the topic.
+Salesforce [announced](https://releasenotes.docs.salesforce.com/en-us/spring17/release-notes/rn_files_add_related_list_to_page_layouts.htm) that in **Winter '18**
+the "Notes & Attachments" related list will no longer have an upload or attach button. Customers will be required to migrate to and adopt Salesforce Files.
+
+At the time of this project, Salesforce has not (yet?) provided a conversion tool from Attachments to Files.
+
+This project enables the manual or automatic conversion of classic [Attachments](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_attachment.htm)
+into [Salesforce Files](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentversion.htm)
+to take advantage of more sophisticated sharing and file revisions.
+
+The package includes visualforce pages that let you configure sharing and conversion options, run test conversions, and how to enable near real-time or scheduled conversions.
+
+Additional Background:
+* [Why You Should Add the Files Related List to Your Page Layouts](https://releasenotes.docs.salesforce.com/en-us/spring17/release-notes/rn_files_add_related_list_to_page_layouts.htm)
+* [Add the Files Related List to Page Layouts](http://docs.releasenotes.salesforce.com/en-us/winter16/release-notes/rn_chatter_files_related_list.htm)
+* [5 Reasons to Use Files Related List](https://admin.salesforce.com/5-reasons-use-files-related-list)
+* [Chatter Files: A Better Option for Attaching Files to Records](https://www.salesforce.com/blog/2012/04/chatter-files-a-better-option-for-attaching-files-to-records.html)
+* [ContentVersion Documentation](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentversion.htm)
 
 
 Installation
 ------------
 
-* [Deploy from Github](https://githubsfdeploy.herokuapp.com)
+* Managed Package ([production](), [sandbox]())
+* [Deploy from Github](https://githubsfdeploy.herokuapp.com) (unmanaged, only if you intend to customize the conversion logic and be responsible for unit tests)
 
 
-Usage
------
+Getting Started
+---------------
 
-There are three main ways to perform the conversions:
+1. Enable setting [Create Audit Fields](https://help.salesforce.com/articleView?id=Enable-Create-Audit-Fields) so Attachment create/update/owner fields can be preserved on the new files
+2. Enable setting [Files uploaded to the Attachments related list on records are uploaded as Salesforce Files, not as attachments](https://releasenotes.docs.salesforce.com/en-us/spring16/release-notes/rn_files_notes_attachments_list.htm)
+3. Add "Files" related list to your page layouts (e.g. Accounts, Contacts, Tasks, Events, etc.)
+4. Deploy the package using one of the installation links above
+5. Assign yourself the permission set "Convert Attachments to Files" then switch to the app by the same name
+6. Click on **Setup Conversion Settings** to configure sharing and conversion behavior
+7. Perform a **test** conversion
+8. Consider **automating** conversion
 
-1. **Manually** invoke a batchable class for a one-time conversion of attachments
-2. **Schedule** a batchable class for periodic conversions of attachments (e.g. hourly, daily, monthly)
-3. **Near real-time** with trigger to convert attachments as they are inserted
+![screen shot](images/pages-main-menu.png)
 
-When you choose either option **manually** or **scheduled** then you likely are kicking off the process using **Developer Console**.
-You will want to configure some preferences with the `ConvertAttachmentsToFilesOptions` class
-when you execute or schedule the batchable class `ConvertAttachmentsToFilesBatchable`.
-
-When you choose option **near real-time** then you configure your preferences using **custom settings**.
-This project includes one custom setting, **Convert Attachments to Files Settings**.
-It is a hierarchical setting and you likely only need the default organization level values configured.
-Please note, the settings you can toggle available to you are exactly the same regardless which option (1, 2, or 3) you choose.
-
-|Attachment Settings                     |Description                                                                                      |
-|----------------------------------------|-------------------------------------------------------------------------------------------------|
-|Convert in Near Real Time?              |Enables trigger to convert attachments to files. Invokes queuable to process them asynchronously.|
-|Share Private Attachments?              |If private attachment is converted, will share its access with the parent record or not.         |
-|Delete Attachment Once Converted?       |Deletes attachment once converted. This can save storage space. Backup your data!                |
-|Share Type                              |Controls view/edit access to the file. Use "V" for view only. Use "I" to infer by parent record. |
-|Visibility                              |Controls community access. Can be "InternalUsers" or "AllUsers". For communities, use "AllUsers".|
-
-To learn more about `Share Type` and `Visibility` please refer to [ContentDocumentLink](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentdocumentlink.htm) documentation.
+![screen shot](images/pages-conversion-settings.png)
 
 
-Examples
---------
+FAQ
+===
 
-*Manually Invoke Batchable Class*
-
-    // default options per custom setting
-    Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getInstance();
-    ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
-
-    // or, explicitly set options for this run
-    ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
-    options.deleteAttachmentsUponConversion = false;
-    options.sharePrivateAttachmentsWithParentRecord = false;
-    options.shareType = 'V';
-    options.visibility = 'InternalUsers';
-
-    // then run batchable
-    ConvertAttachmentsToFilesBatchable batchable = new ConvertAttachmentsToFilesBatchable( options );
-    Database.executeBatch( batchable, 100 );
-
-*Schedule Batachable Class*
-
-    // default options per custom setting
-    Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getInstance();
-    ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
-
-    // or, explicitly set options for this run
-    ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
-    options.deleteAttachmentsUponConversion = true;
-    options.sharePrivateAttachmentsWithParentRecord = true;
-    options.shareType = 'I';
-    options.visibility = 'AllUsers';
-
-    // then schedule job
-    // note, to change options after job is scheduled you need to stop the job and kick it off again with new option selections
-    Integer batchSize = 100;
-    System.schedule( 'Convert Attachments to Files Job', '0 0 13 * * ?', new ConvertAttachmentsToFilesSchedulable( batchSize, options ) );
-
-*Enable Trigger for Real-Time*
-
-    In Setup, navigate to custom setting **Convert Attachments to Files Settings** and check "Convert in Near Real Time?" field.
-    The apex trigger looks at this value to know whether to convert attachments or not when they are inserted.
+Max Documents or Versions Published Governor Limit
+--------------------------------------------------
+When converting classic Notes & Attachments the new data is stored in the `ContentVersion` object.
+There is a [limit to how many of these records can be created in a 24 hour period](https://help.salesforce.com/articleView?id=limits_general.htm&language=en_US&type=0).
+If you have a lot of Notes & Attachments to convert plan around this limit and split the work across multiple days.
 
 
-Private Notes / Attachments
----------------------------
-Classic Notes & Attachments have an 'IsPrivate' checkbox field that when selected
+Field is not writeable: ContentVersion.CreatedById
+--------------------------------------------------
+When you deploy the package you might get error that files are invalid and need recompilation and one of the specific messages
+might say "Field is not writeable: ContentVersion.CreatedById". The conversion tool tries to copy the attachment's original
+created and last modified date/user to the converted file. To do so then the "Create Audit Fields" feature must be enabled.
+Please see [this help article](https://help.salesforce.com/articleView?id=Enable-Create-Audit-Fields) for instructions enable this feature.
+
+
+Are there any objects that don't support attachment conversion?
+---------------------------------------------------------------
+Yes, the [EmailMessage](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_emailmessage.htm) object.
+Although technically you can convert their attachments to files, you cannot **share** the files to the email message records.
+You will receive error `INSUFFICIENT_ACCESS_OR_READONLY, You can't create a link for Email Message when it's not in draft state.: [LinkedEntityId]`.
+
+
+How are private attachments converted?
+--------------------------------------
+Classic Notes & Attachments have an [IsPrivate](https://help.salesforce.com/apex/HTViewHelpDoc?id=notes_fields.htm) checkbox field that when selected
 makes the record only visible to the owner and administrators, even through the
 Note or Attachment is related to the parent entity (e.g. Account or Contact).
 However, ContentVersion object follows a different approach. Rather than an
@@ -106,55 +88,21 @@ has access to this previously private attachment. Therefore, when converting
 you have the option to specify whether the private attachments should
 or should not be shared with the parent entity once converted into new File.
 
-Learn more at:
-* https://help.salesforce.com/apex/HTViewHelpDoc?id=notes_fields.htm
 
+Disclaimer
+==========
 
-Selecting Parent IDs
---------------------
-You may want to test conversion on a subset of records rather than convert
-your entire database all at once. To do this you can specify `parentIds` on the
-option classes which takes a Set of record ids who are the parent entities
-that the notes or attachments belong to that you want to convert.
+This is an unofficial conversion tool to migrate Attachments to Salesforce Files.
+Although this tool has been successfully tested with several customers since 2015 that have
+between dozens to tens of thousands of attachments, please do your own due diligence
+and testing in a sandbox before ever attempting this in production.
 
-    ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
-    options.parentIds = new Set<ID>{ 'id_of_record_whose_attachments_to_convert' };
+Always make a backup of your data before attempting any data conversion operations.
 
-    // then run batchable
-    ConvertAttachmentsToFilesBatchable batchable = new ConvertAttachmentsToFilesBatchable( options );
-    Database.executeBatch( batchable, 100 );
-
-
-Max Documents or Versions Published Governor Limit
---------------------------------------------------
-When converting classic Notes & Attachments the new data is stored in the `ContentVersion` object.
-There is a [limit to how many of these records can be created in a 24 hour period](https://help.salesforce.com/articleView?id=limits_general.htm&language=en_US&type=0). If you have a lot of Notes & Attachments to convert plan around this limit and split the work across multiple days.
-
-
-Background
-----------
-In the Winter 16 release, Salesforce introduces a new related list called Files.
-This new related list specifically shows only Chatter Files shared to the record.
-Seeing as this is the future of Salesforce content, you may want to plan migrating
-your existing Attachments to Chatter Files. That is the function of this project.
-
-Migrating to Files instead of Attachments [is a good idea](https://admin.salesforce.com/5-reasons-use-files-related-list) because Chatter Files
-provide you much more capabilities around sharing the file with other users, groups, and records.
-It also supports file previews and revisions. It is the future of managing content in Salesforce.
-
-Learn more at:
-* https://admin.salesforce.com/5-reasons-use-files-related-list
-* https://www.salesforce.com/blog/2012/04/chatter-files-a-better-option-for-attaching-files-to-records.html
-* http://docs.releasenotes.salesforce.com/en-us/winter16/release-notes/rn_chatter_files_related_list.htm
-* https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentversion.htm
-
-
-Other Considerations
---------------------
-* Add the "Files" related list to your page layouts.
-* Enable files setting [Files uploaded to the Attachments related list on records are uploaded as Salesforce Files, not as attachments](https://releasenotes.docs.salesforce.com/en-us/spring16/release-notes/rn_files_notes_attachments_list.htm).
+You may read the project license [here](https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/blob/master/LICENSE).
 
 
 Credits
--------
+=======
+
 * Code adapted from Chirag Mehta's [post on stackoverflow](http://stackoverflow.com/questions/11395148/related-content-stored-in-which-object-how-to-create-related-content-recor).

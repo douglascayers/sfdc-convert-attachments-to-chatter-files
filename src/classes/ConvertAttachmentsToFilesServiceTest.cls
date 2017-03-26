@@ -10,6 +10,15 @@ private class ConvertAttachmentsToFilesServiceTest {
     @isTest
     static void test_partner_community_users() {
 
+        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+        settings.Share_Type__c = 'I';
+        settings.Visibility__c = 'AllUsers';
+        settings.Convert_in_Near_Real_Time__c = true;
+        settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Share_Private_Attachments__c = true;
+
+        upsert settings;
+
         UserRole r1 = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
 
         Profile p1 = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
@@ -54,10 +63,6 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         Test.startTest();
 
-        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.convert_in_near_real_time__c = true;
-        upsert settings;
-
         System.runAs( user2 ) {
 
             Attachment attachment1 = new Attachment(
@@ -82,10 +87,22 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         Test.stopTest();
 
+        // must do assert after stopping test because of async code
+        System.assertEquals( 2, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId IN ( :acct.id, :cont.id ) ] );
+
     }
 
     @isTest
     static void test_special_characters() {
+
+        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+        settings.Share_Type__c = 'I';
+        settings.Visibility__c = 'InternalUsers';
+        settings.Convert_in_Near_Real_Time__c = false;
+        settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Share_Private_Attachments__c = true;
+
+        upsert settings;
 
         UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
 
@@ -187,6 +204,7 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         for ( ConvertAttachmentsToFilesService.ConversionResult result : results ) {
             System.debug( result );
+            System.assertEquals( true, result.success );
         }
 
     }
@@ -238,9 +256,12 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         Test.startTest();
 
-        ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService();
+        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
+        options.deleteAttachmentsUponConversion = false;
 
-        service.convert( new Attachment[]{ attachment } );
+        ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( options );
+
+        service.convert( new Attachment[] { attachment } );
 
         Test.stopTest();
 
@@ -440,7 +461,7 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( options );
 
-        service.convert( new Attachment[]{ attachment } );
+        service.convert( new Attachment[] { attachment } );
 
         Test.stopTest();
 
@@ -455,9 +476,14 @@ private class ConvertAttachmentsToFilesServiceTest {
     @isTest
     static void test_init_options_from_settings() {
 
-        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getInstance();
-        settings.Delete_Attachment_Once_Converted__c = true;
+        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+        settings.Share_Type__c = 'I';
+        settings.Visibility__c = 'InternalUsers';
+        settings.Convert_in_Near_Real_Time__c = false;
+        settings.Delete_Attachment_Once_Converted__c = false;
         settings.Share_Private_Attachments__c = true;
+
+        upsert settings;
 
         Test.startTest();
 
@@ -465,6 +491,8 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         Test.stopTest();
 
+        System.assertEquals( settings.Share_Type__c, options.shareType );
+        System.assertEquals( settings.Visibility__c, options.visibility );
         System.assertEquals( settings.Delete_Attachment_Once_Converted__c, options.deleteAttachmentsUponConversion );
         System.assertEquals( settings.Share_Private_Attachments__c, options.sharePrivateAttachmentsWithParentRecord );
 

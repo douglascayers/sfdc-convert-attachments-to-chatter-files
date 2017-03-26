@@ -1,4 +1,6 @@
 /**
+ * Developed by Doug Ayers (douglascayers.com)
+ *
  * Work horse that does the actual attachment to file conversion.
  */
 public with sharing class ConvertAttachmentsToFilesService {
@@ -38,8 +40,6 @@ public with sharing class ConvertAttachmentsToFilesService {
      */
     public List<ConversionResult> convert( List<Attachment> attachments ) {
 
-        System.debug( '[ConvertAttachmentsToFilesService.convert] Options: ' + this.options );
-
         // determine if communities are enabled and if so then we will need
         // to assign the network id field when inserting the content versions
         // otherwise error "INSUFFICIENT_ACCESS_ON_CROSS_REFERENCE_ENTITY" occurs
@@ -68,36 +68,40 @@ public with sharing class ConvertAttachmentsToFilesService {
             // If they do not match then we get error:
             // "Documents in a user's private library must always be owned by that user."
 
-            ContentVersion cv = new ContentVersion(
-                // data fields
-                versionData = att.body,
-                title = att.name,
-                description = att.description,
-                pathOnClient = '/' + att.name,
-                // audit fields
-                ownerId = att.createdById, // system requirement, owner and creator be the same
-                createdById = att.createdById,
-                createdDate = att.createdDate,
-                lastModifiedById = att.lastModifiedById,
-                lastModifiedDate = att.lastModifiedDate,
-                // custom fields for history tracking and conversion purposes
-                original_record_id__c = att.id,
-                original_record_parent_id__c = att.parentId,
-                original_record_owner_id__c = att.ownerId
-            );
+            // TODO implement more robust solution for customizing
+            // conversion behavior on a per-object basis
+            if ( EmailMessage.sObjectType != att.parentId.getSObjectType() ) {
 
-            // if communities are enabled then assign network id
-            if ( communitiesEnabled ) {
-                cv.put( 'NetworkId', this.networkId );
+                ContentVersion cv = new ContentVersion(
+                    // data fields
+                    versionData = att.body,
+                    title = att.name,
+                    description = att.description,
+                    pathOnClient = '/' + att.name,
+                    // audit fields
+                    ownerId = att.createdById, // system requirement, owner and creator must be the same
+                    createdById = att.createdById,
+                    createdDate = att.createdDate,
+                    lastModifiedById = att.lastModifiedById,
+                    lastModifiedDate = att.lastModifiedDate,
+                    // custom fields for history tracking and conversion purposes
+                    original_record_id__c = att.id,
+                    original_record_parent_id__c = att.parentId,
+                    original_record_owner_id__c = att.ownerId
+                );
+
+                // if communities are enabled then assign network id
+                if ( communitiesEnabled ) {
+                    cv.put( 'NetworkId', this.networkId );
+                }
+
+                contentVersions.add( cv );
+
             }
-
-            contentVersions.add( cv );
 
         }
 
         insert contentVersions;
-
-        System.debug( '[ConvertAttachmentsToFilesService.convert] contentVersions = ' + contentVersions );
 
         // create a map of content version ids to attachment record
         // this will be used later on when creating the content document links
@@ -117,13 +121,9 @@ public with sharing class ConvertAttachmentsToFilesService {
             result.contentVersionId = contentVersions[i].id;
             result.attachmentId = attachments[i].id;
 
-            System.debug( '[ConvertAttachmentsToFilesService.convert] conversion result = ' + result );
-
             conversionResultsMap.put( attachments[i].id, result );
 
         }
-
-        System.debug( '[ConvertAttachmentsToFilesService.convert] contentVersionToAttachmentsMap = ' + contentVersionToAttachmentsMap );
 
         /*
          * Step 2
@@ -140,8 +140,6 @@ public with sharing class ConvertAttachmentsToFilesService {
                 id IN :contentVersions
         ];
 
-        System.debug( '[ConvertAttachmentsToFilesService.convert] contentVersions = ' + contentVersions );
-
         /*
          * Step 3
          * Create ContentDocumentLinks to share the new content
@@ -153,9 +151,6 @@ public with sharing class ConvertAttachmentsToFilesService {
         for ( ContentVersion cv : contentVersions ) {
 
             Attachment att = contentVersionToAttachmentsMap.get( cv.id );
-
-            System.debug( '[ConvertAttachmentsToFilesService.convert] contentVersion = ' + cv );
-            System.debug( '[ConvertAttachmentsToFilesService.convert] oldAttachment = ' + att );
 
             // should converted file be shared with parent?
             if ( !att.isPrivate || ( att.isPrivate && this.options.sharePrivateAttachmentsWithParentRecord ) ) {
@@ -176,18 +171,13 @@ public with sharing class ConvertAttachmentsToFilesService {
 
                 conversionResultsMap.get( att.id ).message += ' ' + message;
 
-                System.debug( LoggingLevel.WARN, message );
-
             }
 
         }
 
         // create share links between new file and original attachment parent entity
         if ( contentDocumentLinks.size() > 0 ) {
-
-            System.debug( '[ConvertAttachmentsToFilesService.convert] inserting content document links: ' + contentDocumentLinks );
             insert contentDocumentLinks;
-
         }
 
         // lastly, delete the original attachments that were successfully converted into files
@@ -198,8 +188,6 @@ public with sharing class ConvertAttachmentsToFilesService {
             for ( ContentVersion contentVersion : contentVersions ) {
                 attachmentsToDelete.add( new Attachment( id = contentVersion.original_record_id__c ) );
             }
-
-            System.debug( '[ConvertAttachmentsToFilesService.convert] deleting original attachments: ' + attachmentsToDelete );
 
             delete attachmentsToDelete;
 

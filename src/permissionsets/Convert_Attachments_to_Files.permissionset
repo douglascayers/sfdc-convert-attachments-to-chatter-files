@@ -33,6 +33,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>ConvertAttachmentsToFilesLogger</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>ConvertAttachmentsToFilesOptions</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -57,9 +61,33 @@
         <enabled>false</enabled>
     </classAccesses>
     <description>Grants access to the Conversion Settings tab and visualforce pages. This should only be granted to System Administrators.</description>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Convert_Attachments_to_Files_Log__c.Detail__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Convert_Attachments_to_Files_Log__c.Log_Time__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Convert_Attachments_to_Files_Log__c.Summary__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Convert Attachments to Files</label>
     <license>Salesforce</license>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <object>Convert_Attachments_to_Files_Log__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
     <pageAccesses>
         <apexPage>ConvertAttachmentsFAQPage</apexPage>
         <enabled>true</enabled>
@@ -82,6 +110,10 @@
     </pageAccesses>
     <tabSettings>
         <tab>Convert_Attachments_to_Files</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Convert_Attachments_to_Files_Log__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>

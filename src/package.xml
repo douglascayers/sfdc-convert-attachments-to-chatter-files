@@ -9,6 +9,7 @@
         <members>ConvertAttachmentsSettingsControllerTest</members>
         <members>ConvertAttachmentsToFilesBatchable</members>
         <members>ConvertAttachmentsToFilesBatchableTest</members>
+        <members>ConvertAttachmentsToFilesLogger</members>
         <members>ConvertAttachmentsToFilesOptions</members>
         <members>ConvertAttachmentsToFilesQueueable</members>
         <members>ConvertAttachmentsToFilesQueueableTest</members>
@@ -36,11 +37,13 @@
         <name>CustomField</name>
     </types>
     <types>
+        <members>Convert_Attachments_to_Files_Log__c</members>
         <members>Convert_Attachments_to_Files_Settings__c</members>
         <name>CustomObject</name>
     </types>
     <types>
         <members>Convert_Attachments_to_Files</members>
+        <members>Convert_Attachments_to_Files_Log__c</members>
         <name>CustomTab</name>
     </types>
     <types>

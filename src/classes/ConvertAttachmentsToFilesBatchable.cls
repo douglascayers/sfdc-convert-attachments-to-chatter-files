@@ -1,4 +1,6 @@
 /**
+ * Developed by Doug Ayers (douglascayers.com)
+ *
  * Designed for mass converting all attachments in system or just those
  * belonging to specific parent records as indicated in the configuration options.
  *
@@ -6,6 +8,7 @@
  */
 public with sharing class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SObject>, Database.Stateful {
 
+    @TestVisible
     private ConvertAttachmentsToFilesOptions options { get; set; }
 
     public ConvertAttachmentsToFilesBatchable() {
@@ -23,7 +26,7 @@ public with sharing class ConvertAttachmentsToFilesBatchable implements Database
         System.debug( '[ConvertAttachmentsToFilesBatchable.start] Starting: ' + context );
         System.debug( '[ConvertAttachmentsToFilesBatchable.start] Options: ' + this.options );
 
-        if ( this.options.parentIds == null ) {
+        if ( this.options == null || this.options.parentIds == null ) {
 
             return Database.getQueryLocator([
                 SELECT
@@ -50,18 +53,27 @@ public with sharing class ConvertAttachmentsToFilesBatchable implements Database
             ]);
 
         }
+
     }
 
     public void execute( Database.BatchableContext context, List<Attachment> attachments ) {
 
-        System.debug( '[ConvertAttachmentsToFilesBatchable.execute] Executing: ' + context );
-        System.debug( '[ConvertAttachmentsToFilesBatchable.execute] Options: ' + this.options );
+        try {
 
-        ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( this.options );
+            System.debug( '[ConvertAttachmentsToFilesBatchable.execute] Executing: ' + context );
+            System.debug( '[ConvertAttachmentsToFilesBatchable.execute] Options: ' + this.options );
 
-        List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( attachments );
+            ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( this.options );
 
-        System.debug( '[ConvertAttachmentsToFilesBatchable.execute] Conversion results: ' + results );
+            List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( attachments );
+
+            ConvertAttachmentsToFilesLogger.log( results );
+
+        } catch ( Exception e ) {
+
+            ConvertAttachmentsToFilesLogger.log( e );
+
+        }
 
     }
 

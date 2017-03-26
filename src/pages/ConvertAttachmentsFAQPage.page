@@ -1,4 +1,4 @@
-<apex:page controller="ConvertAttachmentsRunOnceController">
+<apex:page controller="ConvertAttachmentsRunOnceController" tabStyle="Convert_Attachments_to_Files__tab">
 
     <apex:slds />
 
@@ -43,8 +43,6 @@
                 <div>
                     <p>
                         If you encounter an issue not mentioned here, you can <a href="https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues">submit an issue</a> on the GitHub project.
-                        <br/>
-                        I will make every effort to respond in a timely manner but remember that I maintain this open source project in my free time. Thanks!
                     </p>
                 </div>
 
@@ -93,8 +91,8 @@ ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions(
 ConvertAttachmentsToFilesSchedulable job = new ConvertAttachmentsToFilesSchedulable( batchSize, options );
 
 // delete currently scheduled job
-for ( CronJobDetail job : [ SELECT id FROM CronJobDetail WHERE name = :jobName ] ) {
-System.abortJob( job.id );
+for ( CronTrigger scheduledJob : [ SELECT id FROM CronTrigger WHERE CronJobDetail.name = :jobName ] ) {
+    System.abortJob( scheduledJob.id );
 }
 
 // schedule new job
@@ -128,13 +126,30 @@ System.schedule( jobName, cron, job );
                             <a name="which-objects-support-files"/>
 
                             <p class="slds-text-heading--medium slds-m-bottom--small section-title">
+                                <b>Error: Field is not writeable: ContentVersion.CreatedById</b>
+                            </p>
+
+                            <p class="slds-m-bottom--small">
+                                The conversion tool tries to copy the attachment's original created and last modified date/user to the converted file.
+                                To do so then the <a href="https://help.salesforce.com/articleView?id=Enable-Create-Audit-Fields" target="_blank">Create Audit Fields</a> feature must be enabled.
+                            </p>
+
+                        </div>
+
+                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
+
+                            <a name="which-objects-support-files"/>
+
+                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
                                 <b>Which Objects Support Salesforce Files?</b>
                             </p>
 
                             <p class="slds-m-bottom--small">
                                 Generally speaking, most standard and custom objects that support Notes &amp; Attachments also support Salesforce Files.
                                 <br/>
-                                There are some exceptions such as Tasks, Events, and EmailMessages which do not support Files and so their attachments cannot be converted.
+                                There are some exceptions like the <a href="https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_emailmessage.htm" target="_blank">EmailMessage</a> object.
+                                Although technically you can convert their attachments to files, you cannot <b>share</b> the files to the email message records.
+                                You will receive error <i>INSUFFICIENT_ACCESS_OR_READONLY, You can't create a link for Email Message when it's not in draft state.: [LinkedEntityId]</i>
                             </p>
 
                         </div>

@@ -1,4 +1,4 @@
-<apex:page controller="ConvertAttachmentsScheduleController">
+<apex:page controller="ConvertAttachmentsScheduleController" tabStyle="Convert_Attachments_to_Files__tab">
 
     <apex:slds />
 
@@ -170,9 +170,17 @@
 
                             <p class="slds-m-bottom--medium">
                                 Please carefully review your <a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}">conversion and sharing settings</a> before enabling this option.
-                                <br/>
-                                If you change your settings you must re-schedule this job for the changes to take effect.
                             </p>
+
+                            <div class="slds-notify_container" style="position: relative;">
+                                <div class="slds-notify slds-notify--toast slds-theme--warning" role="alert">
+                                    <div class="slds-notify__content">
+                                        <h2 class="slds-text-heading--small">
+                                            <b>Important:</b> If you change your conversion and sharing settings you must re-schedule this job for the changes to take effect.
+                                        </h2>
+                                    </div>
+                                </div>
+                            </div>
 
                         </div>
 
