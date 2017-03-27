@@ -53,11 +53,7 @@ public with sharing class ConvertAttachmentsToFilesOptions {
     public Set<ID> parentIds { get; set; }
 
     public ConvertAttachmentsToFilesOptions() {
-        this.shareType = 'I';
-        this.visibility = 'InternalUsers';
-        this.deleteAttachmentsUponConversion = false;
-        this.sharePrivateAttachmentsWithParentRecord = false;
-        this.parentIds = null;
+        this( Convert_Attachments_to_Files_Settings__c.getInstance() );
     }
 
     public ConvertAttachmentsToFilesOptions( Convert_Attachments_to_Files_Settings__c settings ) {
