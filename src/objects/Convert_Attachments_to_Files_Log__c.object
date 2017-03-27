@@ -69,6 +69,18 @@
         <visibleLines>10</visibleLines>
     </fields>
     <fields>
+        <fullName>Job_ID__c</fullName>
+        <description>The Batchable or Queueable Job ID when this error occurred.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The Batchable or Queueable Job ID when this error occurred.</inlineHelpText>
+        <label>Job ID</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>Log_Time__c</fullName>
         <description>In List Views and Reports the standard CreatedDate and LastModifiedDate display only the &quot;date&quot; portion and not the &quot;time&quot;. This formula field is workaround to to view the &quot;date&quot; and &quot;time&quot; together.</description>
         <externalId>false</externalId>
@@ -95,6 +107,7 @@
         <columns>Summary__c</columns>
         <columns>Detail__c</columns>
         <columns>Log_Time__c</columns>
+        <columns>Job_ID__c</columns>
         <filterScope>Everything</filterScope>
         <label>All</label>
     </listViews>

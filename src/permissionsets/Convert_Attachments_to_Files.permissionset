@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <applicationVisibilities>
+        <application>Convert_Attachments_to_Files</application>
+        <visible>true</visible>
+    </applicationVisibilities>
     <classAccesses>
         <apexClass>ConvertAttachmentsRunOnceController</apexClass>
         <enabled>false</enabled>
@@ -64,6 +68,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Convert_Attachments_to_Files_Log__c.Detail__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Convert_Attachments_to_Files_Log__c.Job_ID__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
