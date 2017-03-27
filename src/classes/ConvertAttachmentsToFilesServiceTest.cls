@@ -10,100 +10,112 @@ private class ConvertAttachmentsToFilesServiceTest {
     @isTest
     static void test_partner_community_users() {
 
-        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
-        settings.Convert_in_Near_Real_Time__c = true;
-        settings.Delete_Attachment_Once_Converted__c = false;
-        settings.Share_Private_Attachments__c = true;
+        try {
 
-        upsert settings;
+            Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+            settings.Share_Type__c = 'I';
+            settings.Visibility__c = 'AllUsers';
+            settings.Convert_in_Near_Real_Time__c = true;
+            settings.Delete_Attachment_Once_Converted__c = false;
+            settings.Share_Private_Attachments__c = true;
 
-        UserRole r1 = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
+            upsert settings;
 
-        Profile p1 = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
-        Profile p2 = [ SELECT id FROM Profile WHERE name = 'Partner Community User' ];
+            UserRole r1 = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
 
-        User user1, user2;
+            Profile p1 = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
+            Profile p2 = [ SELECT id FROM Profile WHERE name = 'Partner Community User' ];
 
-        // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
-        System.runAs( new User( id = UserInfo.getUserId() ) ) {
+            User user1, user2;
 
-            user1 = newUser( p1.id, r1.id, 'Alpha', 'User 1', 'user_1@example.com' );
+            // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
+            System.runAs( new User( id = UserInfo.getUserId() ) ) {
 
-            insert user1;
+                user1 = newUser( p1.id, r1.id, 'Alpha', 'User 1', 'user_1@example.com' );
 
-        }
+                insert user1;
 
-        Account acct = new Account(
-            ownerId = user1.id,
-            name = 'Community Account'
-        );
+            }
 
-        insert acct;
-
-        Contact cont = new Contact(
-            accountId = acct.id,
-            firstName = 'Beta',
-            lastName = 'User 2'
-        );
-
-        insert cont;
-
-        // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
-        System.runAs( new User( id = UserInfo.getUserId() ) ) {
-
-            user2 = newUser( p2.id, null, 'Beta',  'User 2', 'user_2@example.com' );
-
-            user2.contactId = cont.id;
-
-            insert user2;
-
-        }
-
-        Test.startTest();
-
-        System.runAs( user2 ) {
-
-            Attachment attachment1 = new Attachment(
-                name = 'Hello World.txt',
-                body = Blob.valueOf( 'Goodnight Moon' ),
-                parentId = acct.id,
-                ownerId = user2.id
+            Account acct = new Account(
+                ownerId = user1.id,
+                name = 'Community Account'
             );
 
-            insert attachment1;
+            insert acct;
 
-            Attachment attachment2 = new Attachment(
-                name = 'Hello World.txt',
-                body = Blob.valueOf( 'Goodnight Moon' ),
-                parentId = cont.id,
-                ownerId = user2.id
+            Contact cont = new Contact(
+                accountId = acct.id,
+                firstName = 'Beta',
+                lastName = 'User 2'
             );
 
-            insert attachment2;
+            insert cont;
 
-        }
+            // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
+            System.runAs( new User( id = UserInfo.getUserId() ) ) {
 
-        Test.stopTest();
+                user2 = newUser( p2.id, null, 'Beta',  'User 2', 'user_2@example.com' );
 
-        // must do assert after stopping test because of async code
-        System.assertEquals( 2, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId IN ( :acct.id, :cont.id ) ] );
+                user2.contactId = cont.id;
 
-        System.runAs( user2 ) {
+                insert user2;
 
-            List<Attachment> attachments = [ SELECT id FROM Attachment ];
+            }
 
-            ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService();
+            Test.startTest();
 
-            // we should get back both attachment ids as they've already been converted
-            Set<ID> convertedAttachmentIds = service.filterAlreadyConvertedAttachmentIds( attachments );
-            System.assertEquals( 2, convertedAttachmentIds.size() );
+            System.runAs( user2 ) {
 
-            // since both attachments have been converted then no other conversion should occur
-            List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( attachments );
-            System.assertEquals( 0, results.size() );
+                Attachment attachment1 = new Attachment(
+                    name = 'Hello World.txt',
+                    body = Blob.valueOf( 'Goodnight Moon' ),
+                    parentId = acct.id,
+                    ownerId = user2.id
+                );
+
+                insert attachment1;
+
+                Attachment attachment2 = new Attachment(
+                    name = 'Hello World.txt',
+                    body = Blob.valueOf( 'Goodnight Moon' ),
+                    parentId = cont.id,
+                    ownerId = user2.id
+                );
+
+                insert attachment2;
+
+            }
+
+            Test.stopTest();
+
+            // must do assert after stopping test because of async code
             System.assertEquals( 2, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId IN ( :acct.id, :cont.id ) ] );
+
+            System.runAs( user2 ) {
+
+                List<Attachment> attachments = [ SELECT id FROM Attachment ];
+
+                ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService();
+
+                // we should get back both attachment ids as they've already been converted
+                Set<ID> convertedAttachmentIds = service.filterAlreadyConvertedAttachmentIds( attachments );
+                System.assertEquals( 2, convertedAttachmentIds.size() );
+
+                // since both attachments have been converted then no other conversion should occur
+                List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( attachments );
+                System.assertEquals( 0, results.size() );
+                System.assertEquals( 2, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId IN ( :acct.id, :cont.id ) ] );
+
+            }
+
+        } catch ( Exception e ) {
+
+            // if org does not have communities enabled
+            // then don't worry about this test
+            if ( !e.getMessage().containsIgnoreCase( 'PORTAL_NO_ACCESS' ) ) {
+                throw e;
+            }
 
         }
 
@@ -114,7 +126,7 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
         settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'InternalUsers';
+        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
         settings.Share_Private_Attachments__c = true;
@@ -345,7 +357,7 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( options );
 
-        service.convert( new Attachment[]{ attachment } );
+        service.convert( new Attachment[] { attachment } );
 
         Test.stopTest();
 
@@ -413,7 +425,7 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( options );
 
-        service.convert( new Attachment[]{ attachment } );
+        service.convert( new Attachment[] { attachment } );
 
         Test.stopTest();
 
@@ -495,7 +507,7 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
         settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'InternalUsers';
+        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = false;
         settings.Share_Private_Attachments__c = true;

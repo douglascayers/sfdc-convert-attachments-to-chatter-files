@@ -14,7 +14,6 @@ public with sharing class ConvertAttachmentsToFilesOptions {
     //     'I' = inferred view or edit based on user's similar access to related record
     //     'C' = collaborator, view and edit (not supported if related to standard object)
     //
-    // If you have communities enabled then consider 'V' or 'I'.
     // The default is 'V'.
     //
     public String shareType { get; set; }
@@ -26,8 +25,8 @@ public with sharing class ConvertAttachmentsToFilesOptions {
     //     'InternalUsers' = available only to internal users who have permission to see file
     //     'AllUsers' = available to all users, including community users, who have permission to see file
     //
-    // If you have communities enabled then consider 'AllUsers'.
-    // The default is 'InternalUsers'.
+    // If you have communities enabled then consider 'AllUsers' so those users don't lose access to the files.
+    // If communities is enabled then default is 'InternalUsers', otherwise 'AllUsers' is only valid value.
     //
     public String visibility { get; set; }
 
