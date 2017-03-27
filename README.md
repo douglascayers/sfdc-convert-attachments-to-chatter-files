@@ -26,10 +26,22 @@ Additional Background:
 * [ContentVersion Documentation](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentversion.htm)
 
 
+Pre-Requisites
+--------------
+
+* Enable [Create Audit Fields](https://help.salesforce.com/articleView?id=Enable-Create-Audit-Fields) so Attachment create/update/owner fields can be preserved on the new files
+
+![screen shot](images/setup-enable-create-audit-fields1.png)
+
+* Enable [Email-to-Case](https://help.salesforce.com/articleView?id=customizesupport_ondemand_email_to_case.htm). You don't have to begin using it, just have it enabled. The code references the `EmailMessage` object.
+
+![screen shot](images/setup-enable-email-to-case.png)
+
+
 Installation
 ------------
 
-* Managed Package ([production](), [sandbox]())
+* Managed Package ([production](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t46000000vBy9), [sandbox](https://test.salesforce.com/packaging/installPackage.apexp?p0=04t46000000vBy9))
 * [Deploy from Github](https://githubsfdeploy.herokuapp.com) (unmanaged, only if you intend to customize the conversion logic and be responsible for unit tests)
 
 
@@ -66,6 +78,10 @@ When you deploy the package you might get error that files are invalid and need 
 might say "Field is not writeable: ContentVersion.CreatedById". The conversion tool tries to copy the attachment's original
 created and last modified date/user to the converted file. To do so then the "Create Audit Fields" feature must be enabled.
 Please see [this help article](https://help.salesforce.com/articleView?id=Enable-Create-Audit-Fields) for instructions enable this feature.
+
+![screen shot](images/setup-enable-create-audit-fields2.png)
+
+![screen shot](images/setup-enable-create-audit-fields1.png)
 
 
 Visibility InternalUsers is not permitted for this linked record.
