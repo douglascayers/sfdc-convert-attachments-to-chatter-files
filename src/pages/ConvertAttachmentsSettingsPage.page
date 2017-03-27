@@ -100,11 +100,12 @@
                                                   value="{!settings.Visibility__c}"
                                                   layout="pageDirection">
 
-                                    <apex:selectOption itemLabel="Internal Users Only"
+                                    <apex:selectOption itemLabel="Internal Users Only (not available if communities is disabled)"
                                         itemValue="InternalUsers"
+                                        itemDisabled="{!NOT(isCommunitiesEnabled)}"
                                     />
 
-                                    <apex:selectOption itemLabel="Internal and External Users (recommended if you use communities)"
+                                    <apex:selectOption itemLabel="All Users (recommended if communities is enabled)"
                                         itemValue="AllUsers"
                                     />
 

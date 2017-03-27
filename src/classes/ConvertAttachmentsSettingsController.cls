@@ -9,6 +9,12 @@ public with sharing class ConvertAttachmentsSettingsController {
 
     public Boolean success { get; set; }
 
+    public Boolean isCommunitiesEnabled {
+        get {
+            return Schema.getGlobalDescribe().containsKey( 'Network' );
+        }
+    }
+
     public ConvertAttachmentsSettingsController() {
 
         this.settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
@@ -23,10 +29,26 @@ public with sharing class ConvertAttachmentsSettingsController {
 
         try {
 
-            upsert this.settings;
+            if ( settings.Delete_Attachment_Once_Converted__c == null ||
+                 settings.Share_Private_Attachments__c == null ||
+                 settings.Share_Type__c == null ||
+                 settings.Visibility__c == null
+            ) {
 
-            this.message = 'Settings saved successfully!';
-            this.success = true;
+                this.success = false;
+                this.message = 'Please answer all questions to configure conversion options.';
+
+            } else {
+
+                upsert this.settings;
+
+                // refresh any values set on insert
+                this.settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+
+                this.message = 'Settings saved successfully!';
+                this.success = true;
+
+            }
 
         } catch ( Exception e ) {
 
