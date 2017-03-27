@@ -241,6 +241,13 @@ private class ConvertAttachmentsToFilesServiceTest {
     @isTest
     static void test_no_delete() {
 
+        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+        settings.Share_Type__c = 'I';
+        settings.Visibility__c = 'AllUsers';
+        settings.Convert_in_Near_Real_Time__c = false;
+        settings.Delete_Attachment_Once_Converted__c = false;
+        settings.Share_Private_Attachments__c = true;
+
         UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
 
         Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
@@ -285,7 +292,7 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         Test.startTest();
 
-        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
+        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
         options.deleteAttachmentsUponConversion = false;
 
         ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( options );
@@ -308,6 +315,13 @@ private class ConvertAttachmentsToFilesServiceTest {
     @isTest
     static void test_yes_delete() {
 
+        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+        settings.Share_Type__c = 'I';
+        settings.Visibility__c = 'AllUsers';
+        settings.Convert_in_Near_Real_Time__c = false;
+        settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Share_Private_Attachments__c = true;
+
         UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
 
         Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
@@ -352,7 +366,7 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         Test.startTest();
 
-        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
+        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
         options.deleteAttachmentsUponConversion = true;
 
         ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( options );
@@ -375,6 +389,13 @@ private class ConvertAttachmentsToFilesServiceTest {
     @isTest
     static void test_no_share_private_attachments_with_parent_record() {
 
+        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+        settings.Share_Type__c = 'I';
+        settings.Visibility__c = 'AllUsers';
+        settings.Convert_in_Near_Real_Time__c = false;
+        settings.Delete_Attachment_Once_Converted__c = false;
+        settings.Share_Private_Attachments__c = false;
+
         UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
 
         Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
@@ -420,7 +441,7 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         Test.startTest();
 
-        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
+        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
         options.sharePrivateAttachmentsWithParentRecord = false;
 
         ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( options );
@@ -440,6 +461,13 @@ private class ConvertAttachmentsToFilesServiceTest {
     @isTest
     static void test_yes_share_private_attachments_with_parent_record() {
 
+        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+        settings.Share_Type__c = 'I';
+        settings.Visibility__c = 'AllUsers';
+        settings.Convert_in_Near_Real_Time__c = false;
+        settings.Delete_Attachment_Once_Converted__c = false;
+        settings.Share_Private_Attachments__c = true;
+
         UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
 
         Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
@@ -485,7 +513,7 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         Test.startTest();
 
-        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions();
+        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
         options.sharePrivateAttachmentsWithParentRecord = true;
 
         ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( options );
