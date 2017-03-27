@@ -68,6 +68,21 @@ created and last modified date/user to the converted file. To do so then the "Cr
 Please see [this help article](https://help.salesforce.com/articleView?id=Enable-Create-Audit-Fields) for instructions enable this feature.
 
 
+Visibility InternalUsers is not permitted for this linked record.
+--------------------------------------------------------------------------------------------------
+When the conversion tool shares the file to the attachment's owner and parent record the
+**ContentDocumentLink.Visibility** field controls which community of users, internal or external,
+may gain access to the file if they have access to the related record.
+
+When communities are **enabled** then both picklist values `AllUsers` and `InternalUsers` are acceptable.
+When communities are **disabled** then only the picklist value `AllUsers` is acceptable.
+
+This error usually means communities are **disabled** in your org and you're trying to set the
+visibility of the converted files to `InternalUsers`.
+
+To fix then either (a) enable communities or (b) change the visibility option to `AllUsers`.
+
+
 Are there any objects that don't support attachment conversion?
 ---------------------------------------------------------------
 Yes, the [EmailMessage](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_emailmessage.htm) object.

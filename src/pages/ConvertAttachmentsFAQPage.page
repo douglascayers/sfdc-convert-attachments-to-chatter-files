@@ -18,6 +18,13 @@
             padding: 0.4em;
         }
 
+        .slds-scope dfn {
+            font-style: normal;
+            font-weight: normal;
+            background-color: #F0F0F0;
+            padding: 0 0.3em;
+        }
+
     </style>
 
     <apex:form >
@@ -103,8 +110,6 @@ System.schedule( jobName, cron, job );
 
                         <div class="slds-box slds-m-top--small slds-m-bottom--small">
 
-                            <a name="error-content-publication-limit-exceeded"/>
-
                             <p class="slds-text-heading--medium slds-m-bottom--small section-title">
                                 <b>Error: ContentPublication Limit Exceeded</b>
                             </p>
@@ -123,8 +128,6 @@ System.schedule( jobName, cron, job );
 
                         <div class="slds-box slds-m-top--small slds-m-bottom--small">
 
-                            <a name="which-objects-support-files"/>
-
                             <p class="slds-text-heading--medium slds-m-bottom--small section-title">
                                 <b>Error: Field is not writeable: ContentVersion.CreatedById</b>
                             </p>
@@ -138,7 +141,34 @@ System.schedule( jobName, cron, job );
 
                         <div class="slds-box slds-m-top--small slds-m-bottom--small">
 
-                            <a name="which-objects-support-files"/>
+                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
+                                <b>Error: Visibility InternalUsers is not permitted for this linked record.</b>
+                            </p>
+
+                            <p class="slds-m-bottom--small">
+                                When the conversion tool shares the file to the attachment's owner and parent record the
+                                <b>ContentDocumentLink.Visibility</b> field controls which community of users, internal or external,
+                                may gain access to the file if they have access to the related record.
+                            </p>
+
+                            <p class="slds-m-bottom--small">
+                                When communities are <b>enabled</b> then both picklist values <dfn>AllUsers</dfn> and <dfn>InternalUsers</dfn> are acceptable.
+                                <br/>
+                                When communities are <b>disabled</b> then only the picklist value <dfn>AllUsers</dfn> is acceptable.
+                            </p>
+
+                            <p class="slds-m-bottom--small">
+                                This error usually means communities are <b>disabled</b> in your org and you're trying to set the
+                                visibility of the converted files to <dfn>InternalUsers</dfn>.
+                            </p>
+
+                            <p class="slds-m-bottom--small">
+                                To fix then either (a) enable communities or (b) change the visibility option to <dfn>AllUsers</dfn>.
+                            </p>
+
+                        </div>
+
+                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
 
                             <p class="slds-text-heading--medium slds-m-bottom--small section-title">
                                 <b>Which Objects Support Salesforce Files?</b>
@@ -155,8 +185,6 @@ System.schedule( jobName, cron, job );
                         </div>
 
                         <div class="slds-box slds-m-top--small slds-m-bottom--small">
-
-                            <a name="which-objects-support-files"/>
 
                             <p class="slds-text-heading--medium slds-m-bottom--small section-title">
                                 <b>If I run the conversion multiple times, do duplicate files get created for the same attachments?</b>
