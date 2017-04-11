@@ -42,6 +42,10 @@ public with sharing class ConvertAttachmentsToFilesQueueable implements Queueabl
 
     public void execute( QueueableContext context ) {
 
+        SavePoint sp = Database.setSavePoint();
+
+        DateTime startTime = DateTime.now();
+
         try {
 
             System.debug( '[ConvertAttachmentsToFilesQueueable.execute] Executing: ' + context );
@@ -78,7 +82,13 @@ public with sharing class ConvertAttachmentsToFilesQueueable implements Queueabl
 
         } catch ( Exception e ) {
 
+            Database.rollback( sp );
+
             ConvertAttachmentsToFilesLogger.log( context.getJobId(), e );
+
+        } finally {
+
+            ConvertAttachmentsToFilesLogger.sendApexExceptionEmailIfAnyErrorsSince( startTime );
 
         }
 

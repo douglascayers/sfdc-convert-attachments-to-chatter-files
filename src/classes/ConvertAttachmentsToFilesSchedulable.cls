@@ -5,7 +5,7 @@
  */
 public with sharing class ConvertAttachmentsToFilesSchedulable implements Schedulable {
 
-    private Integer batchSize { get; set; }
+    public Integer batchSize { get; set; }
 
     public ConvertAttachmentsToFilesSchedulable() {
         this( 200 );
@@ -17,19 +17,37 @@ public with sharing class ConvertAttachmentsToFilesSchedulable implements Schedu
 
     public void execute( SchedulableContext context ) {
 
-        // we use the instance rather than org defaults here to support
-        // overrides on a user or profile level
-        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getInstance();
+        SavePoint sp = Database.setSavePoint();
 
-        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
+        DateTime startTime = DateTime.now();
 
-        System.debug( '[ConvertAttachmentsToFilesSchedulable.execute] Executing: ' + context );
-        System.debug( '[ConvertAttachmentsToFilesSchedulable.execute] Options: ' + options );
-        System.debug( '[ConvertAttachmentsToFilesSchedulable.execute] Batch Size: ' + this.batchSize );
+        try {
 
-        ConvertAttachmentsToFilesBatchable batchable = new ConvertAttachmentsToFilesBatchable( options );
+            // we use the instance rather than org defaults here to support
+            // overrides on a user or profile level
+            Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getInstance();
 
-        Database.executeBatch( batchable, this.batchSize );
+            ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
+
+            System.debug( '[ConvertAttachmentsToFilesSchedulable.execute] Executing: ' + context );
+            System.debug( '[ConvertAttachmentsToFilesSchedulable.execute] Options: ' + options );
+            System.debug( '[ConvertAttachmentsToFilesSchedulable.execute] Batch Size: ' + this.batchSize );
+
+            ConvertAttachmentsToFilesBatchable batchable = new ConvertAttachmentsToFilesBatchable( options );
+
+            Database.executeBatch( batchable, this.batchSize );
+
+        } catch ( Exception e ) {
+
+            Database.rollback( sp );
+
+            ConvertAttachmentsToFilesLogger.log( context.getTriggerId(), e );
+
+        } finally {
+
+            ConvertAttachmentsToFilesLogger.sendApexExceptionEmailIfAnyErrorsSince( startTime );
+
+        }
 
     }
 

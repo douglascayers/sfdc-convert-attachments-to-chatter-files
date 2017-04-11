@@ -66,6 +66,8 @@ public with sharing class ConvertAttachmentsToFilesBatchable implements Database
 
     public void execute( Database.BatchableContext context, List<Attachment> attachments ) {
 
+        SavePoint sp = Database.setSavePoint();
+
         try {
 
             System.debug( '[ConvertAttachmentsToFilesBatchable.execute] Executing: ' + context );
@@ -91,6 +93,8 @@ public with sharing class ConvertAttachmentsToFilesBatchable implements Database
 
         } catch ( Exception e ) {
 
+            Database.rollback( sp );
+
             ConvertAttachmentsToFilesLogger.log( context.getJobId(), e );
 
         }
@@ -101,6 +105,8 @@ public with sharing class ConvertAttachmentsToFilesBatchable implements Database
 
         System.debug( '[ConvertAttachmentsToFilesBatchable.finish] Finishing: ' + context );
         System.debug( '[ConvertAttachmentsToFilesBatchable.finish] Options: ' + this.options );
+
+        ConvertAttachmentsToFilesLogger.sendApexExceptionEmailIfAnyErrorsSince( context.getJobId() );
 
     }
 
