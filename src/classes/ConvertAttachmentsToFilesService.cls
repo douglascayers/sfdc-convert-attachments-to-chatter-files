@@ -61,6 +61,7 @@ public with sharing class ConvertAttachmentsToFilesService {
          * Convert Attachments to ContentVersions
          */
 
+        List<ConversionRequest> conversionRequests = new List<ConversionRequest>();
         List<ContentVersion> contentVersions = new List<ContentVersion>();
 
         for ( Attachment att : attachments ) {
@@ -105,6 +106,8 @@ public with sharing class ConvertAttachmentsToFilesService {
 
                 contentVersions.add( cv );
 
+                conversionRequests.add( new ConversionRequest( att, cv ) );
+
             }
 
         }
@@ -113,42 +116,39 @@ public with sharing class ConvertAttachmentsToFilesService {
 
             insert contentVersions;
 
-            // create a map of content version ids to attachment record
-            // this will be used later on when creating the content document links
-            // to share the new file with the attachments parent entity and owner.
-            // We build this map here using the loop because at this point in the code
-            // we are guaranteed that the index of both lists reference the "same" attachment/file
-            Map<ID, Attachment> contentVersionToAttachmentsMap = new Map<ID, Attachment>();
-            for ( Integer i = 0; i < contentVersions.size(); i++ ) {
-
-                contentVersionToAttachmentsMap.put(
-                    contentVersions[i].id,
-                    attachments[i]
-                );
+            for ( ConversionRequest request : conversionRequests ) {
 
                 ConversionResult result = new ConversionResult();
                 result.success = true;
-                result.contentVersionId = contentVersions[i].id;
-                result.attachmentId = attachments[i].id;
+                result.contentVersionId = request.newFile.id;
+                result.attachmentId = request.oldAttachment.id;
 
-                conversionResultsMap.put( attachments[i].id, result );
+                conversionResultsMap.put( request.oldAttachment.id, result );
 
             }
 
             /*
              * Step 2
-             * Requery ContentVersions to get generated content document id (so we can link records to the content)
-             * and the original attachment parent id (the record we want to share the content with)
+             * Requery ContentVersions to get latest published version id so that we can
+             * know the generated content document id so that we can create
+             * ContentDocumentLinks between the document and note's parent record and owner.
+             * Doing so will share the new note so it's accessible by others.
              */
 
-            contentVersions = [
+            Map<ID, ContentVersion> contentVersionsMap = new Map<ID, ContentVersion>([
                 SELECT
-                    id, ownerId, contentDocumentId, original_record_id__c, original_record_parent_id__c
+                    id,
+                    ownerId,
+                    contentDocumentId,
+                    original_record_id__c,
+                    original_record_parent_id__c
                 FROM
                     ContentVersion
                 WHERE
                     id IN :contentVersions
-            ];
+            ]);
+
+            System.assertEquals( contentVersions.size(), contentVersionsMap.size() );
 
             /*
              * Step 3
@@ -158,28 +158,28 @@ public with sharing class ConvertAttachmentsToFilesService {
 
             List<ContentDocumentLink> contentDocumentLinks = new List<ContentDocumentLink>();
 
-            for ( ContentVersion cv : contentVersions ) {
+            for ( ConversionRequest request : conversionRequests ) {
 
-                Attachment att = contentVersionToAttachmentsMap.get( cv.id );
+                ContentVersion cv = contentVersionsMap.get( request.newFile.id );
 
                 // should converted file be shared with parent?
-                if ( !att.isPrivate || ( att.isPrivate && this.options.sharePrivateAttachmentsWithParentRecord ) ) {
+                if ( !request.oldAttachment.isPrivate || ( request.oldAttachment.isPrivate && this.options.sharePrivateAttachmentsWithParentRecord ) ) {
 
                     // share the new file with the same parent entity of the old attachment
                     // any user with visibility to this record has visibility to this file
                     contentDocumentLinks.add( new ContentDocumentLink(
-                        linkedEntityId = att.parentId,
+                        linkedEntityId = request.oldAttachment.parentId,
                         contentDocumentId = cv.contentDocumentId,
-                        shareType = options.shareType,
-                        visibility = options.visibility
+                        shareType = this.options.shareType,
+                        visibility = this.options.visibility
                     ));
 
                 } else {
 
-                    String message  = 'Not creating ContentDocumentLink to share ContentDocument (' + cv.contentDocumentId + ') with Parent Record (' + att.parentId + ') because attachment record (' + att.id + ') is private. ';
+                    String message  = 'Not creating ContentDocumentLink to share ContentDocument (' + cv.contentDocumentId + ') with Parent Record (' + request.oldAttachment.parentId + ') because attachment record (' + request.oldAttachment.id + ') is private. ';
                            message += 'Either make attachment record not private or enable the [Share Private Attachments?] option and convert again, or manually update the new document\'s sharing settings.';
 
-                    conversionResultsMap.get( att.id ).message += ' ' + message;
+                    conversionResultsMap.get( request.oldAttachment.id ).message += ' ' + message;
 
                 }
 
@@ -195,8 +195,8 @@ public with sharing class ConvertAttachmentsToFilesService {
 
                 List<Attachment> attachmentsToDelete = new List<Attachment>();
 
-                for ( ContentVersion contentVersion : contentVersions ) {
-                    attachmentsToDelete.add( new Attachment( id = contentVersion.original_record_id__c ) );
+                for ( ConversionRequest request : conversionRequests ) {
+                    attachmentsToDelete.add( request.oldAttachment );
                 }
 
                 delete attachmentsToDelete;
@@ -214,36 +214,35 @@ public with sharing class ConvertAttachmentsToFilesService {
      */
     public Set<ID> filterAlreadyConvertedAttachmentIds( List<Attachment> attachments ) {
 
+        Set<ID> filteredAttachmentIds = new Set<ID>();
+
         Set<ID> attachmentIds = new Set<ID>();
+        Set<ID> parentIds = new Set<ID>();
 
         for ( Attachment att : attachments ) {
             attachmentIds.add( att.id );
+            parentIds.add( att.parentId );
         }
 
-        return filterAlreadyConvertedAttachmentIds( attachmentIds );
-    }
+        for ( List<ContentDocumentLink> links : [
+            SELECT
+                contentDocument.latestPublishedVersion.original_record_id__c
+            FROM
+                ContentDocumentLink
+            WHERE
+                linkedEntityId IN :parentIds
+                AND
+                contentDocument.latestPublishedVersion.original_record_id__c IN :attachmentIds
+        ]) {
 
-    /**
-     * Given a set of attachment ids then returns the sublist of those
-     * that have already been converted.
-     */
-    public Set<ID> filterAlreadyConvertedAttachmentIds( Set<ID> attachmentIds ) {
+            for ( ContentDocumentLink link : links ) {
 
-        Set<ID> filteredAttachmentIds = new Set<ID>();
+                if ( link.contentDocument != null && link.contentDocument.latestPublishedVersion != null ) {
 
-        if ( attachmentIds != null && attachmentIds.size() > 0 ) {
+                    if ( attachmentIds.contains( link.contentDocument.latestPublishedVersion.original_record_id__c ) ) {
+                        filteredAttachmentIds.add( link.contentDocument.latestPublishedVersion.original_record_id__c );
+                    }
 
-            for ( List<ContentVersion> versions : [
-                SELECT
-                    original_record_id__c
-                FROM
-                    ContentVersion
-                WHERE
-                    original_record_id__c IN :attachmentIds
-            ]) {
-
-                for ( ContentVersion cv : versions ) {
-                    filteredAttachmentIds.add( cv.original_record_id__c );
                 }
 
             }
@@ -251,6 +250,19 @@ public with sharing class ConvertAttachmentsToFilesService {
         }
 
         return filteredAttachmentIds;
+    }
+
+    public class ConversionRequest {
+
+        public Attachment oldAttachment { get; set; }
+
+        public ContentVersion newFile { get; set; }
+
+        public ConversionRequest( Attachment oldAttachment, ContentVersion newFile ) {
+            this.oldAttachment = oldAttachment;
+            this.newFile = newFile;
+        }
+
     }
 
     public class ConversionResult {

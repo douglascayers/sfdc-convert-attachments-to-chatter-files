@@ -94,7 +94,13 @@ private class ConvertAttachmentsToFilesServiceTest {
 
             System.runAs( user2 ) {
 
-                List<Attachment> attachments = [ SELECT id FROM Attachment ];
+                List<Attachment> attachments = [
+                    SELECT
+                        id, parentId, ownerId, name, description, body, isPrivate,
+                        createdById, createdDate, lastModifiedById, lastModifiedDate
+                    FROM
+                        Attachment
+                ];
 
                 ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService();
 
@@ -186,7 +192,7 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         Attachment htmlBodyAttachment = new Attachment(
             name = 'Hello World.html',
-            body = Blob.valueOf( '<b>bold</b> <u>underline</u> <i>italic</i> <ul><li>list item</li></ul> <ol><li>list item</li></ol> <a href="www.salesforce.com">link</a> <div></div> <p></p> &nbsp;' ),
+            body = Blob.valueOf( '<b>bold</b> <u>underline</u> <i>italic</i> <ul><li>list item</li></ul> <ol><li>list item</li></ol> <a href="www.salesforce.com">link</a> <div></div> <p></p> &nbsp; <span style="color:red">text</span> <img src="image.png"/>' ),
             parentId = account.id,
             ownerId = user1.id
         );
@@ -247,6 +253,8 @@ private class ConvertAttachmentsToFilesServiceTest {
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = false;
         settings.Share_Private_Attachments__c = true;
+
+        upsert settings;
 
         UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
 
@@ -322,6 +330,8 @@ private class ConvertAttachmentsToFilesServiceTest {
         settings.Delete_Attachment_Once_Converted__c = true;
         settings.Share_Private_Attachments__c = true;
 
+        upsert settings;
+
         UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
 
         Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
@@ -396,6 +406,8 @@ private class ConvertAttachmentsToFilesServiceTest {
         settings.Delete_Attachment_Once_Converted__c = false;
         settings.Share_Private_Attachments__c = false;
 
+        upsert settings;
+
         UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
 
         Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
@@ -468,6 +480,8 @@ private class ConvertAttachmentsToFilesServiceTest {
         settings.Delete_Attachment_Once_Converted__c = false;
         settings.Share_Private_Attachments__c = true;
 
+        upsert settings;
+
         UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
 
         Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
@@ -527,6 +541,103 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         ContentDocumentLink cdl = [ SELECT id, linkedEntityId FROM ContentDocumentLink WHERE contentDocumentId = :cv.contentDocumentId AND linkedEntityId = :account.id ];
         System.assert( cdl != null );
+
+    }
+
+    @isTest
+    static void test_no_duplicates() {
+
+        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+        settings.Share_Type__c = 'I';
+        settings.Visibility__c = 'AllUsers';
+        settings.Convert_in_Near_Real_Time__c = false;
+        settings.Delete_Attachment_Once_Converted__c = false;
+        settings.Share_Private_Attachments__c = true;
+
+        upsert settings;
+
+        UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
+
+        Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
+
+        User user1, user2;
+
+        // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
+        System.runAs( new User( id = UserInfo.getUserId() ) ) {
+
+            user1 = newUser( p.id, role.id, 'Alpha', 'User 1', 'user_1@example.com' );
+            user2 = newUser( p.id, role.id, 'Beta',  'User 2', 'user_2@example.com' );
+
+            insert new List<User>{ user1, user2 };
+
+        }
+
+        Account account = new Account(
+            ownerId = user1.id,
+            name = 'Test Account'
+        );
+
+        insert account;
+
+        Attachment attachment = new Attachment(
+            name = 'Hello World.txt',
+            body = Blob.valueOf('Hello World'),
+            parentId = account.id,
+            ownerId = user1.id
+        );
+
+        // new file owner is based on attachment's creator
+        System.runAs( user1 ) {
+
+            insert attachment;
+
+        }
+
+        attachment = [
+            SELECT
+                id, parentId, ownerId, name, description, body, isPrivate,
+                createdById, createdDate, lastModifiedById, lastModifiedDate
+            FROM
+                Attachment
+            WHERE
+                id = :attachment.id
+        ];
+
+        Test.startTest();
+
+        ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
+
+        ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService( options );
+
+        List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( new Attachment[] { attachment } );
+
+        System.assertNotEquals( null, results );
+
+        for ( ConvertAttachmentsToFilesService.ConversionResult result : results ) {
+            System.debug( result );
+            System.assertEquals( true, result.success, result.message );
+        }
+
+        ContentDocumentLink cdl = [ SELECT id, linkedEntityId, contentDocument.latestPublishedVersion.ownerId FROM ContentDocumentLink WHERE contentDocument.latestPublishedVersion.original_record_id__c = :attachment.id AND linkedEntityId = :account.id ];
+        System.assert( cdl != null );
+        System.assertEquals( user1.id, cdl.contentDocument.latestPublishedVersion.ownerId );
+        System.assertNotEquals( UserInfo.getUserId(), cdl.contentDocument.latestPublishedVersion.ownerId );
+
+        // convert again, expect no duplicate file created
+
+        results = service.convert( new Attachment[] { attachment } );
+
+        System.assertNotEquals( null, results );
+
+        for ( ConvertAttachmentsToFilesService.ConversionResult result : results ) {
+            System.debug( result );
+            System.assertEquals( true, result.success, result.message );
+        }
+
+        System.assertEquals( 1, [ SELECT count() FROM ContentDocumentLink WHERE contentDocument.latestPublishedVersion.original_record_id__c = :attachment.id AND linkedEntityId = :account.id ] );
+        System.assertEquals( 1, [ SELECT count() FROM Attachment WHERE id = :attachment.id ] );
+
+        Test.stopTest();
 
     }
 
