@@ -65,6 +65,10 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>ConvertAttachmentsToFilesScheduleTest</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>ConvertAttachmentsToFilesService</apexClass>
         <enabled>false</enabled>
     </classAccesses>
