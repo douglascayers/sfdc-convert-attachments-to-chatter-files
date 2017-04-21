@@ -119,6 +119,13 @@ visibility of the converted files to `InternalUsers`.
 To fix then either (a) enable communities or (b) change the visibility option to `AllUsers`.
 
 
+INSUFFICIENT_ACCESS_OR_READONLY, Invalid sharing type I: [ShareType]
+--------------------------------------------------------------------
+This error means the object the new file is trying to be shared to does not support the conversion setting **Users inherit view or edit access to the file based on their view or edit access to the attachment's parent record** and instead you must try **Users can only view the file but cannot edit it, even if the user can edit the attachment's parent record**.
+
+This is known to occur with `Solution` object and likely other objects.
+
+
 FIELD_INTEGRITY_EXCEPTION, Owner ID: id value of incorrect type: 035xxxxxxxxxxxxxxx: [OwnerId]
 ----------------------------------------------------------------------------------------------
 Prior to Spring '12, Salesfore customers could have [Self-Service Portals](https://help.salesforce.com/articleView?id=customize_selfserviceenable.htm), which pre-date the modern Communities we have today.
