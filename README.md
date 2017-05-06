@@ -30,7 +30,7 @@ Additional Background:
 Pre-Requisites
 --------------
 
-* Enable [Create Audit Fields](https://help.salesforce.com/articleView?id=Enable-Create-Audit-Fields) so Attachment create/update/owner fields can be preserved on the new files
+* Enable [Create Audit Fields](https://help.salesforce.com/articleView?id=000213290&type=1&language=en_US) so Attachment create/update/owner fields can be preserved on the new files
 
 ![screen shot](images/setup-enable-create-audit-fields1.png)
 
@@ -69,7 +69,7 @@ You may install the unmanaged code from GitHub and make any desired adjustments.
 Getting Started
 ---------------
 
-1. Enable setting [Create Audit Fields](https://help.salesforce.com/articleView?id=Enable-Create-Audit-Fields) so Attachment create/update/owner fields can be preserved on the new files
+1. Enable setting [Create Audit Fields](https://help.salesforce.com/articleView?id=000213290&type=1&language=en_US) so Attachment create/update/owner fields can be preserved on the new files
 2. Enable setting [Files uploaded to the Attachments related list on records are uploaded as Salesforce Files, not as attachments](https://releasenotes.docs.salesforce.com/en-us/spring16/release-notes/rn_files_notes_attachments_list.htm)
 3. Add "Files" related list to your page layouts (e.g. Accounts, Contacts, Tasks, Events, etc.)
 4. Deploy the package using one of the installation links above
@@ -99,7 +99,7 @@ Field is not writeable: ContentVersion.CreatedById
 When you deploy the package you might get error that files are invalid and need recompilation and one of the specific messages
 might say "Field is not writeable: ContentVersion.CreatedById". The conversion tool tries to copy the attachment's original
 created and last modified date/user to the converted file. To do so then the "Create Audit Fields" feature must be enabled.
-Please see [this help article](https://help.salesforce.com/articleView?id=Enable-Create-Audit-Fields) for instructions enable this feature.
+Please see [this help article](https://help.salesforce.com/articleView?id=000213290&type=1&language=en_US) for instructions enable this feature.
 
 ![screen shot](images/setup-enable-create-audit-fields2.png)
 
