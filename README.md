@@ -7,7 +7,8 @@ Overview
 Salesforce [announced](https://releasenotes.docs.salesforce.com/en-us/spring17/release-notes/rn_files_add_related_list_to_page_layouts.htm) that in **Winter '18**
 the "Notes & Attachments" related list will no longer have an upload or attach button. Customers will be required to migrate to and adopt Salesforce Files.
 
-At the time of this project, Salesforce has not (yet?) provided an official conversion tool from Attachments to Files.
+At the time of this project in 2015, Salesforce had not yet provided an official conversion tool from Attachments to Files.
+In the Summer '17 release, Salesforce Labs [plans to provide one via the AppExchange](https://releasenotes.docs.salesforce.com/en-us/summer17/release-notes/rn_files_attachments_to_files.htm).
 
 This project enables the manual or automatic conversion of classic [Attachments](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_attachment.htm)
 into [Salesforce Files](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentversion.htm)
@@ -69,6 +70,7 @@ Max Documents or Versions Published Governor Limit
 --------------------------------------------------
 When converting classic Notes & Attachments the new data is stored in the `ContentVersion` object.
 There is a [limit to how many of these records can be created in a 24 hour period](https://help.salesforce.com/articleView?id=limits_general.htm&language=en_US&type=0).
+With [Summer '17](https://releasenotes.docs.salesforce.com/en-us/summer17/release-notes/rn_files_limits.htm) release the limit is increased from 36,000 to 200,000!
 If you have a lot of Notes & Attachments to convert plan around this limit and split the work across multiple days.
 
 
