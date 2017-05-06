@@ -39,11 +39,31 @@ Pre-Requisites
 ![screen shot](images/setup-enable-email-to-case.png)
 
 
-Installation
-------------
+Packaged Release History
+------------------------
 
-* Managed Package ([production](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t46000000vBy9), [sandbox](https://test.salesforce.com/packaging/installPackage.apexp?p0=04t46000000vBy9))
-* [Deploy from Github](https://githubsfdeploy.herokuapp.com) (unmanaged, only if you intend to customize the conversion logic and be responsible for unit tests)
+Release 1.1 (latest)
+-----------
+* Install package
+  * [Production URL](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t46000001VnYW)
+  * [Sandbox URL](https://test.salesforce.com/packaging/installPackage.apexp?p0=04t46000001VnYW)
+* Fixes [Issue 19](https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/19) inconsistency when detecting if a file has already been converted or not due to special access rules on ContentVersion object.
+* If error log records are generated then email is sent to all Salesforce Users listed in `Setup | Email Administration | Apex Exception Email` notifying them to review the error log records.
+
+Release 1.0
+-----------
+* Install package
+  * [Production URL](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t46000000vBy9)
+  * [Sandbox URL](https://test.salesforce.com/packaging/installPackage.apexp?p0=04t46000000vBy9)
+* Initial managed package offering
+* Split out Notes Conversion into its [own project](https://github.com/DouglasCAyers/sfdc-convert-notes-to-chatter-notes)
+
+Installing the Source Code (Developers)
+---------------------------------------
+
+You may install the unmanaged code from GitHub and make any desired adjustments. You are responsible for ensuring unit tests meet your org's validation rules and other requirements.
+
+* [Deploy from Github](https://githubsfdeploy.herokuapp.com)
 
 
 Getting Started
@@ -99,6 +119,20 @@ This error usually means communities are **disabled** in your org and you're try
 visibility of the converted files to `InternalUsers`.
 
 To fix then either (a) enable communities or (b) change the visibility option to `AllUsers`.
+
+
+INSUFFICIENT_ACCESS_OR_READONLY, Invalid sharing type I: [ShareType]
+--------------------------------------------------------------------
+This error means the object the new file is trying to be shared to does not support the conversion setting **Users inherit view or edit access to the file based on their view or edit access to the attachment's parent record** and instead you must try **Users can only view the file but cannot edit it, even if the user can edit the attachment's parent record**.
+
+This is known to occur with `Solution` object and likely other objects.
+
+
+FIELD_INTEGRITY_EXCEPTION, Owner ID: id value of incorrect type: 035xxxxxxxxxxxxxxx: [OwnerId]
+----------------------------------------------------------------------------------------------
+Prior to Spring '12, Salesfore customers could have [Self-Service Portals](https://help.salesforce.com/articleView?id=customize_selfserviceenable.htm), which pre-date the modern Communities we have today.
+This error means the Attachment is owned by a Self-Service User and ContentVersions cannot be owned by them.
+You may want to consider changing ownership of those attachments to actual user records whose IDs start with **005** prefix.
 
 
 Are there any objects that don't support attachment conversion?
