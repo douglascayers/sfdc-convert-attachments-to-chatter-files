@@ -73,7 +73,7 @@ public with sharing class ConvertAttachmentsToFilesService {
 
             // TODO implement more robust solution for customizing
             // conversion behavior on a per-object basis
-            if ( EmailMessage.sObjectType != att.parentId.getSObjectType() ) {
+            if ( EmailMessage.sObjectType != att.parentId.getSObjectType() && EmailTemplate.sObjectType != att.parentId.getSObjectType()) {
 
                 // We set the owner of the new content file to be the
                 // same as the attachment's creator because both fields
