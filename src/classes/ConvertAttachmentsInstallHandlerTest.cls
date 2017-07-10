@@ -20,6 +20,7 @@ private class ConvertAttachmentsInstallHandlerTest {
         System.assertEquals( 'AllUsers', settings.Visibility__c );
         System.assertEquals( false, settings.Convert_in_Near_Real_Time__c );
         System.assertEquals( false, settings.Delete_Attachment_Once_Converted__c );
+        System.assertEquals( false, settings.Convert_Private_Attachments__c );
         System.assertEquals( false, settings.Share_Private_Attachments__c );
 
     }
@@ -32,6 +33,7 @@ private class ConvertAttachmentsInstallHandlerTest {
         preSettings.Visibility__c = 'InternalUsers';
         preSettings.Convert_in_Near_Real_Time__c = true;
         preSettings.Delete_Attachment_Once_Converted__c = true;
+        preSettings.Convert_Private_Attachments__c = true;
         preSettings.Share_Private_Attachments__c = true;
 
         upsert preSettings;
@@ -49,6 +51,7 @@ private class ConvertAttachmentsInstallHandlerTest {
         System.assertEquals( preSettings.Visibility__c, postSettings.Visibility__c );
         System.assertEquals( preSettings.Convert_in_Near_Real_Time__c, postSettings.Convert_in_Near_Real_Time__c );
         System.assertEquals( preSettings.Delete_Attachment_Once_Converted__c, postSettings.Delete_Attachment_Once_Converted__c );
+        System.assertEquals( preSettings.Convert_Private_Attachments__c, postSettings.Convert_Private_Attachments__c );
         System.assertEquals( preSettings.Share_Private_Attachments__c, postSettings.Share_Private_Attachments__c );
 
     }

@@ -12,6 +12,7 @@ private class ConvertAttachmentsToFilesQueueableTest {
         settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Convert_Private_Attachments__c = true;
         settings.Share_Private_Attachments__c = true;
 
         upsert settings;
@@ -23,33 +24,33 @@ private class ConvertAttachmentsToFilesQueueableTest {
         // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
         System.runAs( new User( id = UserInfo.getUserId() ) ) {
 
-            user1 = newUser( p.id, 'Alpha', 'User 1', 'user_1@example.com' );
-            user2 = newUser( p.id, 'Beta',  'User 2', 'user_2@example.com' );
+            user1 = ConvertAttachmentsToFilesTestFactory.newUser( p.id, 'Alpha', 'User 1', 'user_1@example.com' );
+            user2 = ConvertAttachmentsToFilesTestFactory.newUser( p.id, 'Beta',  'User 2', 'user_2@example.com' );
 
             insert new List<User>{ user1, user2 };
 
         }
 
-        Account account = new Account(
+        Account acct1 = new Account(
             ownerId = user1.id,
             name = 'Test Account'
         );
 
-        insert account;
+        insert acct1;
 
-        Attachment attachment = new Attachment(
+        Attachment attachment1 = new Attachment(
             name = 'Hello World.txt',
             body = Blob.valueOf('Hello World'),
-            parentId = account.id,
+            parentId = acct1.id,
             ownerId = user1.id
         );
 
-        insert attachment;
+        insert attachment1;
 
         Test.startTest();
 
         ConvertAttachmentsToFilesQueueable queueable = new ConvertAttachmentsToFilesQueueable(
-            new Set<ID>{ attachment.id },
+            new Set<ID>{ attachment1.id },
             new ConvertAttachmentsToFilesOptions( settings )
         );
 
@@ -57,14 +58,33 @@ private class ConvertAttachmentsToFilesQueueableTest {
 
         Test.stopTest();
 
-        ContentVersion cv = [ SELECT id, contentDocumentId FROM ContentVersion WHERE original_record_id__c = :attachment.id AND isLatest = true ];
-        System.assert( cv != null );
+        for ( Convert_Attachments_to_Files_Log__c log : [ SELECT Status__c, Old_Attachment_ID__c, New_File_ID__c, Summary__c, Detail__c FROM Convert_Attachments_to_Files_Log__c ] ) {
+            System.debug( log );
+        }
 
-        ContentDocumentLink cdl = [ SELECT id, linkedEntityId FROM ContentDocumentLink WHERE contentDocumentId = :cv.contentDocumentId AND linkedEntityId = :account.id ];
-        System.assert( cdl != null );
+        System.assertEquals( 1, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct1.id ] );
+        System.assertEquals( 0, [ SELECT count() FROM Note WHERE id = :attachment1.id ] );
 
-        List<Attachment> attachments = new List<Attachment>([ SELECT id FROM Attachment WHERE id = :attachment.id ]);
-        System.assertEquals( 0, attachments.size() );
+        ContentDocumentLink cdl_file1 = [
+            SELECT
+                id,
+                contentDocumentId,
+                contentDocument.fileType,
+                contentDocument.latestPublishedVersion.original_record_id__c,
+                contentDocument.latestPublishedVersion.original_record_parent_id__c,
+                contentDocument.latestPublishedVersion.original_record_owner_id__c
+            FROM
+                ContentDocumentLink
+            WHERE
+            linkedEntityId = :acct1.id
+            AND
+            contentDocument.latestPublishedVersion.original_record_id__c = :attachment1.id
+        ];
+
+        System.assertEquals( 'TEXT', cdl_file1.contentDocument.fileType );
+        System.assertEquals( attachment1.id, cdl_file1.contentDocument.latestPublishedVersion.original_record_id__c );
+        System.assertEquals( attachment1.parentId, cdl_file1.contentDocument.latestPublishedVersion.original_record_parent_id__c );
+        System.assertEquals( attachment1.ownerId, cdl_file1.contentDocument.latestPublishedVersion.original_record_owner_id__c );
 
     }
 
@@ -76,6 +96,7 @@ private class ConvertAttachmentsToFilesQueueableTest {
         settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = false;
+        settings.Convert_Private_Attachments__c = false;
         settings.Share_Private_Attachments__c = false;
 
         upsert settings;
@@ -87,47 +108,66 @@ private class ConvertAttachmentsToFilesQueueableTest {
         // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
         System.runAs( new User( id = UserInfo.getUserId() ) ) {
 
-            user1 = newUser( p.id, 'Alpha', 'User 1', 'user_1@example.com' );
-            user2 = newUser( p.id, 'Beta',  'User 2', 'user_2@example.com' );
+            user1 = ConvertAttachmentsToFilesTestFactory.newUser( p.id, 'Alpha', 'User 1', 'user_1@example.com' );
+            user2 = ConvertAttachmentsToFilesTestFactory.newUser( p.id, 'Beta',  'User 2', 'user_2@example.com' );
 
             insert new List<User>{ user1, user2 };
 
         }
 
-        Account account = new Account(
+        Account acct1 = new Account(
             ownerId = user1.id,
             name = 'Test Account'
         );
 
-        insert account;
+        insert acct1;
 
-        Attachment attachment = new Attachment(
+        Attachment attachment1 = new Attachment(
             name = 'Hello World.txt',
             body = Blob.valueOf('Hello World'),
-            parentId = account.id,
+            parentId = acct1.id,
             ownerId = user1.id
         );
 
-        insert attachment;
+        insert attachment1;
 
         Test.startTest();
 
         ConvertAttachmentsToFilesQueueable queueable = new ConvertAttachmentsToFilesQueueable(
-            new Set<ID>{ attachment.id }
+            new Set<ID>{ attachment1.id }
         );
 
         System.enqueueJob( queueable );
 
         Test.stopTest();
 
-        ContentVersion cv = [ SELECT id, contentDocumentId FROM ContentVersion WHERE original_record_id__c = :attachment.id AND isLatest = true ];
-        System.assert( cv != null );
+        for ( Convert_Attachments_to_Files_Log__c log : [ SELECT Status__c, Old_Attachment_ID__c, New_File_ID__c, Summary__c, Detail__c FROM Convert_Attachments_to_Files_Log__c ] ) {
+            System.debug( log );
+        }
 
-        ContentDocumentLink cdl = [ SELECT id, linkedEntityId FROM ContentDocumentLink WHERE contentDocumentId = :cv.contentDocumentId AND linkedEntityId = :account.id ];
-        System.assert( cdl != null );
+        System.assertEquals( 1, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct1.id ] );
+        System.assertEquals( 0, [ SELECT count() FROM Note WHERE id = :attachment1.id ] );
 
-        List<Attachment> attachments = new List<Attachment>([ SELECT id FROM Attachment WHERE id = :attachment.id ]);
-        System.assertEquals( 1, attachments.size() );
+        ContentDocumentLink cdl_file1 = [
+            SELECT
+                id,
+                contentDocumentId,
+                contentDocument.fileType,
+                contentDocument.latestPublishedVersion.original_record_id__c,
+                contentDocument.latestPublishedVersion.original_record_parent_id__c,
+                contentDocument.latestPublishedVersion.original_record_owner_id__c
+            FROM
+                ContentDocumentLink
+            WHERE
+            linkedEntityId = :acct1.id
+            AND
+            contentDocument.latestPublishedVersion.original_record_id__c = :attachment1.id
+        ];
+
+        System.assertEquals( 'TEXT', cdl_file1.contentDocument.fileType );
+        System.assertEquals( attachment1.id, cdl_file1.contentDocument.latestPublishedVersion.original_record_id__c );
+        System.assertEquals( attachment1.parentId, cdl_file1.contentDocument.latestPublishedVersion.original_record_parent_id__c );
+        System.assertEquals( attachment1.ownerId, cdl_file1.contentDocument.latestPublishedVersion.original_record_owner_id__c );
 
     }
 
@@ -139,34 +179,36 @@ private class ConvertAttachmentsToFilesQueueableTest {
         settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Convert_Private_Attachments__c = true;
         settings.Share_Private_Attachments__c = true;
 
         upsert settings;
 
-        EmailMessage msg = new EmailMessage(
-            subject = 'Test Email'
+        Account acct1 = new Account(
+            name = 'Test Account'
         );
 
-        insert msg;
+        insert acct1;
 
-        Attachment attachment = new Attachment(
+        Attachment attachment1 = new Attachment(
             name = 'Hello World 1.txt',
             body = Blob.valueOf('Hello World 1'),
-            parentId = msg.id
+            parentId = acct1.id
         );
 
-        insert attachment;
+        insert attachment1;
 
         Test.startTest();
 
         ConvertAttachmentsToFilesService.ConversionResult mockResult = new ConvertAttachmentsToFilesService.ConversionResult();
-        mockResult.success = false;
+        mockResult.status = ConvertAttachmentsToFilesService.ConversionResultStatus.ERROR;
         mockResult.message = 'Mock Error Result';
+        mockResult.oldAttachment = attachment1;
 
         ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
 
         ConvertAttachmentsToFilesQueueable queueable = new ConvertAttachmentsToFilesQueueable(
-            new Set<ID>{ attachment.id }
+            new Set<ID>{ attachment1.id }
         );
 
         queueable.mockResults = new List<ConvertAttachmentsToFilesService.ConversionResult>{ mockResult };
@@ -175,8 +217,11 @@ private class ConvertAttachmentsToFilesQueueableTest {
 
         Test.stopTest();
 
-        System.assertEquals( 0, [ SELECT count() FROM ContentVersion WHERE original_record_id__c = :attachment.id ] );
-        System.assertEquals( 1, [ SELECT count() FROM Convert_Attachments_to_Files_Log__c ] );
+        for ( Convert_Attachments_to_Files_Log__c log : [ SELECT Status__c, Old_Attachment_ID__c, New_File_ID__c, Summary__c, Detail__c FROM Convert_Attachments_to_Files_Log__c ] ) {
+            System.debug( log );
+        }
+
+        System.assertEquals( 1, [ SELECT count() FROM Convert_Attachments_to_Files_Log__c WHERE old_attachment_id__c = :attachment1.id AND status__c = 'ERROR' ] );
 
     }
 
@@ -188,30 +233,31 @@ private class ConvertAttachmentsToFilesQueueableTest {
         settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Convert_Private_Attachments__c = true;
         settings.Share_Private_Attachments__c = true;
 
         upsert settings;
 
-        EmailMessage msg = new EmailMessage(
-            subject = 'Test Email'
+        Account acct1 = new Account(
+            name = 'Test Account'
         );
 
-        insert msg;
+        insert acct1;
 
-        Attachment attachment = new Attachment(
+        Attachment attachment1 = new Attachment(
             name = 'Hello World 1.txt',
             body = Blob.valueOf('Hello World 1'),
-            parentId = msg.id
+            parentId = acct1.id
         );
 
-        insert attachment;
+        insert attachment1;
 
         Test.startTest();
 
         ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
 
         ConvertAttachmentsToFilesQueueable queueable = new ConvertAttachmentsToFilesQueueable(
-            new Set<ID>{ attachment.id }
+            new Set<ID>{ attachment1.id }
         );
 
         queueable.mockException = new System.NullPointerException();
@@ -220,26 +266,14 @@ private class ConvertAttachmentsToFilesQueueableTest {
 
         Test.stopTest();
 
-        System.assertEquals( 0, [ SELECT count() FROM ContentVersion WHERE original_record_id__c = :attachment.id ] );
-        System.assertEquals( 1, [ SELECT count() FROM Convert_Attachments_to_Files_Log__c ] );
+        for ( Convert_Attachments_to_Files_Log__c log : [ SELECT Status__c, Old_Attachment_ID__c, New_File_ID__c, Summary__c, Detail__c FROM Convert_Attachments_to_Files_Log__c ] ) {
+            System.debug( log );
+        }
 
-    }
+        System.assertEquals( 0, [ SELECT count() FROM ContentVersion WHERE original_record_id__c = :attachment1.id ] );
+        System.assertEquals( 0, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct1.id ] );
+        System.assertEquals( 1, [ SELECT count() FROM Convert_Attachments_to_Files_Log__c WHERE status__c = 'ERROR' ] );
 
-    private static User newUser( ID profileId, String firstName, String lastName, String email ) {
-        Integer rand = Math.round( Math.random() * 1000 );
-        return new User(
-            isActive = true,
-            profileId = profileId,
-            alias = firstName.substring(0,1) + lastName.substring(1,5),
-            firstName = firstName,
-            lastName = lastName,
-            email = email,
-            username = rand + email,
-            emailEncodingKey = 'UTF-8',
-            languageLocaleKey = 'en_US',
-            localeSidKey = 'en_US',
-            timeZoneSidKey = 'America/Chicago'
-        );
     }
 
 }

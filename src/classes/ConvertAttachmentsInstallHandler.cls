@@ -20,6 +20,7 @@ public with sharing class ConvertAttachmentsInstallHandler implements InstallHan
                     settings.Visibility__c = 'AllUsers';
                     settings.Convert_in_Near_Real_Time__c = false;
                     settings.Delete_Attachment_Once_Converted__c = false;
+                    settings.Convert_Private_Attachments__c = false;
                     settings.Share_Private_Attachments__c = false;
 
                     insert settings;

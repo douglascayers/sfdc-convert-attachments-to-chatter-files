@@ -12,6 +12,7 @@ private class ConvertAttachmentsRunOnceControllerTest {
         settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Convert_Private_Attachments__c = true;
         settings.Share_Private_Attachments__c = true;
 
         upsert settings;
@@ -55,13 +56,8 @@ private class ConvertAttachmentsRunOnceControllerTest {
         System.assertEquals( true, controller.success );
         System.assert( controller.message.containsIgnoreCase( 'Conversion batch job submitted' ) );
 
-        List<ContentVersion> cv = [ SELECT id, contentDocumentId, original_record_id__c FROM ContentVersion WHERE isLatest = true ORDER BY original_record_id__c ];
-        System.assertEquals( 2, cv.size() );
-        System.assertEquals( attachment1.id, cv[0].original_record_id__c );
-        System.assertEquals( attachment2.id, cv[1].original_record_id__c );
-
-        System.assertEquals( 1, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct1.id ] );
-        System.assertEquals( 1, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct2.id ] );
+        System.assertEquals( 1, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct1.id AND contentDocument.latestPublishedVersion.original_record_id__c = :attachment1.id ] );
+        System.assertEquals( 1, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct2.id AND contentDocument.latestPublishedVersion.original_record_id__c = :attachment2.id ] );
 
     }
 
@@ -73,6 +69,7 @@ private class ConvertAttachmentsRunOnceControllerTest {
         settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Convert_Private_Attachments__c = true;
         settings.Share_Private_Attachments__c = true;
 
         upsert settings;
@@ -117,12 +114,8 @@ private class ConvertAttachmentsRunOnceControllerTest {
         System.assertEquals( true, controller.success );
         System.assert( controller.message.containsIgnoreCase( 'Conversion batch job submitted' ) );
 
-        List<ContentVersion> cv = [ SELECT id, contentDocumentId, original_record_id__c FROM ContentVersion WHERE isLatest = true ORDER BY original_record_id__c ];
-        System.assertEquals( 1, cv.size() );
-        System.assertEquals( attachment1.id, cv[0].original_record_id__c );
-
-        System.assertEquals( 1, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct1.id ] );
-        System.assertEquals( 0, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct2.id ] );
+        System.assertEquals( 1, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct1.id AND contentDocument.latestPublishedVersion.original_record_id__c = :attachment1.id ] );
+        System.assertEquals( 0, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct2.id AND contentDocument.latestPublishedVersion.original_record_id__c = :attachment2.id ] );
 
     }
 
@@ -134,6 +127,7 @@ private class ConvertAttachmentsRunOnceControllerTest {
         settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Convert_Private_Attachments__c = true;
         settings.Share_Private_Attachments__c = true;
 
         upsert settings;
@@ -177,11 +171,8 @@ private class ConvertAttachmentsRunOnceControllerTest {
 
         System.assertEquals( false, controller.success );
 
-        List<ContentVersion> cv = [ SELECT id, contentDocumentId, original_record_id__c FROM ContentVersion WHERE isLatest = true ORDER BY original_record_id__c ];
-        System.assertEquals( 0, cv.size() );
-
-        System.assertEquals( 0, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct1.id ] );
-        System.assertEquals( 0, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct2.id ] );
+        System.assertEquals( 0, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct1.id AND contentDocument.latestPublishedVersion.original_record_id__c = :attachment1.id ] );
+        System.assertEquals( 0, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :acct2.id AND contentDocument.latestPublishedVersion.original_record_id__c = :attachment2.id ] );
 
     }
 

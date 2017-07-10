@@ -12,6 +12,7 @@ private class ConvertAttachmentsToFilesScheduleTest {
         settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Convert_Private_Attachments__c = true;
         settings.Share_Private_Attachments__c = true;
 
         upsert settings;

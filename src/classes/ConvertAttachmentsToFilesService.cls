@@ -2,8 +2,12 @@
  * Developed by Doug Ayers (douglascayers.com)
  *
  * Work horse that does the actual attachment to file conversion.
+ *
+ * Uses 'without sharing' to ensure can perform SOQL queries on
+ * existing ContentVersions and ContentDocumentLinks to know if
+ * an Attachment has already been converted or not.
  */
-public with sharing class ConvertAttachmentsToFilesService {
+public without sharing class ConvertAttachmentsToFilesService {
 
     private ConvertAttachmentsToFilesOptions options { get; set; }
 
@@ -38,7 +42,7 @@ public with sharing class ConvertAttachmentsToFilesService {
      *  - LastModifiedById
      *  - LastModifiedDate
      */
-    public List<ConversionResult> convert( List<Attachment> attachments ) {
+    public List<ConversionResult> convert( List<Attachment> oldAttachments ) {
 
         // determine if communities are enabled and if so then we will need
         // to assign the network id field when inserting the content versions
@@ -47,174 +51,232 @@ public with sharing class ConvertAttachmentsToFilesService {
         // https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/9
         Boolean communitiesEnabled = ContentVersion.sObjectType.getDescribe().fields.getMap().containsKey( 'NetworkId' );
 
-        // attachmentId ==> conversion result
-        // as a map for easy retrieval throughout the various steps doing the conversion
-        // and creation of content document links to share new file with parent record.
-        // we update the message field on the result occasionally in subsequent steps
+        // identify if any of these attachments have already been converted
+        Map<ID, ID> alreadyConvertedAttachmentIdsMap = getAlreadyConvertedAttachmentIdsMap( oldAttachments );
+
+        Map<ID, Attachment> oldAttachmentsMap = new Map<ID, Attachment>( oldAttachments );
+
+        // map of old attachment id to conversion result
         Map<ID, ConversionResult> conversionResultsMap = new Map<ID, ConversionResult>();
 
-        // identify if any of these attachment have already been converted
-        Set<ID> alreadyConvertedAttachmentIds = filterAlreadyConvertedAttachmentIds( attachments );
+        // the new files to try and save
+        List<ContentVersion> newFileVersions = new List<ContentVersion>();
 
-        /*
-         * Step 1
-         * Convert Attachments to ContentVersions
-         */
-
-        List<ConversionRequest> conversionRequests = new List<ConversionRequest>();
-        List<ContentVersion> contentVersions = new List<ContentVersion>();
-
-        for ( Attachment att : attachments ) {
+        for ( Attachment oldAttachment : oldAttachments ) {
 
             // skip if we've already converted this record before
-            if ( alreadyConvertedAttachmentIds.contains( att.id ) ) {
+            if ( alreadyConvertedAttachmentIdsMap.containsKey( oldAttachment.id ) ) {
+
+                ConversionResult conversionResult = new ConversionResult();
+                conversionResult.status = ConversionResultStatus.SKIPPED;
+                conversionResult.oldAttachment = oldAttachment;
+                conversionResult.contentVersionId = alreadyConvertedAttachmentIdsMap.get( oldAttachment.id );
+                conversionResult.message = 'Already converted.';
+
+                conversionResultsMap.put( oldAttachment.id, conversionResult );
+
                 continue;
+
+            }
+
+            // skip if we're not converting private attachments
+            if ( oldAttachment.IsPrivate && !this.options.convertPrivateAttachments ) {
+
+                ConversionResult conversionResult = new ConversionResult();
+                conversionResult.status = ConversionResultStatus.SKIPPED;
+                conversionResult.oldAttachment = oldAttachment;
+                conversionResult.contentVersionId = null;
+                conversionResult.message = 'Conversion Settings are set to not convert private attachments.';
+
+                conversionResultsMap.put( oldAttachment.id, conversionResult );
+
+                continue;
+
             }
 
             // TODO implement more robust solution for customizing
             // conversion behavior on a per-object basis
-            if ( EmailMessage.sObjectType != att.parentId.getSObjectType() && EmailTemplate.sObjectType != att.parentId.getSObjectType()) {
+            if ( EmailMessage.sObjectType == oldAttachment.parentId.getSObjectType() || EmailTemplate.sObjectType == oldAttachment.parentId.getSObjectType() ) {
 
-                // We set the owner of the new content file to be the
-                // same as the attachment's creator because both fields
-                // must have same value to insert the content file.
-                // If they do not match then we get error:
-                // "Documents in a user's private library must always be owned by that user."
+                ConversionResult conversionResult = new ConversionResult();
+                conversionResult.status = ConversionResultStatus.SKIPPED;
+                conversionResult.oldAttachment = oldAttachment;
+                conversionResult.contentVersionId = alreadyConvertedAttachmentIdsMap.get( oldAttachment.id );
+                conversionResult.message = 'Parent object type [' + oldAttachment.parentId.getSobjectType() + '] does not support ContentVersions.';
 
-                ContentVersion cv = new ContentVersion(
-                    // data fields
-                    versionData = att.body,
-                    title = att.name,
-                    description = att.description,
-                    pathOnClient = '/' + att.name,
-                    // audit fields
-                    ownerId = att.createdById, // system requirement, owner and creator must be the same
-                    createdById = att.createdById,
-                    createdDate = att.createdDate,
-                    lastModifiedById = att.lastModifiedById,
-                    lastModifiedDate = att.lastModifiedDate,
-                    // custom fields for history tracking and conversion purposes
-                    original_record_id__c = att.id,
-                    original_record_parent_id__c = att.parentId,
-                    original_record_owner_id__c = att.ownerId
-                );
+                conversionResultsMap.put( oldAttachment.id, conversionResult );
 
-                // if communities are enabled then assign network id
-                if ( communitiesEnabled ) {
-                    cv.put( 'NetworkId', this.networkId );
+                continue;
+
+            }
+
+            // We set the owner of the new content file to be the
+            // same as the attachment's owner because both fields
+            // must have same value to insert the content file.
+            // If they do not match then we get error:
+            // "Documents in a user's private library must always be owned by that user."
+            // The other reason to reference the old record's owner
+            // is if the original creator is inactive and the admin
+            // needs the new converted file to be owned by an active user.
+            // The owner of records can be changed, the created by cannot.
+
+            ContentVersion newFileVersion = new ContentVersion(
+                // data fields
+                versionData = oldAttachment.body,
+                title = oldAttachment.name,
+                description = oldAttachment.description,
+                pathOnClient = '/' + oldAttachment.name,
+                // audit fields
+                ownerId = oldAttachment.ownerId, // system requirement, owner and creator must be the same
+                createdById = oldAttachment.ownerId,
+                createdDate = oldAttachment.createdDate,
+                lastModifiedById = oldAttachment.lastModifiedById,
+                lastModifiedDate = oldAttachment.lastModifiedDate,
+                // custom fields for history tracking and conversion purposes
+                original_record_id__c = oldAttachment.id,
+                original_record_parent_id__c = oldAttachment.parentId,
+                original_record_owner_id__c = oldAttachment.ownerId
+            );
+
+            // if communities are enabled then assign network id
+            if ( communitiesEnabled ) {
+                newFileVersion.put( 'NetworkId', this.networkId );
+            }
+
+            newFileVersions.add( newFileVersion );
+
+        }
+
+        if ( newFileVersions.size() > 0 ) {
+
+            SavePoint sp = Database.setSavepoint();
+
+            try {
+
+                Database.DMLOptions dmo = new Database.DMLOptions();
+                dmo.optAllOrNone = false;
+
+                List<Database.SaveResult> saveResults = Database.insert( newFileVersions, dmo );
+
+                for ( Integer i = 0; i < saveResults.size(); i++ ) {
+
+                    Database.SaveResult saveResult = saveResults[i];
+
+                    Attachment oldAttachment = oldAttachmentsMap.get( newFileVersions[i].original_record_id__c );
+
+                    ConversionResult conversionResult = new ConversionResult();
+                    conversionResult.status = ( saveResult.isSuccess() ? ConversionResultStatus.CONVERTED : ConversionResultStatus.ERROR );
+                    conversionResult.contentVersionId = saveResult.getId();
+                    conversionResult.oldAttachment = oldAttachment;
+
+                    if ( !saveResult.isSuccess() ) {
+
+                        List<String> messages = new List<String>();
+
+                        for ( Database.Error err : saveResult.getErrors() ) {
+                            messages.add( err.getMessage() );
+                        }
+
+                        conversionResult.message = String.join( messages, ' ' );
+
+                    }
+
+                    conversionResultsMap.put( oldAttachment.id, conversionResult );
+
                 }
 
-                contentVersions.add( cv );
+                postProcessConversionResults( conversionResultsMap );
 
-                conversionRequests.add( new ConversionRequest( att, cv ) );
+            } catch ( Exception e ) {
+
+                Database.rollback( sp );
+                throw e;
 
             }
 
         }
 
-        if ( contentVersions.size() > 0 ) {
+        // sort map values in same order as attachments parameter
+        List<ConversionResult> conversionResults = new List<ConversionResult>();
+        for ( Attachment oldAttachment : oldAttachments ) {
+            conversionResults.add( conversionResultsMap.get( oldAttachment.id ) );
+        }
 
-            insert contentVersions;
+        return conversionResults;
+    }
 
-            for ( ConversionRequest request : conversionRequests ) {
+    private void postProcessConversionResults( Map<ID, ConversionResult> conversionResultsMap ) {
 
-                ConversionResult result = new ConversionResult();
-                result.success = true;
-                result.contentVersionId = request.newFile.id;
-                result.attachmentId = request.oldAttachment.id;
+        Set<ID> contentVersionIds = new Set<ID>();
 
-                conversionResultsMap.put( request.oldAttachment.id, result );
-
+        for ( ConversionResult conversionResult : conversionResultsMap.values() ) {
+            if ( conversionResult.status == ConversionResultStatus.CONVERTED && String.isNotBlank( conversionResult.contentVersionId ) ) {
+                contentVersionIds.add( conversionResult.contentVersionId );
             }
+        }
 
-            /*
-             * Step 2
-             * Requery ContentVersions to get latest published version id so that we can
-             * know the generated content document id so that we can create
-             * ContentDocumentLinks between the document and note's parent record and owner.
-             * Doing so will share the new note so it's accessible by others.
-             */
+        Map<ID, ContentVersion> contentVersionMap = new Map<ID, ContentVersion>([
+            SELECT
+                id,
+                contentDocumentId
+            FROM
+                ContentVersion
+            WHERE
+                id IN :contentVersionIds
+        ]);
 
-            Map<ID, ContentVersion> contentVersionsMap = new Map<ID, ContentVersion>([
-                SELECT
-                    id,
-                    ownerId,
-                    contentDocumentId,
-                    original_record_id__c,
-                    original_record_parent_id__c
-                FROM
-                    ContentVersion
-                WHERE
-                    id IN :contentVersions
-            ]);
+        List<Attachment> attachmentsToDelete = new List<Attachment>();
+        List<ContentDocumentLink> contentDocumentLinks = new List<ContentDocumentLink>();
 
-            System.assertEquals( contentVersions.size(), contentVersionsMap.size() );
+        for ( ConversionResult conversionResult : conversionResultsMap.values() ) {
 
-            /*
-             * Step 3
-             * Create ContentDocumentLinks to share the new content
-             * with the same parent record as the source attachment
-             */
+            if ( conversionResult.status == ConversionResultStatus.CONVERTED ) {
 
-            List<ContentDocumentLink> contentDocumentLinks = new List<ContentDocumentLink>();
-
-            for ( ConversionRequest request : conversionRequests ) {
-
-                ContentVersion cv = contentVersionsMap.get( request.newFile.id );
-
-                // should converted file be shared with parent?
-                if ( !request.oldAttachment.isPrivate || ( request.oldAttachment.isPrivate && this.options.sharePrivateAttachmentsWithParentRecord ) ) {
-
-                    // share the new file with the same parent entity of the old attachment
-                    // any user with visibility to this record has visibility to this file
-                    contentDocumentLinks.add( new ContentDocumentLink(
-                        linkedEntityId = request.oldAttachment.parentId,
-                        contentDocumentId = cv.contentDocumentId,
-                        shareType = this.options.shareType,
-                        visibility = this.options.visibility
-                    ));
-
-                } else {
-
-                    String message  = 'Not creating ContentDocumentLink to share ContentDocument (' + cv.contentDocumentId + ') with Parent Record (' + request.oldAttachment.parentId + ') because attachment record (' + request.oldAttachment.id + ') is private. ';
-                           message += 'Either make attachment record not private or enable the [Share Private Attachments?] option and convert again, or manually update the new document\'s sharing settings.';
-
-                    conversionResultsMap.get( request.oldAttachment.id ).message += ' ' + message;
-
+                // should original attachment be deleted?
+                if ( this.options.deleteAttachmentsUponConversion ) {
+                    attachmentsToDelete.add( conversionResult.oldAttachment );
                 }
 
-            }
+                // should converted attachment be shared with parent?
+                if ( !conversionResult.oldAttachment.isPrivate || ( conversionResult.oldAttachment.isPrivate && this.options.sharePrivateAttachmentsWithParentRecord ) ) {
 
-            // create share links between new file and original attachment parent entity
-            if ( contentDocumentLinks.size() > 0 ) {
-                insert contentDocumentLinks;
-            }
+                    ContentVersion cv = contentVersionMap.get( conversionResult.contentVersionId );
 
-            // lastly, delete the original attachments that were successfully converted into files
-            if ( this.options.deleteAttachmentsUponConversion ) {
+                    if ( cv != null ) {
 
-                List<Attachment> attachmentsToDelete = new List<Attachment>();
+                        contentDocumentLinks.add( new ContentDocumentLink(
+                            linkedEntityId = conversionResult.oldAttachment.parentId,
+                            contentDocumentId = cv.contentDocumentId,
+                            shareType = this.options.shareType,
+                            visibility = this.options.visibility
+                        ));
 
-                for ( ConversionRequest request : conversionRequests ) {
-                    attachmentsToDelete.add( request.oldAttachment );
+                    }
+
                 }
-
-                delete attachmentsToDelete;
 
             }
 
         }
 
-        return conversionResultsMap.values();
+        if ( attachmentsToDelete.size() > 0 ) {
+            delete attachmentsToDelete;
+        }
+
+        if ( contentDocumentLinks.size() > 0 ) {
+            insert contentDocumentLinks;
+        }
+
     }
 
     /**
-     * Given a list of attachments then returns the sublist of those
-     * that have already been converted.
+     * Given a list of attachments then returns the submap of those
+     * that have already been converted and their new file ids.
      */
-    public Set<ID> filterAlreadyConvertedAttachmentIds( List<Attachment> attachments ) {
+    public Map<ID, ID> getAlreadyConvertedAttachmentIdsMap( List<Attachment> attachments ) {
 
-        Set<ID> filteredAttachmentIds = new Set<ID>();
+        // map of old attachment ids to new file ids
+        Map<ID, ID> convertedAttachmentIdsMap = new Map<ID, ID>();
 
         Set<ID> attachmentIds = new Set<ID>();
         Set<ID> parentIds = new Set<ID>();
@@ -226,6 +288,7 @@ public with sharing class ConvertAttachmentsToFilesService {
 
         for ( List<ContentDocumentLink> links : [
             SELECT
+                contentDocument.latestPublishedVersionId,
                 contentDocument.latestPublishedVersion.original_record_id__c
             FROM
                 ContentDocumentLink
@@ -240,7 +303,7 @@ public with sharing class ConvertAttachmentsToFilesService {
                 if ( link.contentDocument != null && link.contentDocument.latestPublishedVersion != null ) {
 
                     if ( attachmentIds.contains( link.contentDocument.latestPublishedVersion.original_record_id__c ) ) {
-                        filteredAttachmentIds.add( link.contentDocument.latestPublishedVersion.original_record_id__c );
+                        convertedAttachmentIdsMap.put( link.contentDocument.latestPublishedVersion.original_record_id__c, link.contentDocument.latestPublishedVersionId );
                     }
 
                 }
@@ -249,7 +312,7 @@ public with sharing class ConvertAttachmentsToFilesService {
 
         }
 
-        return filteredAttachmentIds;
+        return convertedAttachmentIdsMap;
     }
 
     public class ConversionRequest {
@@ -267,24 +330,26 @@ public with sharing class ConvertAttachmentsToFilesService {
 
     public class ConversionResult {
 
-        // true if attachment was converted; false otherwise
-        public Boolean success { get; set; }
+        // was conversion success? skipped? error?
+        public ConversionResultStatus status { get; set; }
 
-        // id of the attachment being converted, should always be populated
-        public ID attachmentId { get; set; }
+        // the old attachment to convert
+        public Attachment oldAttachment { get; set; }
 
-        // id of the converted file, if successful, null otherwise
+        // id of the newly converted file if conversion success
         public ID contentVersionId { get; set; }
 
-        // if not successful then the error message
-        // even if success is true may include message if could not share file to intended parent entity
+        // any pertinent message
         public String message { get; set; }
 
         public ConversionResult() {
-            this.success = false;
             this.message = '';
         }
 
+    }
+
+    public enum ConversionResultStatus {
+        CONVERTED, SKIPPED, ERROR
     }
 
 }

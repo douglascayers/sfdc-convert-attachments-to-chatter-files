@@ -6,7 +6,7 @@
  *
  * Actual conversion for the execution is delegated to ConvertAttachmentsToFilesService.
  */
-public with sharing class ConvertAttachmentsToFilesQueueable implements Queueable {
+global with sharing class ConvertAttachmentsToFilesQueueable implements Queueable {
 
     @TestVisible
     private List<ConvertAttachmentsToFilesService.ConversionResult> mockResults { get; set; }
@@ -24,14 +24,16 @@ public with sharing class ConvertAttachmentsToFilesQueueable implements Queueabl
     // need to pass on the network id to assign to ContentVersion
     private ID networkId { get; set; }
 
-    public ConvertAttachmentsToFilesQueueable( Set<ID> attachmentIds ) {
+    global ConvertAttachmentsToFilesQueueable( Set<ID> attachmentIds ) {
         this( attachmentIds, new ConvertAttachmentsToFilesOptions(), Network.getNetworkId() );
     }
 
+    // not exposed to subscriber orgs, want users to configure the custom setting
     public ConvertAttachmentsToFilesQueueable( Set<ID> attachmentIds, ConvertAttachmentsToFilesOptions options ) {
         this( attachmentIds, options, Network.getNetworkId() );
     }
 
+    // not exposed to subscriber orgs, want users to configure the custom setting
     public ConvertAttachmentsToFilesQueueable( Set<ID> attachmentIds, ConvertAttachmentsToFilesOptions options, ID networkId ) {
         this.attachmentIds = attachmentIds;
         this.options = options;
