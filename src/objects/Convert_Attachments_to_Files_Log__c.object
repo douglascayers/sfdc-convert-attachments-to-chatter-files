@@ -38,13 +38,20 @@
     </actionOverrides>
     <actionOverrides>
         <actionName>View</actionName>
-        <type>Default</type>
+        <comment>Action override created by Lightning App Builder during activation.</comment>
+        <content>Convert_Attachments_to_Files_Log_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
     </actionOverrides>
     <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>Default_Compact_Layout</compactLayoutAssignment>
     <compactLayouts>
         <fullName>Default_Compact_Layout</fullName>
         <fields>Name</fields>
+        <fields>Status__c</fields>
+        <fields>Old_Attachment_ID__c</fields>
+        <fields>New_File_ID__c</fields>
         <fields>Summary__c</fields>
         <fields>Log_Time__c</fields>
         <label>Default Compact Layout</label>
@@ -53,6 +60,7 @@
     <description>When deployed as a managed package then users cannot see errors logged to the Debug Log. This object stores any errors and messages the Adminsitrator may need to know about when troubleshooting conversion issues. You may delete these records after you have reviewed them.</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
+    <enableChangeDataCapture>false</enableChangeDataCapture>
     <enableFeeds>false</enableFeeds>
     <enableHistory>false</enableHistory>
     <enableReports>true</enableReports>
@@ -91,6 +99,61 @@
         <type>DateTime</type>
     </fields>
     <fields>
+        <fullName>New_File_ID__c</fullName>
+        <description>If the log message is about a specific conversion issue with a record then this is the new File ID.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>If the log message is about a specific conversion issue with a record then this is the new File ID.</inlineHelpText>
+        <label>New File ID</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Old_Attachment_ID__c</fullName>
+        <description>If the log message is about a specific conversion issue with a record then this is the original Attachment ID.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>If the log message is about a specific conversion issue with a record then this is the original Attachment ID.</inlineHelpText>
+        <label>Old Attachment ID</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Status__c</fullName>
+        <description>Indicates the status of log message, whether an attachment was successfully converted or perhaps that it was skipped during conversion or that it failed conversion. The API values match conversion result enum value in apex code.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Indicates the status of log message, whether an attachment was successfully converted or perhaps that it was skipped during conversion or that it failed conversion. The API values match conversion result enum value in apex code.</inlineHelpText>
+        <label>Status</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>CONVERTED</fullName>
+                    <default>true</default>
+                    <label>Converted</label>
+                </value>
+                <value>
+                    <fullName>SKIPPED</fullName>
+                    <default>false</default>
+                    <label>Skipped</label>
+                </value>
+                <value>
+                    <fullName>ERROR</fullName>
+                    <default>false</default>
+                    <label>Error</label>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+    <fields>
         <fullName>Summary__c</fullName>
         <externalId>false</externalId>
         <label>Summary</label>
@@ -118,21 +181,35 @@
     </nameField>
     <pluralLabel>Convert Attachments to Files Logs</pluralLabel>
     <searchLayouts>
+        <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Old_Attachment_ID__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>New_File_ID__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>Summary__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>Detail__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>Log_Time__c</customTabListAdditionalFields>
         <excludedStandardButtons>New</excludedStandardButtons>
         <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <excludedStandardButtons>Accept</excludedStandardButtons>
+        <lookupDialogsAdditionalFields>Status__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Old_Attachment_ID__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>New_File_ID__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Summary__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Detail__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Log_Time__c</lookupDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>Status__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>Old_Attachment_ID__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>New_File_ID__c</lookupPhoneDialogsAdditionalFields>
         <lookupPhoneDialogsAdditionalFields>Summary__c</lookupPhoneDialogsAdditionalFields>
         <lookupPhoneDialogsAdditionalFields>Detail__c</lookupPhoneDialogsAdditionalFields>
         <lookupPhoneDialogsAdditionalFields>Log_Time__c</lookupPhoneDialogsAdditionalFields>
+        <searchFilterFields>Status__c</searchFilterFields>
+        <searchFilterFields>Job_ID__c</searchFilterFields>
+        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Old_Attachment_ID__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>New_File_ID__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Summary__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>Log_Time__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Detail__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Log_Time__c</searchResultsAdditionalFields>
     </searchLayouts>
     <sharingModel>Private</sharingModel>
     <visibility>Public</visibility>

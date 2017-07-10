@@ -2,9 +2,9 @@
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <fields>
         <fullName>Original_Record_ID__c</fullName>
-        <description>The original note or attachment id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</description>
+        <description>The original Note or Attachment ID this ContentVersion was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</description>
         <externalId>true</externalId>
-        <inlineHelpText>The original note or attachment id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</inlineHelpText>
+        <inlineHelpText>The original Note or Attachment ID this ContentVersion was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</inlineHelpText>
         <label>Original Record ID</label>
         <length>255</length>
         <required>false</required>
@@ -14,9 +14,9 @@
     </fields>
     <fields>
         <fullName>Original_Record_Owner_ID__c</fullName>
-        <description>The owner id of the original Note that was converted into this new Note. This can be helpful in situations where old notes owned by inactive users are converted so you can track back to originally owned/created it. Inactive users can neither be the owner of a new Note nor have the new Note shared to them in ContentDocumentLink, so this field is the only audit trail especially if the old notes get deleted.</description>
+        <description>The owner ID of the original Note or Attachment that was converted.</description>
         <externalId>true</externalId>
-        <inlineHelpText>The owner id of the original Note that was converted into this new Note. Inactive users can neither be the owner of a new Note nor have the new Note shared to them, so this field is the only audit trail especially if the old notes get deleted.</inlineHelpText>
+        <inlineHelpText>The owner ID of the original Note or Attachment that was converted.</inlineHelpText>
         <label>Original Record Owner ID</label>
         <length>255</length>
         <required>false</required>
@@ -26,9 +26,9 @@
     </fields>
     <fields>
         <fullName>Original_Record_Parent_ID__c</fullName>
-        <description>The original note or attachment parent id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</description>
+        <description>The original Note or Attachment parent ID this ContentVersion was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</description>
         <externalId>true</externalId>
-        <inlineHelpText>The original note or attachment parent id this content version was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</inlineHelpText>
+        <inlineHelpText>The original Note or Attachment parent ID this ContentVersion was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</inlineHelpText>
         <label>Original Record Parent ID</label>
         <length>255</length>
         <required>false</required>
