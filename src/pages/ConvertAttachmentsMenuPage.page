@@ -47,9 +47,9 @@
                 <div class="menu-grid-col slds-p-horizontal--medium slds-size--1-of-3">
                     <a href="{!URLFOR($Page.ConvertAttachmentsRunOncePage)}" style="text-decoration: none;">
                         <div class="slds-box slds-theme--shade">
-                            <h3 class="slds-text-heading--small">2. Test Conversion</h3>
+                            <h3 class="slds-text-heading--small">2. Convert Attachments</h3>
                             <p class="slds-text-color--default">
-                                Run a test conversion job limited to specific parent records.
+                                Run conversion job for specific parent records or for all attachments.
                             </p>
                         </div>
                     </a>

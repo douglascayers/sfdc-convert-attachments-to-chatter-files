@@ -167,12 +167,69 @@
     <listViews>
         <fullName>All</fullName>
         <columns>NAME</columns>
+        <columns>Status__c</columns>
         <columns>Summary__c</columns>
         <columns>Detail__c</columns>
         <columns>Log_Time__c</columns>
+        <columns>Old_Attachment_ID__c</columns>
+        <columns>New_File_ID__c</columns>
         <columns>Job_ID__c</columns>
         <filterScope>Everything</filterScope>
         <label>All</label>
+    </listViews>
+    <listViews>
+        <fullName>Converted</fullName>
+        <columns>NAME</columns>
+        <columns>Status__c</columns>
+        <columns>Summary__c</columns>
+        <columns>Detail__c</columns>
+        <columns>Log_Time__c</columns>
+        <columns>Old_Attachment_ID__c</columns>
+        <columns>New_File_ID__c</columns>
+        <columns>Job_ID__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>CONVERTED</value>
+        </filters>
+        <label>Converted</label>
+    </listViews>
+    <listViews>
+        <fullName>Error</fullName>
+        <columns>NAME</columns>
+        <columns>Status__c</columns>
+        <columns>Summary__c</columns>
+        <columns>Detail__c</columns>
+        <columns>Log_Time__c</columns>
+        <columns>Old_Attachment_ID__c</columns>
+        <columns>New_File_ID__c</columns>
+        <columns>Job_ID__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>ERROR</value>
+        </filters>
+        <label>Error</label>
+    </listViews>
+    <listViews>
+        <fullName>Skipped</fullName>
+        <columns>NAME</columns>
+        <columns>Status__c</columns>
+        <columns>Summary__c</columns>
+        <columns>Detail__c</columns>
+        <columns>Log_Time__c</columns>
+        <columns>Old_Attachment_ID__c</columns>
+        <columns>New_File_ID__c</columns>
+        <columns>Job_ID__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>SKIPPED</value>
+        </filters>
+        <label>Skipped</label>
     </listViews>
     <nameField>
         <displayFormat>{000000}</displayFormat>
