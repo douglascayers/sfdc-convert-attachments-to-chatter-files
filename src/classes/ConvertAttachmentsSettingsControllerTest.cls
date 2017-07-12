@@ -114,4 +114,63 @@ private class ConvertAttachmentsSettingsControllerTest {
 
     }
 
+    @isTest
+    static void test_inferConvertAndSharePrivateAttachments() {
+
+        Test.startTest();
+
+        ConvertAttachmentsSettingsController controller = new ConvertAttachmentsSettingsController();
+
+        String yes_convert_yes_share = controller.inferConvertAndSharePrivateAttachments( new Convert_Attachments_to_Files_Settings__c(
+            Convert_Private_Attachments__c = true,
+            Share_Private_Attachments__c = true
+        ));
+
+        String yes_convert_no_share = controller.inferConvertAndSharePrivateAttachments( new Convert_Attachments_to_Files_Settings__c(
+            Convert_Private_Attachments__c = true,
+            Share_Private_Attachments__c = false
+        ));
+
+        String no_convert_no_share = controller.inferConvertAndSharePrivateAttachments( new Convert_Attachments_to_Files_Settings__c(
+            Convert_Private_Attachments__c = false,
+            Share_Private_Attachments__c = false
+        ));
+
+        Test.stopTest();
+
+        System.assertEquals( 'yes_convert_yes_share', yes_convert_yes_share );
+        System.assertEquals( 'yes_convert_no_share', yes_convert_no_share );
+        System.assertEquals( 'no_convert_no_share', no_convert_no_share );
+
+    }
+
+    @isTest
+    static void test_applyConvertAndSharePrivateAttachments() {
+
+        Test.startTest();
+
+        ConvertAttachmentsSettingsController controller = new ConvertAttachmentsSettingsController();
+
+        Convert_Attachments_to_Files_Settings__c yes_convert_yes_share = new Convert_Attachments_to_Files_Settings__c();
+        controller.applyConvertAndSharePrivateAttachments( yes_convert_yes_share, 'yes_convert_yes_share' );
+
+        Convert_Attachments_to_Files_Settings__c yes_convert_no_share = new Convert_Attachments_to_Files_Settings__c();
+        controller.applyConvertAndSharePrivateAttachments( yes_convert_no_share, 'yes_convert_no_share' );
+
+        Convert_Attachments_to_Files_Settings__c no_convert_no_share = new Convert_Attachments_to_Files_Settings__c();
+        controller.applyConvertAndSharePrivateAttachments( no_convert_no_share, 'no_convert_no_share' );
+
+        Test.stopTest();
+
+        System.assertEquals( true, yes_convert_yes_share.Convert_Private_Attachments__c );
+        System.assertEquals( true, yes_convert_yes_share.Share_Private_Attachments__c );
+
+        System.assertEquals( true, yes_convert_no_share.Convert_Private_Attachments__c );
+        System.assertEquals( false, yes_convert_no_share.Share_Private_Attachments__c );
+
+        System.assertEquals( false, no_convert_no_share.Convert_Private_Attachments__c );
+        System.assertEquals( false, no_convert_no_share.Share_Private_Attachments__c );
+
+    }
+
 }
