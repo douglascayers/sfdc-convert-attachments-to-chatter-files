@@ -19,6 +19,7 @@
         <members>ConvertAttachmentsToFilesScheduleTest</members>
         <members>ConvertAttachmentsToFilesService</members>
         <members>ConvertAttachmentsToFilesServiceTest</members>
+        <members>ConvertAttachmentsToFilesTestFactory</members>
         <name>ApexClass</name>
     </types>
     <types>
