@@ -8,7 +8,7 @@ Salesforce [announced](https://releasenotes.docs.salesforce.com/en-us/spring17/r
 the "Notes & Attachments" related list will no longer have an upload or attach button. Customers will be required to migrate to and adopt Salesforce Files.
 
 At the time of this project in 2015, Salesforce had not yet provided an official conversion tool from Attachments to Files.
-In the Summer '17 release, Salesforce Labs [plans to provide one via the AppExchange](https://releasenotes.docs.salesforce.com/en-us/summer17/release-notes/rn_files_attachments_to_files.htm).
+In the Summer '17 release, Salesforce Labs [eventually provided an app via the AppExchange](https://appexchange.salesforce.com/listingDetail?listingId=a0N3A00000EHAmyUAH).
 
 This project enables the manual or automatic conversion of classic [Attachments](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_attachment.htm)
 into [Salesforce Files](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentversion.htm)
