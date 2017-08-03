@@ -1,3 +1,4 @@
 config/
 *.sublime-project
 *.sublime-workspace
+*.iml

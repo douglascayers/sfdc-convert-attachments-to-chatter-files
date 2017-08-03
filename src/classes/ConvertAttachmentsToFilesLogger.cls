@@ -16,6 +16,7 @@ public with sharing class ConvertAttachmentsToFilesLogger {
 
         Convert_Attachments_to_Files_Log__c log = new Convert_Attachments_to_Files_Log__c(
             job_id__c = jobId,
+            status__c = 'ERROR',
             summary__c = e.getMessage(),
             detail__c = e.getStackTraceString()
         );
@@ -37,17 +38,19 @@ public with sharing class ConvertAttachmentsToFilesLogger {
 
         for ( ConvertAttachmentsToFilesService.ConversionResult result : results ) {
 
-            if ( !result.success ) {
+            System.debug(
+                getLoggingLevelFromSeverity( result.status ),
+                'jobId: ' + jobId + ', message: ' + result.message
+            );
 
-                System.debug( LoggingLevel.ERROR, 'jobId: ' + jobId + ', error: ' + result.message );
-
-                logs.add( new Convert_Attachments_to_Files_Log__c(
-                    job_id__c = jobId,
-                    summary__c = result.message.abbreviate( maxLength ),
-                    detail__c = result.message
-                ));
-
-            }
+            logs.add( new Convert_Attachments_to_Files_Log__c(
+                job_id__c = jobId,
+                status__c = String.valueOf( result.status ),
+                old_attachment_id__c = ( result.oldAttachment != null ? result.oldAttachment.id : null ),
+                new_file_id__c = result.contentVersionId,
+                summary__c = result.message.abbreviate( maxLength ),
+                detail__c = result.message
+            ));
 
         }
 
@@ -56,6 +59,21 @@ public with sharing class ConvertAttachmentsToFilesLogger {
         }
 
     }
+
+    private static LoggingLevel getLoggingLevelFromSeverity( ConvertAttachmentsToFilesService.ConversionResultStatus status ) {
+
+        LoggingLevel level = LoggingLevel.DEBUG;
+
+        if ( status == ConvertAttachmentsToFilesService.ConversionResultStatus.SKIPPED ) {
+            level = LoggingLevel.WARN;
+        } else if ( status == ConvertAttachmentsToFilesService.ConversionResultStatus.ERROR ) {
+            level = LoggingLevel.ERROR;
+        }
+
+        return level;
+    }
+
+    // --------------------------------------------------------------------
 
     /**
      * Checks if any log records have been created since the job started.
@@ -75,7 +93,7 @@ public with sharing class ConvertAttachmentsToFilesLogger {
      */
     public static void sendApexExceptionEmailIfAnyErrorsSince( DateTime sinceDateTime ) {
 
-        Integer count = [ SELECT count() FROM Convert_Attachments_to_Files_Log__c WHERE createdDate >= :sinceDateTime ];
+        Integer count = [ SELECT count() FROM Convert_Attachments_to_Files_Log__c WHERE createdDate >= :sinceDateTime AND status__c = 'ERROR' ];
 
         if ( count > 0 ) {
 

@@ -8,10 +8,9 @@ private class ConvertAttachmentsScheduleControllerTest {
     static void test_save_new_settings() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Convert_Private_Attachments__c = true;
         settings.Share_Private_Attachments__c = true;
 
         Test.startTest();
@@ -33,10 +32,9 @@ private class ConvertAttachmentsScheduleControllerTest {
     static void test_update_existing_settings() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Convert_Private_Attachments__c = true;
         settings.Share_Private_Attachments__c = true;
 
         upsert settings;
@@ -60,10 +58,9 @@ private class ConvertAttachmentsScheduleControllerTest {
     static void test_save_error() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
+        settings.Convert_Private_Attachments__c = true;
         settings.Share_Private_Attachments__c = true;
 
         upsert settings;

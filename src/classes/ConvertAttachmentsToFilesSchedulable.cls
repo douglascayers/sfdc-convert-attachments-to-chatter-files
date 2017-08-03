@@ -3,15 +3,15 @@
  *
  * Designed for scheduling periodic job to perform batch conversion of attachments.
  */
-public with sharing class ConvertAttachmentsToFilesSchedulable implements Schedulable {
+global with sharing class ConvertAttachmentsToFilesSchedulable implements Schedulable {
 
     public Integer batchSize { get; set; }
 
-    public ConvertAttachmentsToFilesSchedulable() {
+    global ConvertAttachmentsToFilesSchedulable() {
         this( 200 );
     }
 
-    public ConvertAttachmentsToFilesSchedulable( Integer batchSize ) {
+    global ConvertAttachmentsToFilesSchedulable( Integer batchSize ) {
         this.batchSize = batchSize;
     }
 

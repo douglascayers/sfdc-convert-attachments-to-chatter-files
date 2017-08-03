@@ -13,18 +13,7 @@ trigger ConvertAttachmentsToFilesTrigger on Attachment ( after insert ) {
 
         ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
 
-        // if community user created this attachment then set sharing of the file to 'AllUsers'
-        // so both internal and external users can access the converted file
-        // https://success.salesforce.com/0D53A000032fahS
-
-        ID networkId = Network.getNetworkId();
-
-        if ( String.isNotBlank( networkId ) ) {
-            options.shareType = 'I';
-            options.visibility = 'AllUsers';
-        }
-
-        ConvertAttachmentsToFilesQueueable queueable = new ConvertAttachmentsToFilesQueueable( Trigger.newMap.keySet(), options, networkId );
+        ConvertAttachmentsToFilesQueueable queueable = new ConvertAttachmentsToFilesQueueable( Trigger.newMap.keySet(), options, Network.getNetworkId() );
 
         System.enqueueJob( queueable );
 

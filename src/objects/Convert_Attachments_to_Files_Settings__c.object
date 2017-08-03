@@ -4,6 +4,16 @@
     <description>Controls when and how certain attachments are converted to files.</description>
     <enableFeeds>false</enableFeeds>
     <fields>
+        <fullName>Convert_Private_Attachments__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Attachments have &apos;IsPrivate&apos; field that limits access to owner and admins. ContentVersions related to records are not private. Enable this option to convert private attachments to files. Please consider your company&apos;s regulatory and security policies before enabling this option as it may expose data to new audiences.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Attachments have &apos;IsPrivate&apos; field that limits access to owner and admins. ContentVersions related to records are not private. Consider your company&apos;s regulatory and security policies before enabling this option as it may expose data to new audiences.</inlineHelpText>
+        <label>Convert Private Attachments?</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
         <fullName>Convert_in_Near_Real_Time__c</fullName>
         <defaultValue>false</defaultValue>
         <description>Enables &apos;after insert&apos; trigger on Attachment that enqueues job to convert into Files in near real-time. This async conversion does not slow down save transaction, and if &apos;Delete Attachments&apos; option is enabled then deletes in separate transaction too.</description>
@@ -32,42 +42,6 @@
         <label>Share Private Attachments?</label>
         <trackTrending>false</trackTrending>
         <type>Checkbox</type>
-    </fields>
-    <fields>
-        <fullName>Share_Type__c</fullName>
-        <defaultValue>&quot;V&quot;</defaultValue>
-        <description>The ContentDocumentLink.ShareType value to use for converted files.
-V = view only
-I = inferred by user&apos;s editability of related record
-C = collaborator, view/edit (not supported if related to standard objects)</description>
-        <externalId>false</externalId>
-        <inlineHelpText>The ContentDocumentLink.ShareType value to use for converted files.
-V = view only
-I = inferred by user&apos;s editability of related record
-C = collaborator, view/edit (not supported if related to standard objects)</inlineHelpText>
-        <label>Share Type</label>
-        <length>255</length>
-        <required>false</required>
-        <trackTrending>false</trackTrending>
-        <type>Text</type>
-        <unique>false</unique>
-    </fields>
-    <fields>
-        <fullName>Visibility__c</fullName>
-        <defaultValue>&quot;InternalUsers&quot;</defaultValue>
-        <description>The ContentDocumentLink.Visibility value to use for converted files. For any user with permission to view the file, this further controls which set of users can actually see it.
-&quot;InternalUsers&quot; = only internal users with permission to view file (available if communities enabled)
-&quot;AllUsers&quot; = all users, including community users, with permission to view file</description>
-        <externalId>false</externalId>
-        <inlineHelpText>The ContentDocumentLink.Visibility value to use for converted files.
-&quot;InternalUsers&quot; = only internal users with permission to view file (available if communities enabled)
-&quot;AllUsers&quot; = all users, including community users, with permission to view file</inlineHelpText>
-        <label>Visibility</label>
-        <length>255</length>
-        <required>false</required>
-        <trackTrending>false</trackTrending>
-        <type>Text</type>
-        <unique>false</unique>
     </fields>
     <label>Convert Attachments to Files Settings</label>
     <visibility>Public</visibility>

@@ -2,10 +2,6 @@
 
     <apex:slds />
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/default.min.css"></link>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-
     <style>
 
         .slds-scope .apexp .bPageBlock p {
@@ -16,13 +12,6 @@
             background-color: #d8edff;
             border-radius: 5px;
             padding: 0.4em;
-        }
-
-        .slds-scope dfn {
-            font-style: normal;
-            font-weight: normal;
-            background-color: #F0F0F0;
-            padding: 0 0.3em;
         }
 
     </style>
@@ -47,165 +36,26 @@
 
                 <div class="slds-m-around--large"/>
 
-                <div>
-                    <p>
-                        If you encounter an issue not mentioned here, you can <a href="https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues">submit an issue</a> on the GitHub project.
-                    </p>
+                <div class="slds-grid">
+                    <div class="slds-col">
+                        <h2 class="slds-text-heading_medium">Frequently Asked Questions</h2>
+                        <p>
+                            Please consult the FAQ on the <a href="https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/blob/master/README.md#faq">project home page</a>.
+                        </p>
+                    </div>
                 </div>
 
                 <div class="slds-m-around--large"/>
 
-                <apex:outputPanel id="mainPanel" layout="block">
-
-                    <apex:pageMessages />
-
-                    <apex:pageBlock mode="maindetail">
-
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
-
-                            <a name="error-apex-heap-size-limit"/>
-
-                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
-                                <b>Error: Apex Heap Size Too Large</b>
-                            </p>
-
-                            <p class="slds-m-bottom--small">
-                                This error usually means too many large attachments are trying to be converted to files in the same transaction.
-                                <br/>
-                                The conversion jobs are restricted to <a href="https://developer.salesforce.com/docs/atlas.en-us.salesforce_app_limits_cheatsheet.meta/salesforce_app_limits_cheatsheet/salesforce_app_limits_platform_apexgov.htm" target="_blank">Apex Governor Limit of 12MB</a>, so the total size of all attachments being converted in same transaction must be less than 12MB.
-                                <br/>
-                            </p>
-
-                            <p class="slds-m-bottom--small">
-                                Try reducing the batch size when running the conversion jobs.
-                                <br/>
-                                Manually move all large attachments to files whose size exceeds the Apex Governor Limit.
-                                <br/>
-                                If you have the near real-time trigger enabled, try reducing the number of attachments being inserted in the same transaction.
-                                <br/>
-                                If you have the conversion job scheduled, reschedule it to use a reduced batch size, for example in Developer Console do:
-                            </p>
-
-                            <pre><code class="java">
-String jobName = 'Convert Attachments to Files Job';
-Integer batchSize = 100; // reduce as needed until Heap Limit error goes away
-String cron = '0 0 13 * * ?'; // when to run job, this expression means 1:00 AM every day
-
-Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-ConvertAttachmentsToFilesOptions options = new ConvertAttachmentsToFilesOptions( settings );
-
-// create job
-ConvertAttachmentsToFilesSchedulable job = new ConvertAttachmentsToFilesSchedulable( batchSize, options );
-
-// delete currently scheduled job
-for ( CronTrigger scheduledJob : [ SELECT id FROM CronTrigger WHERE CronJobDetail.name = :jobName ] ) {
-    System.abortJob( scheduledJob.id );
-}
-
-// schedule new job
-System.schedule( jobName, cron, job );
-                            </code></pre>
-
-                        </div>
-
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
-
-                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
-                                <b>Error: ContentPublication Limit Exceeded</b>
-                            </p>
-
-                            <p class="slds-m-bottom--small">
-                                This limit represents the amount of files that can be added to Content per 24 hours.
-                                <br/>
-                                The default limit is 36,000 files per 24 hours but may be <a href="https://help.salesforce.com/articleView?id=000232943" target="_blank">increased by contacting Salesforce Support</a>.
-                            </p>
-
-                            <p class="slds-m-bottom--small">
-                                Due to Governor Limits, you will need to throttle the amount of attachments you try to convert in a 24 hour period.
-                            </p>
-
-                        </div>
-
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
-
-                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
-                                <b>Error: Field is not writeable: ContentVersion.CreatedById</b>
-                            </p>
-
-                            <p class="slds-m-bottom--small">
-                                The conversion tool tries to copy the attachment's original created and last modified date/user to the converted file.
-                                To do so then the <a href="https://help.salesforce.com/articleView?id=Enable-Create-Audit-Fields" target="_blank">Create Audit Fields</a> feature must be enabled.
-                            </p>
-
-                        </div>
-
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
-
-                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
-                                <b>Error: Visibility InternalUsers is not permitted for this linked record.</b>
-                            </p>
-
-                            <p class="slds-m-bottom--small">
-                                When the conversion tool shares the file to the attachment's owner and parent record the
-                                <b>ContentDocumentLink.Visibility</b> field controls which community of users, internal or external,
-                                may gain access to the file if they have access to the related record.
-                            </p>
-
-                            <p class="slds-m-bottom--small">
-                                When communities are <b>enabled</b> then both picklist values <dfn>AllUsers</dfn> and <dfn>InternalUsers</dfn> are acceptable.
-                                <br/>
-                                When communities are <b>disabled</b> then only the picklist value <dfn>AllUsers</dfn> is acceptable.
-                            </p>
-
-                            <p class="slds-m-bottom--small">
-                                This error usually means communities are <b>disabled</b> in your org and you're trying to set the
-                                visibility of the converted files to <dfn>InternalUsers</dfn>.
-                            </p>
-
-                            <p class="slds-m-bottom--small">
-                                To fix then either (a) enable communities or (b) change the visibility option to <dfn>AllUsers</dfn>.
-                            </p>
-
-                        </div>
-
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
-
-                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
-                                <b>Which Objects Support Salesforce Files?</b>
-                            </p>
-
-                            <p class="slds-m-bottom--small">
-                                Generally speaking, most standard and custom objects that support Notes &amp; Attachments also support Salesforce Files.
-                                <br/>
-                                There are some exceptions like the <a href="https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_emailmessage.htm" target="_blank">EmailMessage</a> object.
-                                Although technically you can convert their attachments to files, you cannot <b>share</b> the files to the email message records.
-                                You will receive error <i>INSUFFICIENT_ACCESS_OR_READONLY, You can't create a link for Email Message when it's not in draft state.: [LinkedEntityId]</i>
-                            </p>
-
-                        </div>
-
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
-
-                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
-                                <b>If I run the conversion multiple times, do duplicate files get created for the same attachments?</b>
-                            </p>
-
-                            <p class="slds-m-bottom--small">
-                                No, no duplicate files should be created once an attachment has been converted once.
-                                When attachments are converted into files we store the <b>Attachment.ID</b> in the <b>ContentVersion.Original_Record_ID__c</b> field for tracking purposes.
-                                The conversion logic first checks if there exist any files that have been stamped with the attachment id, if yes then we skip converting that attachment again.
-                            </p>
-
-                            <p class="slds-m-bottom--small">
-                                Of course, if you choose the conversion option to delete the attachments upon conversion then no such attachment would exist the second time around.
-                                But if you choose to keep the attachments post conversion they will not be converted again if you run conversion process multiple times.
-                            </p>
-
-                        </div>
-
-                    </apex:pageBlock>
-
-                </apex:outputPanel>
+                <div class="slds-grid">
+                    <div class="slds-col">
+                        <h2 class="slds-text-heading_medium">Bug or Enhancement Request</h2>
+                        <p>
+                            If you encounter an issue not mentioned there or have an idea for a new feature or improvement,
+                            you can <a href="https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues">submit an issue</a> on the project's issue tracker.
+                        </p>
+                    </div>
+                </div>
 
             </div>
 

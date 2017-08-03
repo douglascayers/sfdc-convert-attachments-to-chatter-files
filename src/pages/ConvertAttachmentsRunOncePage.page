@@ -20,7 +20,7 @@
                     <nav role="navigation" aria-label="Breadcrumbs">
                         <ol class="slds-breadcrumb slds-list--horizontal">
                             <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Main Menu</a></li>
-                            <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsRunOncePage)}">Test Conversion</a></li>
+                            <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsRunOncePage)}">Convert Attachments</a></li>
                         </ol>
                     </nav>
                     <p class="slds-page-header__title">

@@ -6,35 +6,21 @@
  */
 public with sharing class ConvertAttachmentsToFilesOptions {
 
-    // The ContentDocumentLink.ShareType value to use for converted files.
-    // This controls user's view/edit ability of the file.
-    //
-    // Options:
-    //     'V' = view only
-    //     'I' = inferred view or edit based on user's similar access to related record
-    //     'C' = collaborator, view and edit (not supported if related to standard object)
-    //
-    // The default is 'V'.
-    //
-    public String shareType { get; set; }
-
-    // The ContentDocumentLink.Visibility value to use for converted files.
-    // This controls whether file is visible to internal users only or all users.
-    //
-    // Options:
-    //     'InternalUsers' = available only to internal users who have permission to see file
-    //     'AllUsers' = available to all users, including community users, who have permission to see file
-    //
-    // If you have communities enabled then consider 'AllUsers' so those users don't lose access to the files.
-    // If communities is enabled then default is 'InternalUsers', otherwise 'AllUsers' is only valid value.
-    //
-    public String visibility { get; set; }
-
     // Should the Attachments be deleted upon conversion to ContentVersion?
     // Deleting them reduces redundant data storage.
     // Make sure you've backed up your data before enabling this.
     public Boolean deleteAttachmentsUponConversion { get; set; }
 
+    // Classic Attachments have a 'IsPrivate' field that when checked the attachment
+    // is only visible to the owner and administrators. To preserve this
+    // then the new ContentVersion cannot be shared with the parent record
+    // because doing so would grant any user who has at least read access
+    // to the record to now have read access to the previously private attachment content.
+    // This flag indicates whether privates attachments should or should not be converted.
+    // If true then a second preference is considered in how private attachments will be converted.
+    public Boolean convertPrivateAttachments { get; set; }
+
+    // Only applicable if 'convertPrivateAttachments' is true.
     // Classic Attachments have a 'IsPrivate' field that when checked the attachment
     // is only visible to the owner and administrators. To preserve this
     // then the new ContentVersion cannot be shared with the parent record
@@ -57,9 +43,8 @@ public with sharing class ConvertAttachmentsToFilesOptions {
     }
 
     public ConvertAttachmentsToFilesOptions( Convert_Attachments_to_Files_Settings__c settings ) {
-        this.shareType = settings.share_type__c;
-        this.visibility = settings.visibility__c;
         this.deleteAttachmentsUponConversion = settings.delete_attachment_once_converted__c;
+        this.convertPrivateAttachments = settings.convert_private_attachments__c;
         this.sharePrivateAttachmentsWithParentRecord = settings.share_private_attachments__c;
         this.parentIds = null;
     }

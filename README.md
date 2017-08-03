@@ -8,7 +8,7 @@ Salesforce [announced](https://releasenotes.docs.salesforce.com/en-us/spring17/r
 the "Notes & Attachments" related list will no longer have an upload or attach button. Customers will be required to migrate to and adopt Salesforce Files.
 
 At the time of this project in 2015, Salesforce had not yet provided an official conversion tool from Attachments to Files.
-In the Summer '17 release, Salesforce Labs [eventually provided an app via the AppExchange](https://appexchange.salesforce.com/listingDetail?listingId=a0N3A00000EHAmyUAH).
+In the [Summer '17 release](https://releasenotes.docs.salesforce.com/en-us/summer17/release-notes/rn_files_attachments_to_files.htm), Salesforce Labs [released their own app via the AppExchange](https://appexchange.salesforce.com/listingDetail?listingId=a0N3A00000EHAmyUAH).
 
 This project enables the manual or automatic conversion of classic [Attachments](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_attachment.htm)
 into [Salesforce Files](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentversion.htm)
@@ -42,19 +42,37 @@ Pre-Requisites
 Packaged Release History
 ------------------------
 
-Release 1.1 (latest)
+Release 1.2 (latest)
 -----------
 * Install package
-  * [Production URL](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t46000001VnYW)
-  * [Sandbox URL](https://test.salesforce.com/packaging/installPackage.apexp?p0=04t46000001VnYW)
-* Fixes [Issue 19](https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/19) inconsistency when detecting if a file has already been converted or not due to special access rules on ContentVersion object.
+  * [Production URL](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t46000001VnYb)
+  * [Sandbox URL](https://test.salesforce.com/packaging/installPackage.apexp?p0=04t46000001VnYb)
+* Preserves `LastModifiedDate` from original attachment. [Issue 26](https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/26) 
+* Report on conversion results to know how many and which attachments were converted, failed, or skipped. [Issue 22](https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/22) 
+
+Please note, this app always preserved the original `CreatedDate` of the converted attachment but the `LastModifiedDate` was always "today"
+because of how the new File was being shared to the parent record. In my original design I had opted to give you all more options around how
+the newly converted File gets shared to internal and community users as well as whether users with access to the parent entity inherited
+read-only or edit access to the file. But those options came at the cost of never being able to preserve the original `LastModifiedDate`.
+
+Responding to your all's feedback and use cases, this version of the app now preserves the `LastModifiedDate` of the original attachment!
+However, to make this possible means the app no longer manually shares the new File by explicitly creating `ContentDocumentLink` records.
+This has the side effect that two previously available conversion settings have now been removed:
+  * **Which community of users who have access to the attachment's parent record get access to the converted files?**
+  * **How should view or edit access to the converted file be granted to users with access to the attachment's parent record?**
+
+These options now rely on the Salesforce defaults which as of the the Summer '17 release are:
+  * Historical attachments are shared with **InternalUsers**
+  * New attachments created by Community Users that get auto-converted by this app's trigger are shared with **AllUsers**
+  * The new Files are read-only to users with access to the parent entity, the owner of the file must explicitly change the file's sharing to give other users edit access
+
+Release 1.1
+-----------
+* Fixes inconsistency when detecting if a file has already been converted or not due to special access rules on ContentVersion object. [Issue 19](https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/19)
 * If error log records are generated then email is sent to all Salesforce Users listed in `Setup | Email Administration | Apex Exception Email` notifying them to review the error log records.
 
 Release 1.0
 -----------
-* Install package
-  * [Production URL](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t46000000vBy9)
-  * [Sandbox URL](https://test.salesforce.com/packaging/installPackage.apexp?p0=04t46000000vBy9)
 * Initial managed package offering
 * Split out Notes Conversion into its [own project](https://github.com/DouglasCAyers/sfdc-convert-notes-to-chatter-notes)
 
@@ -93,6 +111,9 @@ There is a [limit to how many of these records can be created in a 24 hour perio
 With [Summer '17](https://releasenotes.docs.salesforce.com/en-us/summer17/release-notes/rn_files_limits.htm) release the limit is increased from 36,000 to 200,000!
 If you have a lot of Notes & Attachments to convert plan around this limit and split the work across multiple days.
 
+Unfortunately, Salesforce does not tell us how close we are to this limit like it does for API Requests and other limits.
+You know you've hit it when you get the error.
+
 
 Field is not writeable: ContentVersion.CreatedById
 --------------------------------------------------
@@ -104,28 +125,6 @@ Please see [this help article](https://help.salesforce.com/articleView?id=000213
 ![screen shot](images/setup-enable-create-audit-fields2.png)
 
 ![screen shot](images/setup-enable-create-audit-fields1.png)
-
-
-Visibility InternalUsers is not permitted for this linked record.
---------------------------------------------------------------------------------------------------
-When the conversion tool shares the file to the attachment's owner and parent record the
-**ContentDocumentLink.Visibility** field controls which community of users, internal or external,
-may gain access to the file if they have access to the related record.
-
-When communities are **enabled** then both picklist values `AllUsers` and `InternalUsers` are acceptable.
-When communities are **disabled** then only the picklist value `AllUsers` is acceptable.
-
-This error usually means communities are **disabled** in your org and you're trying to set the
-visibility of the converted files to `InternalUsers`.
-
-To fix then either (a) enable communities or (b) change the visibility option to `AllUsers`.
-
-
-INSUFFICIENT_ACCESS_OR_READONLY, Invalid sharing type I: [ShareType]
---------------------------------------------------------------------
-This error means the object the new file is trying to be shared to does not support the conversion setting **Users inherit view or edit access to the file based on their view or edit access to the attachment's parent record** and instead you must try **Users can only view the file but cannot edit it, even if the user can edit the attachment's parent record**.
-
-This is known to occur with `Solution` object and likely other objects.
 
 
 FIELD_INTEGRITY_EXCEPTION, Owner ID: id value of incorrect type: 035xxxxxxxxxxxxxxx: [OwnerId]

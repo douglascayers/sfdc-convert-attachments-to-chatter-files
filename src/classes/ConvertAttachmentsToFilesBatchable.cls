@@ -6,7 +6,7 @@
  *
  * Actual conversion for each batch execution is delegated to ConvertAttachmentsToFilesService.
  */
-public with sharing class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SObject>, Database.Stateful {
+global with sharing class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SObject>, Database.Stateful {
 
     @TestVisible
     private List<ConvertAttachmentsToFilesService.ConversionResult> mockResults { get; set; }
@@ -19,10 +19,11 @@ public with sharing class ConvertAttachmentsToFilesBatchable implements Database
     @TestVisible
     private ConvertAttachmentsToFilesOptions options { get; set; }
 
-    public ConvertAttachmentsToFilesBatchable() {
+    global ConvertAttachmentsToFilesBatchable() {
         this( new ConvertAttachmentsToFilesOptions() );
     }
 
+    // not exposed to subscriber orgs, want users to configure the custom setting
     public ConvertAttachmentsToFilesBatchable( ConvertAttachmentsToFilesOptions options ) {
         this.options = options;
     }
