@@ -3,6 +3,14 @@
  */
 public with sharing class ConvertAttachmentsSettingsController {
 
+    @TestVisible
+    private Boolean mockIsFormValid { get; set; }
+
+    @TestVisible
+    private Exception mockException { get; set; }
+
+    // ----------------------------------------------------------------------
+
     public Convert_Attachments_to_Files_Settings__c settings { get; set; }
 
     // this option combines two setting fields for whether or not to
@@ -15,12 +23,6 @@ public with sharing class ConvertAttachmentsSettingsController {
     public String message { get; set; }
 
     public Boolean success { get; set; }
-
-    public Boolean isCommunitiesEnabled {
-        get {
-            return Schema.getGlobalDescribe().containsKey( 'Network' );
-        }
-    }
 
     public ConvertAttachmentsSettingsController() {
 
@@ -39,17 +41,25 @@ public with sharing class ConvertAttachmentsSettingsController {
 
             applyConvertAndSharePrivateAttachments( this.settings, this.convertAndSharePrivateAttachments );
 
-            if ( settings.Delete_Attachment_Once_Converted__c == null ||
-                 settings.Convert_Private_Attachments__c == null ||
-                 settings.Share_Private_Attachments__c == null ||
-                 settings.Share_Type__c == null ||
-                 settings.Visibility__c == null
-            ) {
+            Boolean isFormValid = (
+                this.settings.Delete_Attachment_Once_Converted__c != null &&
+                this.settings.Convert_Private_Attachments__c != null &&
+                this.settings.Share_Private_Attachments__c != null
+            );
 
-                this.success = false;
-                this.message = 'Please answer all questions to configure conversion options.';
+            if ( Test.isRunningTest() ) {
 
-            } else {
+                if ( this.mockException != null ) {
+                    throw this.mockException;
+                }
+
+                if ( this.mockIsFormValid != null ) {
+                    isFormValid = this.mockIsFormValid;
+                }
+
+            }
+
+            if ( isFormValid ) {
 
                 upsert this.settings;
 
@@ -58,6 +68,11 @@ public with sharing class ConvertAttachmentsSettingsController {
 
                 this.message = 'Settings saved successfully!';
                 this.success = true;
+
+            } else {
+
+                this.success = false;
+                this.message = 'Please answer all questions to configure conversion options.';
 
             }
 

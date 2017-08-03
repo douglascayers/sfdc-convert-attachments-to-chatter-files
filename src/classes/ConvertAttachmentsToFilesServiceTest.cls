@@ -4,144 +4,10 @@
 @isTest
 private class ConvertAttachmentsToFilesServiceTest {
 
-    /**
-     * https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/9
-     */
-    @isTest
-    static void test_partner_community_users() {
-
-        try {
-
-            Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-            settings.Share_Type__c = 'I';
-            settings.Visibility__c = 'AllUsers';
-            settings.Convert_in_Near_Real_Time__c = true;
-            settings.Delete_Attachment_Once_Converted__c = false;
-            settings.Convert_Private_Attachments__c = true;
-            settings.Share_Private_Attachments__c = true;
-
-            upsert settings;
-
-            UserRole r1 = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
-
-            Profile p1 = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
-            Profile p2 = [ SELECT id FROM Profile WHERE name = 'Partner Community User' ];
-
-            User user1, user2;
-
-            // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
-            System.runAs( new User( id = UserInfo.getUserId() ) ) {
-
-                user1 = ConvertAttachmentsToFilesTestFactory.newUser( p1.id, r1.id, 'Alpha', 'User 1', 'user_1@example.com' );
-
-                insert user1;
-
-            }
-
-            Account acct = new Account(
-                ownerId = user1.id,
-                name = 'Community Account'
-            );
-
-            insert acct;
-
-            Contact cont = new Contact(
-                accountId = acct.id,
-                firstName = 'Beta',
-                lastName = 'User 2'
-            );
-
-            insert cont;
-
-            // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
-            System.runAs( new User( id = UserInfo.getUserId() ) ) {
-
-                user2 = ConvertAttachmentsToFilesTestFactory.newUser( p2.id, null, 'Beta',  'User 2', 'user_2@example.com' );
-
-                user2.contactId = cont.id;
-
-                insert user2;
-
-            }
-
-            Test.startTest();
-
-            System.runAs( user2 ) {
-
-                Attachment attachment1 = new Attachment(
-                    name = 'Hello World.txt',
-                    body = Blob.valueOf( 'Goodnight Moon' ),
-                    parentId = acct.id,
-                    ownerId = user2.id
-                );
-
-                insert attachment1;
-
-                Attachment attachment2 = new Attachment(
-                    name = 'Hello World.txt',
-                    body = Blob.valueOf( 'Goodnight Moon' ),
-                    parentId = cont.id,
-                    ownerId = user2.id
-                );
-
-                insert attachment2;
-
-            }
-
-            Test.stopTest();
-
-            Set<ID> entityIds = new Set<ID>{ acct.id, cont.id };
-
-            // must do assert after stopping test because of async code
-            System.assertEquals( 2, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId IN :entityIds ] );
-
-            System.runAs( user2 ) {
-
-                List<Attachment> attachments = [
-                    SELECT
-                        id, parentId, ownerId, name, description, body, isPrivate,
-                        createdById, createdDate, lastModifiedById, lastModifiedDate
-                    FROM
-                        Attachment
-                ];
-
-                ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService();
-
-                // we should get back both note ids as they've already been converted
-                Map<ID, ID> convertedAttachmentIdsMap = service.getAlreadyConvertedAttachmentIdsMap( attachments );
-                System.assertEquals( 2, convertedAttachmentIdsMap.size() );
-
-                // since both attachments have been converted then no other conversion should occur
-                List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( attachments );
-
-                for ( ConvertAttachmentsToFilesService.ConversionResult result : results ) {
-                    System.debug( result );
-                    System.assertEquals( ConvertAttachmentsToFilesService.ConversionResultStatus.SKIPPED, result.status, result.message );
-                }
-
-                System.assertEquals( attachments.size(), results.size() );
-                System.assertEquals( 2, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId IN :entityIds ] );
-
-            }
-
-        } catch ( Exception e ) {
-
-            // if org does not have communities enabled
-            // then don't worry about this test
-            if ( !e.getMessage().containsIgnoreCase( 'PORTAL_NO_ACCESS' ) ) {
-                throw e;
-            }
-
-        }
-
-    }
-
     @isTest
     static void test_special_characters() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
         settings.Convert_Private_Attachments__c = true;
@@ -255,11 +121,89 @@ private class ConvertAttachmentsToFilesServiceTest {
     }
 
     @isTest
+    static void test_fail_convert_0size_attachment() {
+
+        Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
+        settings.Convert_in_Near_Real_Time__c = false;
+        settings.Delete_Attachment_Once_Converted__c = false;
+        settings.Convert_Private_Attachments__c = true;
+        settings.Share_Private_Attachments__c = true;
+
+        upsert settings;
+
+        UserRole role = [ SELECT id FROM UserRole WHERE parentRoleId = null AND portalType = 'None' LIMIT 1 ];
+
+        Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
+
+        User user1, user2;
+
+        // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
+        System.runAs( new User( id = UserInfo.getUserId() ) ) {
+
+            user1 = ConvertAttachmentsToFilesTestFactory.newUser( p.id, role.id, 'Alpha', 'User 1', 'user_1@example.com' );
+            user2 = ConvertAttachmentsToFilesTestFactory.newUser( p.id, role.id, 'Beta',  'User 2', 'user_2@example.com' );
+
+            insert new List<User>{ user1, user2 };
+
+        }
+
+        Account account = new Account(
+            ownerId = user1.id,
+            name = 'Test Account'
+        );
+
+        insert account;
+
+        Attachment attachment = new Attachment(
+            name = 'Hello World.txt',
+            body = Blob.valueOf(''), // can't set null, but can set zero-length string
+            parentId = account.id,
+            ownerId = user1.id
+        );
+
+        insert attachment;
+
+        attachment = [
+            SELECT
+                id, parentId, ownerId, name, description, body, isPrivate,
+                createdById, createdDate, lastModifiedById, lastModifiedDate,
+                bodyLength
+            FROM
+                Attachment
+            WHERE
+                id = :attachment.id
+        ];
+
+        System.assertEquals( 0, attachment.bodyLength );
+
+        Test.startTest();
+
+        ConvertAttachmentsToFilesService service = new ConvertAttachmentsToFilesService();
+
+        List<ConvertAttachmentsToFilesService.ConversionResult> results = service.convert( new Attachment[]{ attachment } );
+
+        Test.stopTest();
+
+        System.assertNotEquals( null, results );
+
+        for ( ConvertAttachmentsToFilesService.ConversionResult result : results ) {
+            System.debug( result );
+            System.assertEquals( ConvertAttachmentsToFilesService.ConversionResultStatus.ERROR, result.status, result.message );
+        }
+
+        System.runAs( user1 ) {
+
+            System.assertEquals( 0, [ SELECT count() FROM ContentDocumentLink WHERE linkedEntityId = :account.id ] );
+            System.assertEquals( 1, [ SELECT count() FROM Attachment WHERE id = :attachment.id ] );
+
+        }
+
+    }
+
+    @isTest
     static void test_no_delete() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = false;
         settings.Convert_Private_Attachments__c = true;
@@ -343,8 +287,6 @@ private class ConvertAttachmentsToFilesServiceTest {
     static void test_yes_delete() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
         settings.Convert_Private_Attachments__c = true;
@@ -431,8 +373,6 @@ private class ConvertAttachmentsToFilesServiceTest {
     static void test_no_share_private_attachments_with_parent_record() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = false;
         settings.Convert_Private_Attachments__c = true;
@@ -517,8 +457,6 @@ private class ConvertAttachmentsToFilesServiceTest {
     static void test_yes_share_private_attachments_with_parent_record() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
         settings.Convert_Private_Attachments__c = true;
@@ -603,8 +541,6 @@ private class ConvertAttachmentsToFilesServiceTest {
     static void test_no_duplicates() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = false;
         settings.Convert_Private_Attachments__c = true;
@@ -697,8 +633,6 @@ private class ConvertAttachmentsToFilesServiceTest {
     static void test_init_options_from_settings() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = false;
         settings.Convert_Private_Attachments__c = true;
@@ -712,8 +646,6 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         Test.stopTest();
 
-        System.assertEquals( settings.Share_Type__c, options.shareType );
-        System.assertEquals( settings.Visibility__c, options.visibility );
         System.assertEquals( settings.Delete_Attachment_Once_Converted__c, options.deleteAttachmentsUponConversion );
         System.assertEquals( settings.Convert_Private_Attachments__c, options.convertPrivateAttachments );
         System.assertEquals( settings.Share_Private_Attachments__c, options.sharePrivateAttachmentsWithParentRecord );
@@ -724,8 +656,6 @@ private class ConvertAttachmentsToFilesServiceTest {
     static void test_not_share_private_attachments() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = false;
         settings.Convert_Private_Attachments__c = false;

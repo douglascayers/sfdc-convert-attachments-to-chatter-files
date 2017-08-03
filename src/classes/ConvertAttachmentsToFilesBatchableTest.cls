@@ -8,8 +8,6 @@ private class ConvertAttachmentsToFilesBatchableTest {
     static void test_real_time_trigger() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = true;
         settings.Delete_Attachment_Once_Converted__c = true;
         settings.Convert_Private_Attachments__c = true;
@@ -87,8 +85,6 @@ private class ConvertAttachmentsToFilesBatchableTest {
     static void test_scope_conversion() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
         settings.Convert_Private_Attachments__c = true;
@@ -188,8 +184,6 @@ private class ConvertAttachmentsToFilesBatchableTest {
     static void test_preserve_original_owner() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
         settings.Convert_Private_Attachments__c = true;
@@ -296,8 +290,6 @@ private class ConvertAttachmentsToFilesBatchableTest {
     static void test_preserve_original_inactive_owner() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I';
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
         settings.Convert_Private_Attachments__c = true;
@@ -383,8 +375,6 @@ private class ConvertAttachmentsToFilesBatchableTest {
     static void test_conversion_error() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I'; // invalid share type for files shared to EmailMessages, will cause error we need to test
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
         settings.Convert_Private_Attachments__c = true;
@@ -434,8 +424,6 @@ private class ConvertAttachmentsToFilesBatchableTest {
     static void test_conversion_exception() {
 
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
-        settings.Share_Type__c = 'I'; // invalid share type for files shared to EmailMessages, will cause error we need to test
-        settings.Visibility__c = 'AllUsers';
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
         settings.Convert_Private_Attachments__c = true;

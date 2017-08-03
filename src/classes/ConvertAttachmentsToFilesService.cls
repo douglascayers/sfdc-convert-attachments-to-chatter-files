@@ -28,6 +28,8 @@ public without sharing class ConvertAttachmentsToFilesService {
         this.networkId = networkId;
     }
 
+    // -----------------------------------------------------------------
+
     /**
      * Each attachment record should have these fields populated:
      *  - Id
@@ -138,6 +140,10 @@ public without sharing class ConvertAttachmentsToFilesService {
                 original_record_owner_id__c = oldAttachment.ownerId
             );
 
+            if ( !oldAttachment.isPrivate || ( oldAttachment.isPrivate && this.options.sharePrivateAttachmentsWithParentRecord ) ) {
+                newFileVersion.firstPublishLocationId = oldAttachment.parentId;
+            }
+
             // if communities are enabled then assign network id
             if ( communitiesEnabled ) {
                 newFileVersion.put( 'NetworkId', this.networkId );
@@ -205,69 +211,36 @@ public without sharing class ConvertAttachmentsToFilesService {
         return conversionResults;
     }
 
+    // -----------------------------------------------------------------
+
     private void postProcessConversionResults( Map<ID, ConversionResult> conversionResultsMap ) {
 
-        Set<ID> contentVersionIds = new Set<ID>();
-
-        for ( ConversionResult conversionResult : conversionResultsMap.values() ) {
-            if ( conversionResult.status == ConversionResultStatus.CONVERTED && String.isNotBlank( conversionResult.contentVersionId ) ) {
-                contentVersionIds.add( conversionResult.contentVersionId );
-            }
+        // should we delete the converted attachments?
+        if ( this.options.deleteAttachmentsUponConversion ) {
+            deleteConvertedAttachments( conversionResultsMap );
         }
 
-        Map<ID, ContentVersion> contentVersionMap = new Map<ID, ContentVersion>([
-            SELECT
-                id,
-                contentDocumentId
-            FROM
-                ContentVersion
-            WHERE
-                id IN :contentVersionIds
-        ]);
+    }
+
+    // -----------------------------------------------------------------
+
+    private void deleteConvertedAttachments( Map<ID, ConversionResult> conversionResultsMap ) {
 
         List<Attachment> attachmentsToDelete = new List<Attachment>();
-        List<ContentDocumentLink> contentDocumentLinks = new List<ContentDocumentLink>();
 
         for ( ConversionResult conversionResult : conversionResultsMap.values() ) {
-
             if ( conversionResult.status == ConversionResultStatus.CONVERTED ) {
-
-                // should original attachment be deleted?
-                if ( this.options.deleteAttachmentsUponConversion ) {
                     attachmentsToDelete.add( conversionResult.oldAttachment );
-                }
-
-                // should converted attachment be shared with parent?
-                if ( !conversionResult.oldAttachment.isPrivate || ( conversionResult.oldAttachment.isPrivate && this.options.sharePrivateAttachmentsWithParentRecord ) ) {
-
-                    ContentVersion cv = contentVersionMap.get( conversionResult.contentVersionId );
-
-                    if ( cv != null ) {
-
-                        contentDocumentLinks.add( new ContentDocumentLink(
-                            linkedEntityId = conversionResult.oldAttachment.parentId,
-                            contentDocumentId = cv.contentDocumentId,
-                            shareType = this.options.shareType,
-                            visibility = this.options.visibility
-                        ));
-
-                    }
-
-                }
-
             }
-
         }
 
         if ( attachmentsToDelete.size() > 0 ) {
             delete attachmentsToDelete;
         }
 
-        if ( contentDocumentLinks.size() > 0 ) {
-            insert contentDocumentLinks;
-        }
-
     }
+
+    // -----------------------------------------------------------------
 
     /**
      * Given a list of attachments then returns the submap of those
@@ -315,18 +288,7 @@ public without sharing class ConvertAttachmentsToFilesService {
         return convertedAttachmentIdsMap;
     }
 
-    public class ConversionRequest {
-
-        public Attachment oldAttachment { get; set; }
-
-        public ContentVersion newFile { get; set; }
-
-        public ConversionRequest( Attachment oldAttachment, ContentVersion newFile ) {
-            this.oldAttachment = oldAttachment;
-            this.newFile = newFile;
-        }
-
-    }
+    // -----------------------------------------------------------------
 
     public class ConversionResult {
 

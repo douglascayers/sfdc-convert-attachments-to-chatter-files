@@ -43,42 +43,6 @@
         <trackTrending>false</trackTrending>
         <type>Checkbox</type>
     </fields>
-    <fields>
-        <fullName>Share_Type__c</fullName>
-        <defaultValue>&quot;V&quot;</defaultValue>
-        <description>The ContentDocumentLink.ShareType value to use for converted files.
-V = view only
-I = inferred by user&apos;s editability of related record
-C = collaborator, view/edit (not supported if related to standard objects)</description>
-        <externalId>false</externalId>
-        <inlineHelpText>The ContentDocumentLink.ShareType value to use for converted files.
-V = view only
-I = inferred by user&apos;s editability of related record
-C = collaborator, view/edit (not supported if related to standard objects)</inlineHelpText>
-        <label>Share Type</label>
-        <length>255</length>
-        <required>false</required>
-        <trackTrending>false</trackTrending>
-        <type>Text</type>
-        <unique>false</unique>
-    </fields>
-    <fields>
-        <fullName>Visibility__c</fullName>
-        <defaultValue>&quot;InternalUsers&quot;</defaultValue>
-        <description>The ContentDocumentLink.Visibility value to use for converted files. For any user with permission to view the file, this further controls which set of users can actually see it.
-&quot;InternalUsers&quot; = only internal users with permission to view file (available if communities enabled)
-&quot;AllUsers&quot; = all users, including community users, with permission to view file</description>
-        <externalId>false</externalId>
-        <inlineHelpText>The ContentDocumentLink.Visibility value to use for converted files.
-&quot;InternalUsers&quot; = only internal users with permission to view file (available if communities enabled)
-&quot;AllUsers&quot; = all users, including community users, with permission to view file</inlineHelpText>
-        <label>Visibility</label>
-        <length>255</length>
-        <required>false</required>
-        <trackTrending>false</trackTrending>
-        <type>Text</type>
-        <unique>false</unique>
-    </fields>
     <label>Convert Attachments to Files Settings</label>
     <visibility>Public</visibility>
 </CustomObject>

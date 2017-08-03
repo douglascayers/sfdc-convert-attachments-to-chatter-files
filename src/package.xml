@@ -58,8 +58,6 @@
         <members>Convert_Attachments_to_Files_Settings__c.Convert_in_Near_Real_Time__c</members>
         <members>Convert_Attachments_to_Files_Settings__c.Delete_Attachment_Once_Converted__c</members>
         <members>Convert_Attachments_to_Files_Settings__c.Share_Private_Attachments__c</members>
-        <members>Convert_Attachments_to_Files_Settings__c.Share_Type__c</members>
-        <members>Convert_Attachments_to_Files_Settings__c.Visibility__c</members>
         <name>CustomField</name>
     </types>
     <types>
@@ -79,6 +77,13 @@
     <types>
         <members>Convert_Attachments_to_Files_Log__c-Convert Attachments to Files Log Layout</members>
         <name>Layout</name>
+    </types>
+    <types>
+        <members>Convert_Attachments_to_Files_Log__c.All</members>
+        <members>Convert_Attachments_to_Files_Log__c.Converted</members>
+        <members>Convert_Attachments_to_Files_Log__c.Error</members>
+        <members>Convert_Attachments_to_Files_Log__c.Skipped</members>
+        <name>ListView</name>
     </types>
     <types>
         <members>Convert_Attachments_to_Files</members>

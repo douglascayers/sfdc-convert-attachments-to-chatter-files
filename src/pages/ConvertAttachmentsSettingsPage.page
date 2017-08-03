@@ -107,57 +107,6 @@
 
                             <apex:pageBlockSection columns="1">
 
-                                <apex:outputLabel value="Which community of users who have access to the attachment's parent record get access to the converted files?"
-                                                  style="font-weight: bold;"/>
-
-                                <apex:selectRadio label=""
-                                                  value="{!settings.Visibility__c}"
-                                                  layout="pageDirection">
-
-                                    <apex:selectOption itemLabel="Internal Users Only (not available if communities is disabled)"
-                                        itemValue="InternalUsers"
-                                        itemDisabled="{!NOT(isCommunitiesEnabled)}"
-                                    />
-
-                                    <apex:selectOption itemLabel="All Users (recommended if communities is enabled)"
-                                        itemValue="AllUsers"
-                                    />
-
-                                </apex:selectRadio>
-
-                            </apex:pageBlockSection>
-
-                        </div>
-
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
-
-                            <apex:pageBlockSection columns="1">
-
-                                <apex:outputLabel value="How should view or edit access to the converted file be granted to users with access to the attachment's parent record?"
-                                                  style="font-weight: bold;"/>
-
-                                <apex:selectRadio label=""
-                                                  value="{!settings.Share_Type__c}"
-                                                  layout="pageDirection">
-
-                                    <apex:selectOption itemLabel="Users can only view the file but cannot edit it, even if the user can edit the attachment's parent record"
-                                        itemValue="V"
-                                    />
-
-                                    <apex:selectOption itemLabel="Users inherit view or edit access to the file based on their view or edit access to the attachment's parent record (recommended)"
-                                        itemValue="I"
-                                    />
-
-                                </apex:selectRadio>
-
-                            </apex:pageBlockSection>
-
-                        </div>
-
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
-
-                            <apex:pageBlockSection columns="1">
-
                                 <apex:outputLabel value="What should happen to the original attachments once converted?"
                                                   style="font-weight: bold;"/>
 
