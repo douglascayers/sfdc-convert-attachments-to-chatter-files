@@ -2,6 +2,7 @@
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <fields>
         <fullName>Original_Record_ID__c</fullName>
+        <deprecated>false</deprecated>
         <description>The original Note or Attachment ID this ContentVersion was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</description>
         <externalId>true</externalId>
         <inlineHelpText>The original Note or Attachment ID this ContentVersion was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</inlineHelpText>
@@ -14,6 +15,7 @@
     </fields>
     <fields>
         <fullName>Original_Record_Owner_ID__c</fullName>
+        <deprecated>false</deprecated>
         <description>The owner ID of the original Note or Attachment that was converted.</description>
         <externalId>true</externalId>
         <inlineHelpText>The owner ID of the original Note or Attachment that was converted.</inlineHelpText>
@@ -26,6 +28,7 @@
     </fields>
     <fields>
         <fullName>Original_Record_Parent_ID__c</fullName>
+        <deprecated>false</deprecated>
         <description>The original Note or Attachment parent ID this ContentVersion was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</description>
         <externalId>true</externalId>
         <inlineHelpText>The original Note or Attachment parent ID this ContentVersion was converted from. For history tracking purpose and used in conversion process to know the parent record to link the new content version to.</inlineHelpText>
