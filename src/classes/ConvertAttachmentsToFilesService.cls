@@ -50,7 +50,6 @@ public without sharing class ConvertAttachmentsToFilesService {
         // to assign the network id field when inserting the content versions
         // otherwise error "INSUFFICIENT_ACCESS_ON_CROSS_REFERENCE_ENTITY" occurs
         // if community user uploads an attachment and it tries to get converted
-        // https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/9
         Boolean communitiesEnabled = ContentVersion.sObjectType.getDescribe().fields.getMap().containsKey( 'NetworkId' );
 
         // identify if any of these attachments have already been converted

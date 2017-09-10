@@ -1,4 +1,6 @@
 /**
+ * Developed by Doug Ayers (douglascayers.com)
+ *
  * Enqueues a job to convert the attachments into files.
  * Note, some triggers aren't fired for actions performed in Case Feed:
  * https://success.salesforce.com/issues_view?id=a1p300000008YTEAA2

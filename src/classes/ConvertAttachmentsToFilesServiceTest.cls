@@ -115,7 +115,7 @@ private class ConvertAttachmentsToFilesServiceTest {
 
         for ( ConvertAttachmentsToFilesService.ConversionResult result : results ) {
             System.debug( result );
-            System.assertEquals( ConvertAttachmentsToFilesService.ConversionResultStatus.CONVERTED, result.status );
+            System.assertEquals( ConvertAttachmentsToFilesService.ConversionResultStatus.CONVERTED, result.status, result.message );
         }
 
     }

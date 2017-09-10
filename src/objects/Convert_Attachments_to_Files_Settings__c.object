@@ -6,6 +6,7 @@
     <fields>
         <fullName>Convert_Private_Attachments__c</fullName>
         <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
         <description>Attachments have &apos;IsPrivate&apos; field that limits access to owner and admins. ContentVersions related to records are not private. Enable this option to convert private attachments to files. Please consider your company&apos;s regulatory and security policies before enabling this option as it may expose data to new audiences.</description>
         <externalId>false</externalId>
         <inlineHelpText>Attachments have &apos;IsPrivate&apos; field that limits access to owner and admins. ContentVersions related to records are not private. Consider your company&apos;s regulatory and security policies before enabling this option as it may expose data to new audiences.</inlineHelpText>
@@ -16,6 +17,7 @@
     <fields>
         <fullName>Convert_in_Near_Real_Time__c</fullName>
         <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
         <description>Enables &apos;after insert&apos; trigger on Attachment that enqueues job to convert into Files in near real-time. This async conversion does not slow down save transaction, and if &apos;Delete Attachments&apos; option is enabled then deletes in separate transaction too.</description>
         <externalId>false</externalId>
         <inlineHelpText>Enables &apos;after insert&apos; trigger on Attachment that enqueues job to convert into Files in near real-time. This async conversion does not slow down save transaction, and if &apos;Delete Attachments&apos; option is enabled then deletes in separate transaction too.</inlineHelpText>
@@ -26,6 +28,7 @@
     <fields>
         <fullName>Delete_Attachment_Once_Converted__c</fullName>
         <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
         <description>When checked then conversion process will delete the original Attachment once successfully converted to File. You may want to delete them to save storage space in your org.</description>
         <externalId>false</externalId>
         <inlineHelpText>When checked then conversion process will delete the original Attachment once successfully converted to File. You may want to delete them to save storage space in your org.</inlineHelpText>
@@ -36,12 +39,41 @@
     <fields>
         <fullName>Share_Private_Attachments__c</fullName>
         <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
         <description>Attachments have &apos;IsPrivate&apos; field that limits access to owner and admins. Files related to records are not private. Enable this option to share converted private attachment Files with their parent record and to anyone who has access to the parent record.</description>
         <externalId>false</externalId>
         <inlineHelpText>Attachments have &apos;IsPrivate&apos; field that limits access to owner and admins. Files related to records are not private. Enable this option to share converted private attachment Files with their parent record and to anyone who has access to the parent record.</inlineHelpText>
         <label>Share Private Attachments?</label>
         <trackTrending>false</trackTrending>
         <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Share_Type__c</fullName>
+        <defaultValue>&quot;V&quot;</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Deprecated since version 1.2. Do not use.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Deprecated since version 1.2. Do not use.</inlineHelpText>
+        <label>Share Type</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Visibility__c</fullName>
+        <defaultValue>&quot;InternalUsers&quot;</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Deprecated since version 1.2. Do not use.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Deprecated since version 1.2. Do not use.</inlineHelpText>
+        <label>Visibility</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
     </fields>
     <label>Convert Attachments to Files Settings</label>
     <visibility>Public</visibility>

@@ -6,7 +6,7 @@
  *
  * Actual conversion for the execution is delegated to ConvertAttachmentsToFilesService.
  */
-global with sharing class ConvertAttachmentsToFilesQueueable implements Queueable {
+global with sharing class ConvertAttachmentsToFilesQueueable implements System.Queueable {
 
     @TestVisible
     private List<ConvertAttachmentsToFilesService.ConversionResult> mockResults { get; set; }

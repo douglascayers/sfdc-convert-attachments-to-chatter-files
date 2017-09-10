@@ -1,7 +1,7 @@
 /**
  * Developed by Doug Ayers (douglascayers.com)
  */
-public with sharing class ConvertAttachmentsInstallHandler implements InstallHandler {
+public with sharing class ConvertAttachmentsInstallHandler implements System.InstallHandler {
 
     public void onInstall( InstallContext context ) {
 

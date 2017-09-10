@@ -57,6 +57,7 @@
         <label>Default Compact Layout</label>
     </compactLayouts>
     <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
     <description>When deployed as a managed package then users cannot see errors logged to the Debug Log. This object stores any errors and messages the Adminsitrator may need to know about when troubleshooting conversion issues. You may delete these records after you have reviewed them.</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
@@ -69,6 +70,7 @@
     <enableStreamingApi>true</enableStreamingApi>
     <fields>
         <fullName>Detail__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Detail</label>
         <length>40000</length>
@@ -78,6 +80,7 @@
     </fields>
     <fields>
         <fullName>Job_ID__c</fullName>
+        <deprecated>false</deprecated>
         <description>The Batchable or Queueable Job ID when this error occurred.</description>
         <externalId>false</externalId>
         <inlineHelpText>The Batchable or Queueable Job ID when this error occurred.</inlineHelpText>
@@ -90,6 +93,7 @@
     </fields>
     <fields>
         <fullName>Log_Time__c</fullName>
+        <deprecated>false</deprecated>
         <description>In List Views and Reports the standard CreatedDate and LastModifiedDate display only the &quot;date&quot; portion and not the &quot;time&quot;. This formula field is workaround to to view the &quot;date&quot; and &quot;time&quot; together.</description>
         <externalId>false</externalId>
         <formula>CreatedDate</formula>
@@ -100,6 +104,7 @@
     </fields>
     <fields>
         <fullName>New_File_ID__c</fullName>
+        <deprecated>false</deprecated>
         <description>If the log message is about a specific conversion issue with a record then this is the new File ID.</description>
         <externalId>false</externalId>
         <inlineHelpText>If the log message is about a specific conversion issue with a record then this is the new File ID.</inlineHelpText>
@@ -112,6 +117,7 @@
     </fields>
     <fields>
         <fullName>Old_Attachment_ID__c</fullName>
+        <deprecated>false</deprecated>
         <description>If the log message is about a specific conversion issue with a record then this is the original Attachment ID.</description>
         <externalId>false</externalId>
         <inlineHelpText>If the log message is about a specific conversion issue with a record then this is the original Attachment ID.</inlineHelpText>
@@ -124,6 +130,7 @@
     </fields>
     <fields>
         <fullName>Status__c</fullName>
+        <deprecated>false</deprecated>
         <description>Indicates the status of log message, whether an attachment was successfully converted or perhaps that it was skipped during conversion or that it failed conversion. The API values match conversion result enum value in apex code.</description>
         <externalId>false</externalId>
         <inlineHelpText>Indicates the status of log message, whether an attachment was successfully converted or perhaps that it was skipped during conversion or that it failed conversion. The API values match conversion result enum value in apex code.</inlineHelpText>
@@ -155,6 +162,7 @@
     </fields>
     <fields>
         <fullName>Summary__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Summary</label>
         <length>255</length>
@@ -245,8 +253,8 @@
         <customTabListAdditionalFields>Detail__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>Log_Time__c</customTabListAdditionalFields>
         <excludedStandardButtons>New</excludedStandardButtons>
-        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <excludedStandardButtons>Accept</excludedStandardButtons>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <lookupDialogsAdditionalFields>Status__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Old_Attachment_ID__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>New_File_ID__c</lookupDialogsAdditionalFields>

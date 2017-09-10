@@ -124,7 +124,7 @@
 
                                 </apex:selectRadio>
 
-                                <div class="slds-notify_container" style="position: relative;">
+                                <div class="slds-notify_container" style="position: relative; text-align: left;">
                                     <div class="slds-notify slds-notify--toast slds-theme--warning" role="alert" style="width: 100%;">
                                         <div class="slds-notify__content">
                                             <h2 class="slds-text-heading--small">
