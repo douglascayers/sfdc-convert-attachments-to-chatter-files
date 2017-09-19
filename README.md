@@ -100,11 +100,6 @@ Getting Started
 
 ![screen shot](images/pages-conversion-settings.png)
 
----
-
-<a target='_blank' rel='nofollow' href='https://app.codesponsor.io/link/SXSxcXEh3FwrvhNp1rxuugLP/DouglasCAyers/sfdc-convert-attachments-to-chatter-files'>  <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/SXSxcXEh3FwrvhNp1rxuugLP/DouglasCAyers/sfdc-convert-attachments-to-chatter-files.svg' /></a>
-
----
 
 FAQ
 ===
