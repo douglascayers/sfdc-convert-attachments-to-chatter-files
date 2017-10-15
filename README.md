@@ -4,7 +4,7 @@ Convert Attachments to Salesforce Files
 Overview
 --------
 
-Salesforce [announced](https://releasenotes.docs.salesforce.com/en-us/spring17/release-notes/rn_files_add_related_list_to_page_layouts.htm) that in **Winter '18**
+Salesforce [announced](https://releasenotes.docs.salesforce.com/en-us/spring17/release-notes/rn_files_add_related_list_to_page_layouts.htm) that after **Winter '18**
 the "Notes & Attachments" related list will no longer have an upload or attach button. Customers will be required to migrate to and adopt Salesforce Files.
 
 At the time of this project in 2015, Salesforce had not yet provided an official conversion tool from Attachments to Files.
