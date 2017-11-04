@@ -14,13 +14,13 @@
 
         <div class="slds-scope">
 
-            <div class="slds-m-around--large">
+            <div class="slds-m-around_large">
 
                 <div class="slds-page-header slds-box">
                     <nav role="navigation" aria-label="Breadcrumbs">
-                        <ol class="slds-breadcrumb slds-list--horizontal">
-                            <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Main Menu</a></li>
-                            <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}">Conversion Settings</a></li>
+                        <ol class="slds-breadcrumb slds-list_horizontal">
+                            <li class="slds-breadcrumb__item slds-text-title_caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Main Menu</a></li>
+                            <li class="slds-breadcrumb__item slds-text-title_caps"><a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}">Conversion Settings</a></li>
                         </ol>
                     </nav>
                     <p class="slds-page-header__title">
@@ -28,7 +28,7 @@
                     </p>
                 </div>
 
-                <div class="slds-m-around--large"/>
+                <div class="slds-m-around_large"/>
 
                 <div>
                     <p>
@@ -39,17 +39,17 @@
                     </p>
                 </div>
 
-                <div class="slds-m-around--large"/>
+                <div class="slds-m-around_large"/>
 
                 <apex:outputPanel id="mainPanel" layout="block">
 
                     <apex:pageMessages />
 
                     <apex:outputPanel rendered="{!NOT(ISBLANK(message))}">
-                        <div class="slds-m-bottom--small">
+                        <div class="slds-m-bottom_small">
                             <div id="messageContainer" class="slds-notify_container" style="position: relative;">
-                                <div class="slds-notify slds-notify--alert {!IF(success, 'slds-theme--success', 'slds-theme--error')} slds-theme--alert-texture" role="alert">
-                                    <button class="slds-button slds-notify__close slds-button--icon-inverse" title="Close" onclick="dismissMessages(0); return false;">
+                                <div class="slds-notify slds-notify_alert {!IF(success, 'slds-theme_success', 'slds-theme_error')} slds-theme_alert-texture" role="alert">
+                                    <button class="slds-button slds-notify__close slds-button_icon-inverse" title="Close" onclick="dismissMessages(0); return false;">
                                         X
                                         <span class="slds-assistive-text">Close</span>
                                     </button>
@@ -64,7 +64,7 @@
 
                     <apex:pageBlock mode="maindetail">
 
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
+                        <div class="slds-box slds-m-top_small slds-m-bottom_small">
 
                             <apex:pageBlockSection columns="1">
 
@@ -84,9 +84,9 @@
                                 </apex:selectRadio>
 
                                 <div class="slds-notify_container" style="position: relative; text-align: left;">
-                                    <div class="slds-notify slds-notify--toast slds-theme--warning" role="alert" style="width: 100%;">
+                                    <div class="slds-notify slds-notify_toast slds-theme_warning" role="alert" style="width: 100%;">
                                         <div class="slds-notify__content">
-                                            <h2 class="slds-text-heading--small">
+                                            <h2 class="slds-text-heading_small">
                                                 <b>Important:</b> If you choose to delete attachments upon conversion, make sure you have made <a href="https://help.salesforce.com/articleView?id=admin_exportdata.htm" target="_blank">backups</a> of your data.
                                                 Understand that even with <a href="https://help.salesforce.com/articleView?id=home_delete.htm" target="_blank">Recycle Bin</a> some records may not be recoverable depending on <a href="https://developer.salesforce.com/docs/atlas.en-us.salesforce_large_data_volumes_bp.meta/salesforce_large_data_volumes_bp/ldv_deployments_techniques_deleting_data.htm" target="_blank">volume of data</a> deleted.
                                             </h2>
@@ -100,10 +100,10 @@
 
                     </apex:pageBlock>
 
-                    <div class="slds-grid slds-grid--align-center">
+                    <div class="slds-grid slds-grid_align-center">
                         <div slds="slds-col">
-                            <apex:commandButton value=" Save " action="{!save}" styleClass="slds-button slds-button--brand"/>
-                            <apex:commandButton value=" Cancel " action="{!URLFOR($Page.ConvertAttachmentsMenuPage)}" styleClass="slds-button slds-button--neutral"/>
+                            <apex:commandButton value=" Save " action="{!save}" styleClass="slds-button slds-button_brand"/>
+                            <apex:commandButton value=" Cancel " action="{!URLFOR($Page.ConvertAttachmentsMenuPage)}" styleClass="slds-button slds-button_neutral"/>
                         </div>
                     </div>
 

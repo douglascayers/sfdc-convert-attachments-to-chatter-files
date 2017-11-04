@@ -14,13 +14,13 @@
 
         <div class="slds-scope">
 
-            <div class="slds-m-around--large">
+            <div class="slds-m-around_large">
 
                 <div class="slds-page-header slds-box">
                     <nav role="navigation" aria-label="Breadcrumbs">
-                        <ol class="slds-breadcrumb slds-list--horizontal">
-                            <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Main Menu</a></li>
-                            <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsRunOncePage)}">Convert Attachments</a></li>
+                        <ol class="slds-breadcrumb slds-list_horizontal">
+                            <li class="slds-breadcrumb__item slds-text-title_caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Main Menu</a></li>
+                            <li class="slds-breadcrumb__item slds-text-title_caps"><a href="{!URLFOR($Page.ConvertAttachmentsRunOncePage)}">Convert Attachments</a></li>
                         </ol>
                     </nav>
                     <p class="slds-page-header__title">
@@ -28,7 +28,7 @@
                     </p>
                 </div>
 
-                <div class="slds-m-around--large"/>
+                <div class="slds-m-around_large"/>
 
                 <div>
                     <p>
@@ -36,17 +36,17 @@
                     </p>
                 </div>
 
-                <div class="slds-m-around--large"/>
+                <div class="slds-m-around_large"/>
 
                 <apex:outputPanel id="mainPanel" layout="block">
 
                     <apex:pageMessages />
 
                     <apex:outputPanel rendered="{!NOT(ISBLANK(message))}">
-                        <div class="slds-m-bottom--small">
+                        <div class="slds-m-bottom_small">
                             <div id="messageContainer" class="slds-notify_container" style="position: relative;">
-                                <div class="slds-notify slds-notify--alert {!IF(success, 'slds-theme--success', 'slds-theme--error')} slds-theme--alert-texture" role="alert">
-                                    <button class="slds-button slds-notify__close slds-button--icon-inverse" title="Close" onclick="dismissMessages(0); return false;">
+                                <div class="slds-notify slds-notify_alert {!IF(success, 'slds-theme_success', 'slds-theme_error')} slds-theme_alert-texture" role="alert">
+                                    <button class="slds-button slds-notify__close slds-button_icon-inverse" title="Close" onclick="dismissMessages(0); return false;">
                                         X
                                         <span class="slds-assistive-text">Close</span>
                                     </button>
@@ -61,7 +61,7 @@
 
                     <apex:pageBlock mode="maindetail">
 
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
+                        <div class="slds-box slds-m-top_small slds-m-bottom_small">
 
                             <apex:pageBlockSection columns="1">
 
@@ -76,7 +76,7 @@
 
                         </div>
 
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
+                        <div class="slds-box slds-m-top_small slds-m-bottom_small">
 
                             <apex:pageBlockSection columns="1">
 
@@ -92,35 +92,35 @@
 
                     </apex:pageBlock>
 
-                    <div class="slds-grid slds-grid--align-center">
+                    <div class="slds-grid slds-grid_align-center">
                         <div slds="slds-col">
-                            <button class="slds-button slds-button--brand" onclick="showConfirmDialog(); return false;">Submit</button>
-                            <apex:commandButton value=" Cancel " action="{!URLFOR($Page.ConvertAttachmentsMenuPage)}" styleClass="slds-button slds-button--neutral"/>
+                            <button class="slds-button slds-button_brand" onclick="showConfirmDialog(); return false;">Submit</button>
+                            <apex:commandButton value=" Cancel " action="{!URLFOR($Page.ConvertAttachmentsMenuPage)}" styleClass="slds-button slds-button_neutral"/>
                         </div>
                     </div>
 
                     <div id="submit-confirm-dialog" role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open slds-hide">
                         <div class="slds-modal__container">
                             <div class="slds-modal__header">
-                                <button class="slds-button slds-modal__close slds-button--icon-inverse" onclick="closeConfirmDialog(); return false;" title="Close">
+                                <button class="slds-button slds-modal__close slds-button_icon-inverse" onclick="closeConfirmDialog(); return false;" title="Close">
                                     X
                                     <span class="slds-assistive-text">Close</span>
                                 </button>
-                                <h2 id="header43" class="slds-text-heading--medium">Confirm Job Submit</h2>
+                                <h2 id="header43" class="slds-text-heading_medium">Confirm Job Submit</h2>
                             </div>
-                            <div class="slds-modal__content slds-p-around--medium">
+                            <div class="slds-modal__content slds-p-around_medium">
                                 <p>
                                     Make sure you have carefully reviewed your <a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}">conversion and sharing settings</a>
                                     and have made any necessary data backups.
                                 </p>
                             </div>
                             <div class="slds-modal__footer">
-                                <button class="slds-button slds-button--brand" onclick="submitJob(); return false;">Yes, I have</button>
-                                <button class="slds-button slds-button--neutral" onclick="closeConfirmDialog(); return false;">No, let me recheck</button>
+                                <button class="slds-button slds-button_brand" onclick="submitJob(); return false;">Yes, I have</button>
+                                <button class="slds-button slds-button_neutral" onclick="closeConfirmDialog(); return false;">No, let me recheck</button>
                             </div>
                         </div>
                     </div>
-                    <div id="submit-confirm-dialog-backdrop" class="slds-backdrop slds-backdrop--open slds-hide"></div>
+                    <div id="submit-confirm-dialog-backdrop" class="slds-backdrop slds-backdrop_open slds-hide"></div>
 
                     <apex:actionFunction name="submitJob" action="{!submitJob}"/>
 
