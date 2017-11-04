@@ -4,7 +4,7 @@ Convert Attachments to Salesforce Files
 Overview
 --------
 
-Salesforce [announced](https://releasenotes.docs.salesforce.com/en-us/spring17/release-notes/rn_files_add_related_list_to_page_layouts.htm) that in **Winter '18**
+Salesforce [announced](https://releasenotes.docs.salesforce.com/en-us/spring17/release-notes/rn_files_add_related_list_to_page_layouts.htm) that after **Winter '18**
 the "Notes & Attachments" related list will no longer have an upload or attach button. Customers will be required to migrate to and adopt Salesforce Files.
 
 At the time of this project in 2015, Salesforce had not yet provided an official conversion tool from Attachments to Files.
@@ -42,11 +42,18 @@ Pre-Requisites
 Packaged Release History
 ------------------------
 
-Release 1.2 (latest)
+Release 1.3 (latest)
 -----------
 * Install package
-  * [Production URL](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t46000001VnYb)
-  * [Sandbox URL](https://test.salesforce.com/packaging/installPackage.apexp?p0=04t46000001VnYb)
+  * [Production URL](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t46000001Zcme)
+  * [Sandbox URL](https://test.salesforce.com/packaging/installPackage.apexp?p0=04t46000001Zcme)
+* Adds support for "Guest Site" users creating attachments when the near real-time trigger option is enabled. [Issue 32])(https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/32)
+* Adds option to specify "Max Records to Convert" for customers who have more attachments to convert than the daily allowed Content Publication Limit. This allows those admins to better plan multi-day conversions. [Issue 17](https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/17)
+* New with Winter '18, **private** attachments are converted and shared to parent record using new [File Privacy on Records](https://releasenotes.docs.salesforce.com/en-us/winter18/release-notes/rn_files_on_records.htm) field.
+* Updated all code to API v41.0 (Winter '18)
+
+Release 1.2
+-----------
 * Preserves `LastModifiedDate` from original attachment. [Issue 26](https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/26) 
 * Report on conversion results to know how many and which attachments were converted, failed, or skipped. [Issue 22](https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/22) 
 
@@ -143,19 +150,29 @@ You will receive error `INSUFFICIENT_ACCESS_OR_READONLY, You can't create a link
 
 How are private attachments converted?
 --------------------------------------
-Classic Notes & Attachments have an [IsPrivate](https://help.salesforce.com/apex/HTViewHelpDoc?id=notes_fields.htm) checkbox field that when selected
+Starting with Release 1.3 of the app, private attachments are converted to files and related to the parent record as you would expect
+and the file's privacy is preserved by using [Winter '18 feature **File Privacy on Records"](https://releasenotes.docs.salesforce.com/en-us/winter18/release-notes/rn_files_on_records.htm).
+
+Prior to Release 1.3, private attachments were handled differently:
+> Classic Notes & Attachments have an [IsPrivate](https://help.salesforce.com/apex/HTViewHelpDoc?id=notes_fields.htm) checkbox field that when selected
 makes the record only visible to the owner and administrators, even through the
 Note or Attachment is related to the parent entity (e.g. Account or Contact).
 However, ContentVersion object follows a different approach. Rather than an
 explicit 'IsPrivate' checkbox it uses a robust sharing model, one of the reasons
-to convert to the new Files to begin with! In this sharing model, to
+to convert to the new files to begin with! In this sharing model, to
 make a record private then it simpy isn't shared with any other users or records.
-The caveat then is that these unshared (private) Files do not show up
-contextually on any Salesforce record. By sharing the new File with the
+The caveat then is that these unshared (private) files do not show up
+contextually on any Salesforce record. By sharing the new file with the
 original parent record then any user who has visibility to that parent record now
-has access to this previously private attachment. Therefore, when converting
-you have the option to specify whether the private attachments should
-or should not be shared with the parent entity once converted into new File.
+has access to this previously private attachment.
+>
+> Therefore, when converting you have the option to:
+>
+> (a) ignore private attachments and not convert them
+>
+> (b) convert and share them with the parent entity
+>
+> (c) convert them but don't share them with the parent entity, they will reside in the attachment owner's private library
 
 
 If I run the conversion multiple times, do duplicate files get created for the same attachments?
