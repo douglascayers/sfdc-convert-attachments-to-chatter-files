@@ -81,21 +81,6 @@ public without sharing class ConvertAttachmentsToFilesService {
 
             }
 
-            // skip if we're not converting private attachments
-            if ( oldAttachment.IsPrivate && !this.options.convertPrivateAttachments ) {
-
-                ConversionResult conversionResult = new ConversionResult();
-                conversionResult.status = ConversionResultStatus.SKIPPED;
-                conversionResult.oldAttachment = oldAttachment;
-                conversionResult.contentVersionId = null;
-                conversionResult.message = 'Conversion Settings are set to not convert private attachments.';
-
-                conversionResultsMap.put( oldAttachment.id, conversionResult );
-
-                continue;
-
-            }
-
             // TODO implement more robust solution for customizing
             // conversion behavior on a per-object basis
             if ( EmailMessage.sObjectType == oldAttachment.parentId.getSObjectType() || EmailTemplate.sObjectType == oldAttachment.parentId.getSObjectType() ) {
@@ -128,6 +113,8 @@ public without sharing class ConvertAttachmentsToFilesService {
                 title = oldAttachment.name,
                 description = oldAttachment.description,
                 pathOnClient = '/' + oldAttachment.name,
+                firstPublishLocationId = oldAttachment.parentId,
+                sharingPrivacy = ( oldAttachment.isPrivate ? 'P' : 'N' ),
                 // audit fields
                 ownerId = oldAttachment.ownerId, // system requirement, owner and creator must be the same
                 createdById = oldAttachment.ownerId,
@@ -139,10 +126,6 @@ public without sharing class ConvertAttachmentsToFilesService {
                 original_record_parent_id__c = oldAttachment.parentId,
                 original_record_owner_id__c = oldAttachment.ownerId
             );
-
-            if ( !oldAttachment.isPrivate || ( oldAttachment.isPrivate && this.options.sharePrivateAttachmentsWithParentRecord ) ) {
-                newFileVersion.firstPublishLocationId = oldAttachment.parentId;
-            }
 
             // if communities are enabled then assign network id
             if ( communitiesEnabled ) {

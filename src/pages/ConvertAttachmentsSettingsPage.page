@@ -68,45 +68,6 @@
 
                             <apex:pageBlockSection columns="1">
 
-                                <apex:outputLabel value="Who should converted files of private attachments be shared with?"
-                                                  style="font-weight: bold;"/>
-
-                                <apex:selectRadio label=""
-                                                  value="{!convertAndSharePrivateAttachments}"
-                                                  layout="pageDirection">
-
-                                    <apex:selectOption itemLabel="Do not convert private attachments (recommended)"
-                                                       itemValue="no_convert_no_share"
-                                    />
-
-                                    <apex:selectOption itemLabel="Keep files private; only the attachment's creator and System Administrators may access the converted files"
-                                                       itemValue="yes_convert_no_share"
-                                    />
-
-                                    <apex:selectOption itemLabel="Share the files with all users who have access to the attachment's parent record"
-                                                       itemValue="yes_convert_yes_share"
-                                    />
-
-                                </apex:selectRadio>
-
-                                <div class="slds-notify_container" style="position: relative; text-align: left;">
-                                    <div class="slds-notify slds-notify--toast slds-theme--warning" role="alert" style="width: 100%;">
-                                        <div class="slds-notify__content">
-                                            <h2 class="slds-text-heading--small">
-                                                <b>Important:</b> Please consider your company's regulatory and security policies before enabling this option as it may expose data to new audiences.
-                                            </h2>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </apex:pageBlockSection>
-
-                        </div>
-
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
-
-                            <apex:pageBlockSection columns="1">
-
                                 <apex:outputLabel value="What should happen to the original attachments once converted?"
                                                   style="font-weight: bold;"/>
 
@@ -115,12 +76,10 @@
                                                   layout="pageDirection">
 
                                     <apex:selectOption itemLabel="Keep them; I have great plans for the attachments..."
-                                        itemValue="false"
-                                    />
+                                                       itemValue="false"/>
 
                                     <apex:selectOption itemLabel="Delete them; I have backups and I need the data storage back!"
-                                        itemValue="true"
-                                    />
+                                                       itemValue="true"/>
 
                                 </apex:selectRadio>
 

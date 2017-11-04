@@ -10,8 +10,6 @@ private class ConvertAttachmentsToFilesQueueableTest {
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
-        settings.Convert_Private_Attachments__c = true;
-        settings.Share_Private_Attachments__c = true;
 
         upsert settings;
 
@@ -92,8 +90,6 @@ private class ConvertAttachmentsToFilesQueueableTest {
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = false;
-        settings.Convert_Private_Attachments__c = false;
-        settings.Share_Private_Attachments__c = false;
 
         upsert settings;
 
@@ -173,8 +169,6 @@ private class ConvertAttachmentsToFilesQueueableTest {
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
-        settings.Convert_Private_Attachments__c = true;
-        settings.Share_Private_Attachments__c = true;
 
         upsert settings;
 
@@ -225,8 +219,6 @@ private class ConvertAttachmentsToFilesQueueableTest {
         Convert_Attachments_to_Files_Settings__c settings = Convert_Attachments_to_Files_Settings__c.getOrgDefaults();
         settings.Convert_in_Near_Real_Time__c = false;
         settings.Delete_Attachment_Once_Converted__c = true;
-        settings.Convert_Private_Attachments__c = true;
-        settings.Share_Private_Attachments__c = true;
 
         upsert settings;
 
