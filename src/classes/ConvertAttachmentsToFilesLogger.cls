@@ -1,7 +1,7 @@
 /**
  * Developed by Doug Ayers (douglascayers.com)
  */
-public with sharing class ConvertAttachmentsToFilesLogger {
+public without sharing class ConvertAttachmentsToFilesLogger {
 
     /**
      * Designed to be called once when exception is caught

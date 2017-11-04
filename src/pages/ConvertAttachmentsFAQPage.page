@@ -20,13 +20,13 @@
 
         <div class="slds-scope">
 
-            <div class="slds-m-around--large">
+            <div class="slds-m-around_large">
 
                 <div class="slds-page-header slds-box">
                     <nav role="navigation" aria-label="Breadcrumbs">
-                        <ol class="slds-breadcrumb slds-list--horizontal">
-                            <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Main Menu</a></li>
-                            <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsFAQPage)}">Troubleshooting</a></li>
+                        <ol class="slds-breadcrumb slds-list_horizontal">
+                            <li class="slds-breadcrumb__item slds-text-title_caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Main Menu</a></li>
+                            <li class="slds-breadcrumb__item slds-text-title_caps"><a href="{!URLFOR($Page.ConvertAttachmentsFAQPage)}">Troubleshooting</a></li>
                         </ol>
                     </nav>
                     <p class="slds-page-header__title">
@@ -34,7 +34,7 @@
                     </p>
                 </div>
 
-                <div class="slds-m-around--large"/>
+                <div class="slds-m-around_large"/>
 
                 <div class="slds-grid">
                     <div class="slds-col">
@@ -45,7 +45,7 @@
                     </div>
                 </div>
 
-                <div class="slds-m-around--large"/>
+                <div class="slds-m-around_large"/>
 
                 <div class="slds-grid">
                     <div class="slds-col">

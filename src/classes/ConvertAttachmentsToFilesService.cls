@@ -50,6 +50,7 @@ public without sharing class ConvertAttachmentsToFilesService {
         // to assign the network id field when inserting the content versions
         // otherwise error "INSUFFICIENT_ACCESS_ON_CROSS_REFERENCE_ENTITY" occurs
         // if community user uploads an attachment and it tries to get converted
+        // https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/9
         Boolean communitiesEnabled = ContentVersion.sObjectType.getDescribe().fields.getMap().containsKey( 'NetworkId' );
 
         // identify if any of these attachments have already been converted
@@ -73,21 +74,6 @@ public without sharing class ConvertAttachmentsToFilesService {
                 conversionResult.oldAttachment = oldAttachment;
                 conversionResult.contentVersionId = alreadyConvertedAttachmentIdsMap.get( oldAttachment.id );
                 conversionResult.message = 'Already converted.';
-
-                conversionResultsMap.put( oldAttachment.id, conversionResult );
-
-                continue;
-
-            }
-
-            // skip if we're not converting private attachments
-            if ( oldAttachment.IsPrivate && !this.options.convertPrivateAttachments ) {
-
-                ConversionResult conversionResult = new ConversionResult();
-                conversionResult.status = ConversionResultStatus.SKIPPED;
-                conversionResult.oldAttachment = oldAttachment;
-                conversionResult.contentVersionId = null;
-                conversionResult.message = 'Conversion Settings are set to not convert private attachments.';
 
                 conversionResultsMap.put( oldAttachment.id, conversionResult );
 
@@ -127,6 +113,8 @@ public without sharing class ConvertAttachmentsToFilesService {
                 title = oldAttachment.name,
                 description = oldAttachment.description,
                 pathOnClient = '/' + oldAttachment.name,
+                firstPublishLocationId = oldAttachment.parentId,
+                sharingPrivacy = ( oldAttachment.isPrivate ? 'P' : 'N' ),
                 // audit fields
                 ownerId = oldAttachment.ownerId, // system requirement, owner and creator must be the same
                 createdById = oldAttachment.ownerId,
@@ -138,10 +126,6 @@ public without sharing class ConvertAttachmentsToFilesService {
                 original_record_parent_id__c = oldAttachment.parentId,
                 original_record_owner_id__c = oldAttachment.ownerId
             );
-
-            if ( !oldAttachment.isPrivate || ( oldAttachment.isPrivate && this.options.sharePrivateAttachmentsWithParentRecord ) ) {
-                newFileVersion.firstPublishLocationId = oldAttachment.parentId;
-            }
 
             // if communities are enabled then assign network id
             if ( communitiesEnabled ) {

@@ -16,12 +16,12 @@
 
     <div class="slds-scope">
 
-        <div class="slds-m-around--large">
+        <div class="slds-m-around_large">
 
             <div class="slds-page-header slds-box">
                 <nav role="navigation" aria-label="Breadcrumbs">
-                    <ol class="slds-breadcrumb slds-list--horizontal">
-                        <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Main Menu</a></li>
+                    <ol class="slds-breadcrumb slds-list_horizontal">
+                        <li class="slds-breadcrumb__item slds-text-title_caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Main Menu</a></li>
                     </ol>
                 </nav>
                 <p class="slds-page-header__title">
@@ -29,37 +29,37 @@
                 </p>
             </div>
 
-            <div class="slds-m-around--large"/>
+            <div class="slds-m-around_large"/>
 
-            <div class="menu-grid slds-grid slds-grid--vertical-stretch slds-grid--pull-padded-medium">
+            <div class="menu-grid slds-grid slds-grid_vertical-stretch slds-grid_pull-padded-medium">
 
-                <div class="slds-p-horizontal--medium slds-size--1-of-3">
+                <div class="slds-p-horizontal_medium slds-size_1-of-3">
                     <a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}" style="text-decoration: none;">
-                        <div class="slds-box slds-theme--shade">
-                            <h3 class="slds-text-heading--small">1. Setup Conversion Settings</h3>
-                            <p class="slds-text-color--default">
+                        <div class="slds-box slds-theme_shade">
+                            <h3 class="slds-text-heading_small">1. Setup Conversion Settings</h3>
+                            <p class="slds-text-color_default">
                                 Customize sharing and conversion options.
                             </p>
                         </div>
                     </a>
                 </div>
 
-                <div class="menu-grid-col slds-p-horizontal--medium slds-size--1-of-3">
+                <div class="menu-grid-col slds-p-horizontal_medium slds-size_1-of-3">
                     <a href="{!URLFOR($Page.ConvertAttachmentsRunOncePage)}" style="text-decoration: none;">
-                        <div class="slds-box slds-theme--shade">
-                            <h3 class="slds-text-heading--small">2. Convert Attachments</h3>
-                            <p class="slds-text-color--default">
+                        <div class="slds-box slds-theme_shade">
+                            <h3 class="slds-text-heading_small">2. Convert Attachments</h3>
+                            <p class="slds-text-color_default">
                                 Run conversion job for specific parent records or for all attachments.
                             </p>
                         </div>
                     </a>
                 </div>
 
-                <div class="menu-grid-col slds-p-horizontal--medium slds-size--1-of-3">
+                <div class="menu-grid-col slds-p-horizontal_medium slds-size_1-of-3">
                     <a href="{!URLFOR($Page.ConvertAttachmentsSchedulePage)}" style="text-decoration: none;">
-                        <div class="slds-box slds-theme--shade">
-                            <h3 class="slds-text-heading--small">3. Automate Conversion</h3>
-                            <p class="slds-text-color--default">
+                        <div class="slds-box slds-theme_shade">
+                            <h3 class="slds-text-heading_small">3. Automate Conversion</h3>
+                            <p class="slds-text-color_default">
                                 Choose how often to convert new attachments to files.
                             </p>
                         </div>
@@ -68,15 +68,15 @@
 
             </div>
 
-            <div class="slds-m-around--large"/>
+            <div class="slds-m-around_large"/>
 
-            <div class="menu-grid slds-grid slds-grid--vertical-stretch slds-grid--pull-padded-medium">
+            <div class="menu-grid slds-grid slds-grid_vertical-stretch slds-grid_pull-padded-medium">
 
-                <div class="slds-p-horizontal--medium slds-size--1-of-3">
+                <div class="slds-p-horizontal_medium slds-size_1-of-3">
                     <a href="{!URLFOR($Page.ConvertAttachmentsFAQPage)}" style="text-decoration: none;">
-                        <div class="slds-box slds-theme--shade">
-                            <h3 class="slds-text-heading--small">Troubleshooting</h3>
-                            <p class="slds-text-color--default">
+                        <div class="slds-box slds-theme_shade">
+                            <h3 class="slds-text-heading_small">Troubleshooting</h3>
+                            <p class="slds-text-color_default">
                                 Frequently Asked Questions
                             </p>
                         </div>
@@ -85,21 +85,21 @@
 
             </div>
 
-            <div class="slds-m-around--large"/>
+            <div class="slds-m-around_large"/>
 
             <div class="slds-notify_container" style="position: relative;">
-                <div class="slds-notify slds-notify--toast slds-theme--warning" role="alert">
+                <div class="slds-notify slds-notify_toast slds-theme_warning" role="alert">
                     <div class="slds-notify__content">
-                        <h2 class="slds-text-heading--small">
+                        <h2 class="slds-text-heading_small">
                             Always test in a sandbox and backup your data first before performing conversions in production.
                         </h2>
                     </div>
                 </div>
             </div>
 
-            <div class="slds-m-around--large"/>
+            <div class="slds-m-around_large"/>
 
-            <div class="slds-panel slds-align--absolute-center">
+            <div class="slds-panel slds-align_absolute-center">
                 <p>
                     &copy; 2017 <a href="https://douglascayers.com" target="_blank">Douglas C. Ayers</a>.
                     View project on <a href="https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files" target="_blank">GitHub</a>.

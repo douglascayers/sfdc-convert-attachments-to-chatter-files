@@ -91,5 +91,5 @@
         <members>Convert_Attachments_to_Files</members>
         <name>PermissionSet</name>
     </types>
-    <version>40.0</version>
+    <version>41.0</version>
 </Package>

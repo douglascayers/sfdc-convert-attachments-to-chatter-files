@@ -20,13 +20,13 @@
 
         <div class="slds-scope">
 
-            <div class="slds-m-around--large">
+            <div class="slds-m-around_large">
 
                 <div class="slds-page-header slds-box">
                     <nav role="navigation" aria-label="Breadcrumbs">
-                        <ol class="slds-breadcrumb slds-list--horizontal">
-                            <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Main Menu</a></li>
-                            <li class="slds-breadcrumb__item slds-text-title--caps"><a href="{!URLFOR($Page.ConvertAttachmentsSchedulePage)}">Automate Conversion</a></li>
+                        <ol class="slds-breadcrumb slds-list_horizontal">
+                            <li class="slds-breadcrumb__item slds-text-title_caps"><a href="{!URLFOR($Page.ConvertAttachmentsMenuPage)}">Main Menu</a></li>
+                            <li class="slds-breadcrumb__item slds-text-title_caps"><a href="{!URLFOR($Page.ConvertAttachmentsSchedulePage)}">Automate Conversion</a></li>
                         </ol>
                     </nav>
                     <p class="slds-page-header__title">
@@ -34,7 +34,7 @@
                     </p>
                 </div>
 
-                <div class="slds-m-around--large"/>
+                <div class="slds-m-around_large"/>
 
                 <div>
                     <p>
@@ -46,17 +46,17 @@
                     </p>
                 </div>
 
-                <div class="slds-m-around--large"/>
+                <div class="slds-m-around_large"/>
 
                 <apex:outputPanel id="mainPanel" layout="block">
 
                     <apex:pageMessages />
 
                     <apex:outputPanel rendered="{!NOT(ISBLANK(message))}">
-                        <div class="slds-m-bottom--small">
+                        <div class="slds-m-bottom_small">
                             <div id="messageContainer" class="slds-notify_container" style="position: relative;">
-                                <div class="slds-notify slds-notify--alert {!IF(success, 'slds-theme--success', 'slds-theme--error')} slds-theme--alert-texture" role="alert">
-                                    <button class="slds-button slds-notify__close slds-button--icon-inverse" title="Close" onclick="dismissMessages(0); return false;">
+                                <div class="slds-notify slds-notify_alert {!IF(success, 'slds-theme_success', 'slds-theme_error')} slds-theme_alert-texture" role="alert">
+                                    <button class="slds-button slds-notify__close slds-button_icon-inverse" title="Close" onclick="dismissMessages(0); return false;">
                                         X
                                         <span class="slds-assistive-text">Close</span>
                                     </button>
@@ -71,20 +71,20 @@
 
                     <apex:pageBlock mode="maindetail">
 
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
+                        <div class="slds-box slds-m-top_small slds-m-bottom_small">
 
-                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
+                            <p class="slds-text-heading_medium slds-m-bottom_small section-title">
                                 <b>Enable Attachments uploaded to Notes &amp; Attachments related list upload as Files instead</b>
                             </p>
 
-                            <p class="slds-m-bottom--medium">
+                            <p class="slds-m-bottom_medium">
                                 If your users upload attachments in Salesforce Classic then you may want to enable this setting so they are uploaded as files instead.
                                 <br/>
                                 Click <a href="/setup/content/FilesGeneralSettings.apexp">here</a> to be taken to the Salesforce Files Settings page in Setup, or follow below directions.
                             </p>
 
-                            <p class="slds-m-bottom--medium">
-                                <ol class="slds-list--ordered">
+                            <p class="slds-m-bottom_medium">
+                                <ol class="slds-list_ordered">
                                     <li class="slds-item">
                                         From Setup, enter <b>Salesforce Files</b> in the <b>Quick Find</b> box, then select <b>General Settings</b>.
                                     </li>
@@ -94,12 +94,12 @@
                                 </ol>
                             </p>
 
-                            <p class="slds-m-bottom--medium">
+                            <p class="slds-m-bottom_medium">
                                 This setting only affects the Notes &amp; Attachments related list in Salesforce Classic.
                                 Lightning Experience already enforces this behavior.
                             </p>
 
-                            <p class="slds-m-bottom--medium">
+                            <p class="slds-m-bottom_medium">
                                 <a href="https://releasenotes.docs.salesforce.com/en-us/spring16/release-notes/rn_files_notes_attachments_list.htm" target="_blank">
                                     https://releasenotes.docs.salesforce.com/en-us/spring16/release-notes/rn_files_notes_attachments_list.htm
                                 </a>
@@ -107,21 +107,21 @@
 
                         </div>
 
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
+                        <div class="slds-box slds-m-top_small slds-m-bottom_small">
 
-                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
+                            <p class="slds-text-heading_medium slds-m-bottom_small section-title">
                                 <b>Enable Attachment Trigger</b>
                             </p>
 
-                            <p class="slds-m-bottom--medium">
+                            <p class="slds-m-bottom_medium">
                                 If you have integrations that create new attachments, this trigger will submit a background job to convert them to files as they are inserted.
                             </p>
 
-                            <p class="slds-m-bottom--medium">
+                            <p class="slds-m-bottom_medium">
                                 Please carefully review your <a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}">conversion and sharing settings</a> before enabling this option.
                             </p>
 
-                            <p class="slds-m-bottom--medium">
+                            <p class="slds-m-bottom_medium">
 
                                 <apex:pageBlockSection columns="1">
 
@@ -133,21 +133,21 @@
 
                             </p>
 
-                            <div class="slds-grid slds-grid--align-center">
+                            <div class="slds-grid slds-grid_align-center">
                                 <div slds="slds-col">
-                                    <apex:commandButton value=" Save " action="{!save}" styleClass="slds-button slds-button--brand"/>
+                                    <apex:commandButton value=" Save " action="{!save}" styleClass="slds-button slds-button_brand"/>
                                 </div>
                             </div>
 
                         </div>
 
-                        <div class="slds-box slds-m-top--small slds-m-bottom--small">
+                        <div class="slds-box slds-m-top_small slds-m-bottom_small">
 
-                            <p class="slds-text-heading--medium slds-m-bottom--small section-title">
+                            <p class="slds-text-heading_medium slds-m-bottom_small section-title">
                                 <b>Schedule Job</b>
                             </p>
 
-                            <p class="slds-m-bottom--medium">
+                            <p class="slds-m-bottom_medium">
                                 Schedule a recurring job to convert new attachments to files.
                                 <br/>
                                 You might consider this option if you have scenarios where new attachments are created but are <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_triggers_ignoring_operations.htm" target="_blank">not causing the trigger to fire</a>.
@@ -155,8 +155,8 @@
                                 Click <a href="/ui/setup/apex/batch/ScheduleBatchApexPage?setupid=ApexClasses&ac=ConvertAttachmentsToFilesSchedulable&job_name=Convert+Attachments+to+Files+Job&retURL=/08e?retURL=%2Fui%2Fsetup%2FSetup%3Fsetupid%3DJobs&setupid=ScheduledJobs">here</a> to be taken to the Schedule Job page in Setup, or follow below directions.
                             </p>
 
-                            <p class="slds-m-bottom--medium">
-                                <ol class="slds-list--ordered">
+                            <p class="slds-m-bottom_medium">
+                                <ol class="slds-list_ordered">
                                     <li class="slds-item">
                                         From Setup, enter <b>Apex Classes</b> in the <b>Quick Find</b> box, then select <b>Schedule Apex</b> button.
                                     </li>
@@ -166,14 +166,14 @@
                                 </ol>
                             </p>
 
-                            <p class="slds-m-bottom--medium">
+                            <p class="slds-m-bottom_medium">
                                 Please carefully review your <a href="{!URLFOR($Page.ConvertAttachmentsSettingsPage)}">conversion and sharing settings</a> before enabling this option.
                             </p>
 
                             <div class="slds-notify_container" style="position: relative;">
-                                <div class="slds-notify slds-notify--toast slds-theme--warning" role="alert">
+                                <div class="slds-notify slds-notify_toast slds-theme_warning" role="alert">
                                     <div class="slds-notify__content">
-                                        <h2 class="slds-text-heading--small">
+                                        <h2 class="slds-text-heading_small">
                                             <b>Important:</b> If you change your conversion and sharing settings the scheduled job will use them at its next scheduled run time.
                                         </h2>
                                     </div>
