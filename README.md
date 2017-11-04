@@ -47,7 +47,7 @@ Release 1.3 (latest)
 * Install package
   * [Production URL](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t46000001Zcme)
   * [Sandbox URL](https://test.salesforce.com/packaging/installPackage.apexp?p0=04t46000001Zcme)
-* Adds support for "Guest Site" users creating attachments when the near real-time trigger option is enabled. [Issue 32])(https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/32)
+* Adds support for "Guest Site" users creating attachments when the near real-time trigger option is enabled. [Issue 32](https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/32)
 * Adds option to specify "Max Records to Convert" for customers who have more attachments to convert than the daily allowed Content Publication Limit. This allows those admins to better plan multi-day conversions. [Issue 17](https://github.com/DouglasCAyers/sfdc-convert-attachments-to-chatter-files/issues/17)
 * New with Winter '18, **private** attachments are converted and shared to parent record using new [File Privacy on Records](https://releasenotes.docs.salesforce.com/en-us/winter18/release-notes/rn_files_on_records.htm) field.
 * Updated all code to API v41.0 (Winter '18)
