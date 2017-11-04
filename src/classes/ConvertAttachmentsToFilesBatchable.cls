@@ -6,7 +6,7 @@
  *
  * Actual conversion for each batch execution is delegated to ConvertAttachmentsToFilesService.
  */
-global with sharing class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SObject>, Database.Stateful {
+global without sharing class ConvertAttachmentsToFilesBatchable implements Database.Batchable<SObject>, Database.Stateful {
 
     @TestVisible
     private List<ConvertAttachmentsToFilesService.ConversionResult> mockResults { get; set; }

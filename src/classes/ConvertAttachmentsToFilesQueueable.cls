@@ -5,8 +5,15 @@
  * need exactly one batch of records (up to 200 records) to be converted to Files.
  *
  * Actual conversion for the execution is delegated to ConvertAttachmentsToFilesService.
+ *
+ * We specify 'without sharing' so that when 'Public Site Guest' users on Force.com Sites
+ * upload an Attachment and the Trigger "auto converts" to file by enqueueing this class
+ * then the attachments query in this class will actually find results.
+ * When we specify 'with sharing' then since the 'Public Site Guest' user may not actually
+ * have record level access to the parent entity and thus the attachment then no records come back
+ * and downstream conversion fails.
  */
-global with sharing class ConvertAttachmentsToFilesQueueable implements System.Queueable {
+global without sharing class ConvertAttachmentsToFilesQueueable implements System.Queueable {
 
     @TestVisible
     private List<ConvertAttachmentsToFilesService.ConversionResult> mockResults { get; set; }

@@ -3,7 +3,7 @@
  *
  * Designed for scheduling periodic job to perform batch conversion of attachments.
  */
-global with sharing class ConvertAttachmentsToFilesSchedulable implements System.Schedulable {
+global without sharing class ConvertAttachmentsToFilesSchedulable implements System.Schedulable {
 
     public Integer batchSize { get; set; }
 
