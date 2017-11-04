@@ -32,7 +32,9 @@
 
                 <div>
                     <p>
-                        Configure and submit a one-time conversion job. You may test on a small set of records by specifying one or more attachment parent record ids, otherwise all attachments will be converted.
+                        Configure and submit a one-time conversion job.
+                        You may repeat this process as often as you need.
+                        Attachments that have already been converted will be skipped so that duplicate files are not created.
                     </p>
                 </div>
 
@@ -72,6 +74,53 @@
                                                     value="{!parentIdsCsv}"
                                                     style="width:90%"/>
 
+                                <div class="slds-box slds-theme_warning" style="width: 100%; text-align: left;">
+                                    <p>
+                                        You may test on a small set of records by specifying one or more attachment parent record ids,
+                                        otherwise all attachments will be converted.
+                                    </p>
+                                </div>
+
+                            </apex:pageBlockSection>
+
+                        </div>
+
+                        <div class="slds-box slds-m-top_small slds-m-bottom_small">
+
+                            <apex:pageBlockSection columns="1">
+
+                                <apex:outputLabel value="Max Records to Convert (approximately)"
+                                                  style="font-weight: bold;"/>
+
+                                <apex:inputText label=""
+                                                value="{!options.maxRecordsToConvert}"/>
+
+                                <div class="slds-box slds-theme_warning" style="width: 100%; text-align: left;">
+                                    <p>
+                                        The maximum number of files that can be published in a 24-hour period is <b>200,000</b>. (<a href="https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentversion.htm" target="_blank">documentation</a>)
+                                        <br/><br/>
+                                        This includes files created from conversion or files that users upload.
+                                        <br/><br/>
+                                        Salesforce's API does not let us know how many have been published within the 24-hour period
+                                        so there is no easy way to check and avoid hitting the limit.
+                                        <br/><br/>
+                                        To help mitigate hitting this limit you may provide a Max Records to Convert number to set your own limit and the batch job will stop converting attachments to files
+                                        when either:
+                                        <ol>
+                                            <li>(a) The limit you provide is reached</li>
+                                            <li>(b) There are no more attachments to convert</li>
+                                            <li>(c) The error "ContentPublication Limit exceeded" occurs</li>
+                                        </ol>
+                                        <br/>
+                                        If you do reach the max limit in a 24-hour period and get error <b>ContentPublication Limit exceeded</b> then you will need to wait
+                                        some time until your quota restores. Unfortunately, Salesforce does not let us know how close you are to hitting the limit, only that you have reached it.
+                                        Recommendation, try again another day to continue the conversion process of remaining attachments.
+                                        <br/><br/>
+                                        The count of converted attachments is incremented after each Batch Size of attachments are processed.
+                                        So it is possible that as many as ( Max Records To Convert + Batch Size ) records get converted before the conversion job stops.
+                                    </p>
+                                </div>
+
                             </apex:pageBlockSection>
 
                         </div>
@@ -85,6 +134,17 @@
 
                                 <apex:inputText label=""
                                                 value="{!batchSize}"/>
+
+                                <div class="slds-box slds-theme_warning" style="width: 100%; text-align: left;">
+                                    <p>
+                                        Same purpose and reason why you might set the Batch Size when using Data Loader,
+                                        you may want to increase or decrease this value (1 minimum, 200 maximum) for performance reasons.
+                                        <br/><br/>
+                                        If you have other Apex Triggers on ContentVersion, ContentNote, or ContentDocumentLink objects that themselves
+                                        perform SOQL queries or insert/update/delete records then that may risk hitting governor limits around
+                                        max number of queries that can be made or DML statements. Recommendation, either disable the other Apex Triggers or reduce Batch Size.
+                                    </p>
+                                </div>
 
                             </apex:pageBlockSection>
 

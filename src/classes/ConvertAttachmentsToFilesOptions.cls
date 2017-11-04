@@ -11,6 +11,11 @@ public with sharing class ConvertAttachmentsToFilesOptions {
     // Make sure you've backed up your data before enabling this.
     public Boolean deleteAttachmentsUponConversion { get; set; }
 
+    // To help mitigate hitting the max content publication limit then
+    // admins can specify their own soft limit to, hopefully, predictably
+    // stop the conversion job prior to hitting the governor limit
+    public Integer maxRecordsToConvert { get; set; }
+
     // Scope the conversion to just attachments related to specific records
     // if null then ALL attachments in the system will be converted
     // if empty then NO attachments will be converted
@@ -23,6 +28,7 @@ public with sharing class ConvertAttachmentsToFilesOptions {
 
     public ConvertAttachmentsToFilesOptions( Convert_Attachments_to_Files_Settings__c settings ) {
         this.deleteAttachmentsUponConversion = settings.delete_attachment_once_converted__c;
+        this.maxRecordsToConvert = 150000;
         this.parentIds = null;
     }
 

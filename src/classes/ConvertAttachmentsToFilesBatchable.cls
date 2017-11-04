@@ -19,6 +19,9 @@ global without sharing class ConvertAttachmentsToFilesBatchable implements Datab
     @TestVisible
     private ConvertAttachmentsToFilesOptions options { get; set; }
 
+    @TestVisible
+    private Integer conversionCount { get; set; } // the number of attachments converted by this batchable
+
     global ConvertAttachmentsToFilesBatchable() {
         this( new ConvertAttachmentsToFilesOptions() );
     }
@@ -26,6 +29,7 @@ global without sharing class ConvertAttachmentsToFilesBatchable implements Datab
     // not exposed to subscriber orgs, want users to configure the custom setting
     public ConvertAttachmentsToFilesBatchable( ConvertAttachmentsToFilesOptions options ) {
         this.options = options;
+        this.conversionCount = 0;
     }
 
     // ----------------------------------------------------------
@@ -67,6 +71,12 @@ global without sharing class ConvertAttachmentsToFilesBatchable implements Datab
 
     public void execute( Database.BatchableContext context, List<Attachment> attachments ) {
 
+        if ( this.conversionCount >= this.options.maxRecordsToConvert ) {
+            System.debug( 'Reached max records to convert; aborting job: ' + context );
+            System.abortJob( context.getJobId() );
+            return;
+        }
+
         SavePoint sp = Database.setSavePoint();
 
         try {
@@ -91,6 +101,12 @@ global without sharing class ConvertAttachmentsToFilesBatchable implements Datab
             }
 
             ConvertAttachmentsToFilesLogger.log( context.getJobId(), results );
+
+            for ( ConvertAttachmentsToFilesService.ConversionResult result : results ) {
+                if ( result.status == ConvertAttachmentsToFilesService.ConversionResultStatus.CONVERTED ) {
+                    this.conversionCount++;
+                }
+            }
 
         } catch ( Exception e ) {
 
