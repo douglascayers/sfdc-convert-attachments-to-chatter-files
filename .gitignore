@@ -1,4 +1,6 @@
+IlluminatedCloud
 config/
 *.sublime-project
 *.sublime-workspace
 *.iml
+.idea
